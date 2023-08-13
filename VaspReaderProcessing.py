@@ -339,10 +339,10 @@ class VRProcessing(VRGUI, VRPrint):
         atoms = self.angle_names_selected
         if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.base_df.columns:
             self.base_df[f'{atoms[0]}--{atoms[2]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-            self.base_df[f'{atoms[0]}--{atoms[1]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-            self.base_df[f'{atoms[1]}--{atoms[2]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
+            self.base_df[f'{atoms[0]}--{atoms[1]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[1]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
+            self.base_df[f'{atoms[1]}--{atoms[2]}'] = sum([(self.base_df[f'{atoms[1]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
 
-            self.base_df[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'] = round(np.degrees(np.acos((self.base_df[f'{atoms[0]}--{atoms[1]}'] + self.base_df[f'{atoms[1]}--{atoms[2]}'] - self.base_df[f'{atoms[0]}--{atoms[2]}']) / (2 * self.base_df[f'{atoms[0]}--{atoms[1]}'] ** 0.5 * self.base_df[f'{atoms[1]}--{atoms[2]}'] ** 0.5))), 2)
+            self.base_df[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'] = np.round(np.degrees(np.arccos((self.base_df[f'{atoms[0]}--{atoms[1]}'] + self.base_df[f'{atoms[1]}--{atoms[2]}'] - self.base_df[f'{atoms[0]}--{atoms[2]}']) / (2 * self.base_df[f'{atoms[0]}--{atoms[1]}'] ** 0.5 * self.base_df[f'{atoms[1]}--{atoms[2]}'] ** 0.5))), 2)
 
             self.base_df.drop(columns=[f'{atoms[0]}--{atoms[2]}', f'{atoms[0]}--{atoms[1]}', f'{atoms[1]}--{atoms[2]}'], inplace=True)
 
