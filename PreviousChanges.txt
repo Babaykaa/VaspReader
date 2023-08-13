@@ -1,0 +1,100 @@
+﻿☭ 24.03.2022: ☭ 
+✅ Added the ability to create a summary energy column that includes the energies of selected atoms.
+✅ Completed work with the center of mass of the column; combo box changed to a list with the ability to simplify the selection of atoms.
+✅ Added the ability to remove COM and sum columns without some errors.
+✅ Fixed angle add code; program wrong calculated angles of atoms: it is summarized coordinates of atoms instead of velocities.
+☭ 25.03.2022: ☭
+✅ Added reading from vasprun files masses of atoms.
+☭ 27.03.2022: ☭
+✅ Added random choosing atoms color and radius if this atom was not add in the common atoms list.
+☭ 28.03.2022: ☭
+✅ Added function to insert OSZICAR file to DataFrame if directory have OSZICAR files.
+✅ Fixed rotating model in OpenGl for calc. and added some hot keys to simplify work with model(check it in debug window after enter the visualization window).
+☭ 29.03.2022: ☭
+✅ Added calculation rewind buttons with the ability to edit the rewind speed.
+☭ 30.03.2022: ☭
+✅ Added listbox element at steps visualization window. User can select atoms with using keyboard or with using listbox.
+✅ Added second select method Mouse+Keyboard. It's suggesting user way to select atom by clicking left mouse button and cancel selection of the atom by clicking right mouse button.
+✅ Added possibility to read only OSZICAR files and create Excel with OSZICAR dataframe.
+✅ After selecting atom, color of atom in r g b system multiplying by 0.5 and radius of atom multiplying by 1.2.
+☭ 30.03.2022: ☭
+✅ Program automatically change created column values to None if atoms moving away from the cell.
+☭ 1.04.2022: ☭
+✅ Changed calculation block view. Added TabElement instead of ColumnElement. Removed CheckBoxes (for example, calculate distance between atoms, calculate angle of atom and others).
+☭ 2.04.2022: ☭
+✅ Added icon of program.
+☭ 4.04.2022: ☭
+✅ Added the ability to activate/deactivate the Excel spreadsheet preview (deactivate it if you know exactly which columns you have added).
+✅ Fixed sum columns window: after clicking the add sum column button, the selected atoms are deselected and removed from the list of selected atoms.
+✅ Added graphic block: user can select one or more columns for their visualization, select x and y axes spacing, create graphs in an additional folder and give it a name, as well as automatically or manually name graphs.
+✅ Fixed bug with changing atoms radii after zoom model and selected atom.
+☭ 6.04.2022: ☭
+✅ The window for calculating distances, angles, finding the center of mass and the sum of columns has been redone. Added elements containing a list of added columns, for the possibility of their subsequent removal. Aligned elements in the windows of each of the subsections of column calculations.
+✅ Fixed bug with mistakes in process of removing added columns.
+✅ Fixed bug with activating/dis-activating removing button.
+✅ Fixed bug with activating all checkboxes(xy, yz, zx) after changing atom in Combobox.
+✅ Fixed bug with errors after inserting sum columns with energies removed if the sum paste contains energy columns that have already been removed.
+☭ 7.04.2022: ☭
+✅ Added ability to choose custom background color before visualization of model.
+☭ 9.04.2022: ☭
+✅ Added ability to change directory of creating Excel table and graphs.
+☭ 13.04.2022: ☭
+✅ Added ability to write x-axis and y-axis labels.
+✅ Added ability to select/deselect drawing legend.
+☭ 1.05.2022: ☭
+✅ Fixed a bug with new versions of pandas and matplotlib libraries, when the user had an exception after trying to plot.
+✅ POSCAR file processing started (to be implemented in future versions of VaspReader).
+☭ 05.2022 - 06.2022: ☭
+✅ Added function of changing line width and color of graphs.
+✅ Added ability to rename plot legend and involved function of auto rename curve name (function count number of atoms and combine it in different ways after that add at front of expression type of column, for example, kinetic energy)
+Auto rename of curves function will be improved in future versions.
+☭ 06.2022 - 07.2022: ☭
+✅ Started optimisation of program. In future program will be divide by different files for more simple way to improving.
+✅ Added ability to create POSCAR files, choose it directory and add atoms fixation.
+☭ 07.2022 - 08.2022: ☭
+✅ In this version of the VaspReader optimization was completed. As can be seen by
+comparison of this and previous versions time of parsing and processing of calculation with
+four vasprun files and summary steps about 20000 was reduced from 20 sec to 5 sec.
+✅ Started and partly completed develop of VaspReader supercomputer module. This module
+offers two methods: file sharing and console. File sharing is a window that will help you
+exchange files with a supercomputer using the sftp protocol. Console is a window which
+suggest to use interface such as cmd window.(Connect to supercomputer with using ssh protocol)
+!!In future version will add ability to edit files if file sharing window and to delete them.
+✅ Also in this version made module of calculation IR and raman intensities. Program
+parse OUTCAR files and for IR calculations find intensities by formula, for raman calculations
+user can form initial files and folders manipulating with number of points and displacement in
+percents to find partial derivative. After that if you want you can use new ability to work
+with supercomputer using described modules.
+☭ 08.2022 - 02.2023: ☭
+Global update:
+✅ VaspReader, consisting of several windows, has been redesigned into one main window with a settings menu before processing. It consists of many useful features such as: parsing calculation, configuration state loading/saving, loading/saving from/to json parsed calculations and others. You can find the entire list of options using the change history option.
+✅ The position of the main window is now saved when the window is closed and after starting the program it will be in the saved position.
+✅ Created two window themes: white and black. The theme is also saved when the window is closed.
+✅ Added two functions: view model cell and axes.
+✅ The position of the light can now be set by 8 edges of the cube.
+✅ Added a convenient option to change the background.
+✅ In the latest version, an orthogonal view of the model with the mode of selecting atoms has been added.
+✅ NEW PERFECT FEATURE: The camera can be moved in all directions. You can find the binding keys in the visual description of the window.
+✅ The bonds calculation function now activates the bonds editing window with 3 modes: all bonds, selected bonds and the drawing trajectory tab. A description of these options can be found in the update history.
+✅ Reworked windows OSZICAR, POSCAR. The new graphical interface for these windows allows, for example, checking curves from an OSZICAR file or drawing POSCAR/CONTCAR files in the visual window.
+✅ Appendix:
+Full list of options:
+1. Parsing calculation - open window of folder choose for parse vasprun files;
+2. Configuration state loading/saving - saving/loading light positions, model view method (ortho, perspective), view/hide axes and model cell, method of atoms choose (keyboard, mouse + keyboard) and background color;
+3. Loading/saving from/to json parsed calculations and others - save/load to/from json data about calculations: positions, bonds, atom names, atom number...;
+4. View axes;
+5. View cell;
+6. Light - 8 positions at cube edges;
+7. Visualization type - perspective and orthographic;
+8. Background color;
+9. Processing - window of processing results from vasprun files. Consists of processing window with possibility to go to graphics window;
+10. Spectrum - window of calculation and drawing IR and raman spectra;
+11. Supercomputer - module with two windows: console and file sharing. Console window suggests sending commands to supercomputer (i.e. start calculations and others functions). File sharing window allows sending/getting files to/from supercomputer;
+12. OSZICAR - parsing OSZICAR files in indicated directory and appearing table preview window with ability to draw graphs in another window;
+13. POSCAR - parse POSCAR file in indicated directory and draw it in visual window. If it more than one POSCAR files, window suggests choosing one file from directory;
+14. Graphs - in develop. This mode will appear window with the ability to load xls/xlsx files and draw graphs;
+15. Select mode - two variants of choosing atoms: keyboard and mouse+keyboard;
+16. Calculate bonds - window with 3 tabs: all bonds, selected bonds, trajectory. Allow to calculate bonds and draw trajectories (start:step:end);
+17. Form POSCAR - create POSCAR file for indicated step;
+18. Screenshot - screenshot of visual window;
+19. Help - text messages about different aspects of program.
