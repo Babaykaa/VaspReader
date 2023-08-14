@@ -331,6 +331,7 @@ class VRProcessing(VRGUI, VRPrint):
             if len(self.angle_cols) == 1:
                 self.window['AngleAdded'].update(disabled=False)
             self.window['AngleAdded'].update(values=self.angle_cols)
+            self.window['AtomAngle'].update(set_to_index=[])
             self.update_choose_elements()
         else:
             self.popup('Column already exists.', title='DuplicateError')
@@ -355,6 +356,7 @@ class VRProcessing(VRGUI, VRPrint):
             if len(self.angle_cols) == 1:
                 self.window['AngleAdded'].update(disabled=False)
             self.window['AngleAdded'].update(values=self.angle_cols)
+            self.window['AtomAngle'].update(set_to_index=[])
             self.update_choose_elements()
         else:
             self.popup('Column already exists.', title='DuplicateError')
