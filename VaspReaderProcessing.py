@@ -316,12 +316,12 @@ class VRProcessing(VRGUI, VRPrint):
             self.window[others_planes[1]].update(disabled=False)
 
     def angle_add(self):
-        atom = self.value['AtomAngle']
+        atom = self.angle_names_selected[0]
         angle, plane = [], ''
         for element in ['xy', 'yz', 'zx']:
             if self.value[element]:
                 plane = element
-        if f'{atom}_{plane}' not in self.base_df.columns:
+        if f'{atom}_{plane}' not in self.angle_cols:
             self.base_df[f'{atom}_{plane}'] = np.degrees(np.arccos(np.sqrt(self.base_df[f'{atom}_{plane[0]}'].diff() ** 2 + self.base_df[f'{atom}_{plane[1]}'].diff() ** 2) / np.sqrt(self.base_df[f'{atom}_x'].diff() ** 2 + self.base_df[f'{atom}_y'].diff() ** 2 + self.base_df[f'{atom}_z'].diff() ** 2)))
             self.main_df.insert(len(self.main_df.columns), f'{atom}_{plane}', self.base_df[f'{atom}_{plane}'])
             self.print(f"Column {atom}_{plane} has been added.")
@@ -334,10 +334,11 @@ class VRProcessing(VRGUI, VRPrint):
             self.update_choose_elements()
         else:
             self.popup('Column already exists.', title='DuplicateError')
+        self.angle_names_selected = []
 
     def valence_angle_add(self):
         atoms = self.angle_names_selected
-        if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.base_df.columns:
+        if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.angle_cols:
             self.base_df[f'{atoms[0]}--{atoms[2]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
             self.base_df[f'{atoms[0]}--{atoms[1]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[1]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
             self.base_df[f'{atoms[1]}--{atoms[2]}'] = sum([(self.base_df[f'{atoms[1]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
@@ -357,6 +358,7 @@ class VRProcessing(VRGUI, VRPrint):
             self.update_choose_elements()
         else:
             self.popup('Column already exists.', title='DuplicateError')
+        self.angle_names_selected = []
 
     def weight_add(self):
         weightmass = self.value['WeightAtom']
