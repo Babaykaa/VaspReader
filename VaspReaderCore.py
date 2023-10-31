@@ -1449,6 +1449,17 @@ class VRVisual(VRGUI, VRPrint):
                         self.__calculations[self.now_calc] = MD_object.parser_parameters
                         self.window['-MDCALC-'].update(value=self.now_calc, values=list(self.__calculations.keys()))
                         self.print(f'{self.now_calc} consists of {self.__calculations[self.now_calc]["STEPS"]} steps.')
+                        if len(self.__calculations[self.now_calc]["POTIM"]) > 1:
+                            new_POTIM_indexes, previous_POTIM = [], None
+                            for index, POTIM in enumerate(self.__calculations[self.now_calc]["POTIM"]):
+                                if previous_POTIM is None:
+                                    previous_POTIM = POTIM
+                                elif previous_POTIM != POTIM:
+                                    new_POTIM_indexes.append(index)
+                                    previous_POTIM = POTIM
+                            if new_POTIM_indexes:
+                                to_message = [[self.__calculations[self.now_calc]["POTIM"][index], self.__calculations[self.now_calc]["STEPS_LIST"][index]] for index in new_POTIM_indexes]
+                                self.print(f'The POTIM step change as presented at list [NEW_POTIM, FROM_WHAT_STEP_IT_CHANGED]: {to_message}.')
                         self.calculation_change()
                 if self.__core_event == '-MDCALC-':
                     self.prev_calc = self.now_calc

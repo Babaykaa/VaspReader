@@ -182,8 +182,8 @@ class VRProcessing(VRGUI, VRPrint):
             base_df.mask(base_df >= 1, inplace=True)
             base_df.mask(base_df <= 0, inplace=True)
         timeArr = np.arange(0, float(self.calculation['POTIM'][0]) * self.calculation['STEPS_LIST'][0], float(self.calculation['POTIM'][0]))
-        for index, steps in enumerate(self.calculation['STEPS_LIST'][1:], start=1):
-            add_timeArr = np.arange(timeArr[-1] + float(self.calculation['POTIM'][index]), timeArr[-1] + float(self.calculation['POTIM'][index]) * steps, float(self.calculation['POTIM'][index]))
+        for index, _ in enumerate(self.calculation['STEPS_LIST'][1:], start=1):
+            add_timeArr = np.arange(timeArr[-1] + float(self.calculation['POTIM'][index]), timeArr[-1] + float(self.calculation['POTIM'][index]) * (self.calculation['STEPS_LIST'][index] - self.calculation['STEPS_LIST'][index - 1] + 1), float(self.calculation['POTIM'][index]))
             timeArr = np.concatenate([timeArr, add_timeArr])
         base_df.insert(0, 'Time, fs', timeArr[:self.calculation['STEPS']])
         for name in self.columns_names:
