@@ -1,0 +1,32 @@
+SYSTEM = CH4
+LWAVE  =  .FALSE.
+LREAL = A
+LPLANE = .FALSE.
+LCHARG = .FALSE.  
+NPAR   = 14
+NSIM   = 1
+LWAVE  =  .FALSE.
+PREC  = Normal  # chose Low only after tests
+ISMEAR = 0 ; SIGMA = 0.05  ! Gaussian smearing
+ENMAX = 400      ! cutoff should be set manually
+ISPIN  = 2 ! spin polarized calculation
+#IBRION = 2 ! use the conjugate gradient algorithm
+ALGO = Very Fast               # recommended for MD (fall back ALGO = Fast)  
+#ALGO = F ! fast algorithm for electronic optimization
+NSW = 10000    ! 500 ionic steps
+EDIFF = 1E-5   
+EDIFFG = -0.02   ! forces smaller 0.02 A/eV
+MAXMIX = 40                    # reuse mixer from one MD step to next          
+NCORE= 4 or 8                  # one orbital on 4 cores
+ISYM = 0                       # no symmetry                                                 
+NELMIN = 4                     # minimum 4 steps per time step, avoid breaking after 2 steps
+# MD
+IBRION = 0 
+NWRITE = 0 
+LCHARG = .FALSE.   
+TEBEG =   300 ; TEEND =  300  
+# canonic (Nose) MD with XDATCAR updated every 50 steps                        
+# SMASS = 3 ;  NBLOCK = 50 ; POTIM = 0.5                                         
+# micro canonical MD 
+SMASS = -3 ; NBLOCK = 50 ; POTIM = 0.1
+

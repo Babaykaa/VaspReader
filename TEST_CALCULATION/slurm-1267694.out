@@ -1,0 +1,110 @@
+srun: error: slurm_receive_msgs: Socket timed out on send/recv operation
+srun: error: Task launch for 1267694.0 failed on node n48022: Socket timed out on send/recv operation
+srun: error: Application launch failed: Socket timed out on send/recv operation
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[n53016.10p.parallel.ru:12187] mca_base_component_repository_open: unable to open mca_pml_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[n53016.10p.parallel.ru:12187] mca_base_component_repository_open: unable to open mca_pml_yalla: libmxm.so.2: cannot open shared object file: No such file or directory (ignored)
+[n53016.10p.parallel.ru:12187] mca_base_component_repository_open: unable to open mca_mtl_mxm: libmxm.so.2: cannot open shared object file: No such file or directory (ignored)
+[n53016.10p.parallel.ru:12187] mca_base_component_repository_open: unable to open mca_coll_hcoll: libmxm.so.2: cannot open shared object file: No such file or directory (ignored)
+[1616747104.398464] [n48020:23025:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3472.49
+[1616747104.425710] [n48022:15327:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3458.04
+[n48022.10p.parallel.ru:15327] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[n48020.10p.parallel.ru:23025] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[1616747105.326423] [n52613:16212:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3350.61
+[n52613.10p.parallel.ru:16212] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[1616747105.535070] [n52319:15910:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3277.45
+[1616747105.565051] [n52631:15655:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3313.95
+[1616747105.590331] [n52607:15664:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3352.36
+[n52607.10p.parallel.ru:15664] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[1616747105.685074] [n52713:15933:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3296.18
+[1616747105.695109] [n52318:16029:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3250.32
+[1616747105.718936] [n52609:16169:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3384.41
+[1616747105.723726] [n52632:16156:0]         sys.c:744  MXM  WARN  Conflicting CPU frequencies detected, using: 3165.42
+[n52713.10p.parallel.ru:15933] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[n52319.10p.parallel.ru:15910] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[n52318.10p.parallel.ru:16029] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[n52609.10p.parallel.ru:16169] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[n52631.10p.parallel.ru:15655] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[n52632.10p.parallel.ru:16156] mca_base_component_repository_open: unable to open mca_coll_hcoll: /lib64/libibnetdisc.so.5: undefined symbol: ibd_mkey (ignored)
+[n48020.10p.parallel.ru:23025] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52632.10p.parallel.ru:16156] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52607.10p.parallel.ru:15664] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52609.10p.parallel.ru:16169] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52631.10p.parallel.ru:15655] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n48022.10p.parallel.ru:15327] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52713.10p.parallel.ru:15933] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52318.10p.parallel.ru:16029] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52319.10p.parallel.ru:15910] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+[n52613.10p.parallel.ru:16212] Error: pml_yalla.c:98 - recv_ep_address() Failed to receive EP address
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+--------------------------------------------------------------------------
+It looks like MPI_INIT failed for some reason; your parallel process is
+likely to abort.  There are many reasons that a parallel process can
+fail during MPI_INIT; some of which are due to configuration or environment
+problems.  This failure appears to be an internal failure; here's some
+additional information (which may only be relevant to an Open MPI
+developer):
+
+  PML add procs failed
+  --> Returned "Not found" (-13) instead of "Success" (0)
+--------------------------------------------------------------------------
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+vasp_gpu           0000000001752A69  Unknown               Unknown  Unknown
+vasp_gpu           000000000175133E  Unknown               Unknown  Unknown
+vasp_gpu           00000000016D6A62  Unknown               Unknown  Unknown
+vasp_gpu           0000000001683E63  Unknown               Unknown  Unknown
+vasp_gpu           0000000001689B59  Unknown               Unknown  Unknown
+libpthread.so.0    00007FFFEE90A130  Unknown               Unknown  Unknown
+libc.so.6          00007FFFEE5F748D  Unknown               Unknown  Unknown
+libc.so.6          00007FFFEE628014  Unknown               Unknown  Unknown
+libmpi.so.20       00007FFFEEE605DC  Unknown               Unknown  Unknown
+libmpi.so.20       00007FFFEEE804B2  Unknown               Unknown  Unknown
+libmpi_mpifh.so.2  00007FFFEF169D17  Unknown               Unknown  Unknown
+vasp_gpu           0000000000422D0D  Unknown               Unknown  Unknown
+vasp_gpu           000000000043E70F  Unknown               Unknown  Unknown
+vasp_gpu           00000000015DBE15  Unknown               Unknown  Unknown
+vasp_gpu           00000000004120D6  Unknown               Unknown  Unknown
+libc.so.6          00007FFFEE55BAF5  Unknown               Unknown  Unknown
+vasp_gpu           0000000000411FC9  Unknown               Unknown  Unknown
+[n48020.10p.parallel.ru:22988] 9 more processes have sent help message help-mpi-runtime.txt / mpi_init:startup:internal-failure
+[n48020.10p.parallel.ru:22988] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
