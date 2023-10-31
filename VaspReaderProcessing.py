@@ -57,8 +57,10 @@ class VRProcessing(VRGUI, VRPrint):
             self.oszicar_checkbox_unlock()
         else:
             self.main_df = pd.DataFrame()
-            timeArr = np.arange(0, float(self.calculation['POTIM']) * self.calculation['STEPS'],
-                                float(self.calculation['POTIM']))
+            timeArr = np.arange(0, float(self.calculation['POTIM'][0]) * self.calculation['STEPS_LIST'][0], float(self.calculation['POTIM'][0]))
+            for index, steps in enumerate(self.calculation['STEPS_LIST'][1:], start=1):
+                add_timeArr = np.arange(timeArr[-1] + float(self.calculation['POTIM'][index]), timeArr[-1] + float(self.calculation['POTIM'][index]) * steps, float(self.calculation['POTIM'][index]))
+                timeArr = np.concatenate([timeArr, add_timeArr])
             self.main_df.insert(0, 'Time, fs', timeArr[:self.calculation['STEPS']])
             # self.window['CreateExcel'].update(disabled=True)
             # self.window['GraphMode'].update(disabled=True)
@@ -131,6 +133,19 @@ class VRProcessing(VRGUI, VRPrint):
                 bad_columns.append((num, 'plus'))
         return bad_columns
 
+    def divine_on_POTIM(self, column, is_COM=False):
+        prev_index = 0
+        for index, POTIM in enumerate(self.calculation['POTIM']):
+            if is_COM:
+                if index != len(self.calculation['POTIM']) - 1:
+                    self.base_df[column][prev_index:self.calculation['STEPS_LIST'][index] - 1] = self.base_df[column][prev_index:self.calculation['STEPS_LIST'][index] - 1] / POTIM
+                    prev_index = self.calculation['STEPS_LIST'][index] - 1
+                else:
+                    self.base_df[column][prev_index:self.calculation['STEPS_LIST'][index]] = self.base_df[column][prev_index:self.calculation['STEPS_LIST'][index]] / POTIM
+            else:
+                self.base_df[column][prev_index:self.calculation['STEPS_LIST'][index]] = self.base_df[column][prev_index:self.calculation['STEPS_LIST'][index]] / POTIM
+                prev_index = self.calculation['STEPS_LIST'][index]
+
     def atom_away_columns_fix(self, data, counter, bad_columns, step, atom_num):
         new_col = self.calculation['DIRECT'][step][atom_num].tolist()
         for num, operation in bad_columns:
@@ -166,7 +181,10 @@ class VRProcessing(VRGUI, VRPrint):
         if self.delete_after_leave:
             base_df.mask(base_df >= 1, inplace=True)
             base_df.mask(base_df <= 0, inplace=True)
-        timeArr = np.arange(0, float(self.calculation['POTIM']) * self.calculation['STEPS'], float(self.calculation['POTIM']))
+        timeArr = np.arange(0, float(self.calculation['POTIM'][0]) * self.calculation['STEPS_LIST'][0], float(self.calculation['POTIM'][0]))
+        for index, steps in enumerate(self.calculation['STEPS_LIST'][1:], start=1):
+            add_timeArr = np.arange(timeArr[-1] + float(self.calculation['POTIM'][index]), timeArr[-1] + float(self.calculation['POTIM'][index]) * steps, float(self.calculation['POTIM'][index]))
+            timeArr = np.concatenate([timeArr, add_timeArr])
         base_df.insert(0, 'Time, fs', timeArr[:self.calculation['STEPS']])
         for name in self.columns_names:
             for num, proj in enumerate(self.coord_projection):
@@ -177,7 +195,8 @@ class VRProcessing(VRGUI, VRPrint):
         v_columns = ['V_' + column for column in self.columns_names]
         e_columns = ['E_' + column for column in self.columns_names]
         for num, column in enumerate(v_columns):
-            self.base_df[column] = (self.base_df[self.columns_names[num] + '_x'].diff() ** 2 + self.base_df[self.columns_names[num] + '_y'].diff() ** 2 + self.base_df[self.columns_names[num] + '_z'].diff() ** 2) ** (1 / 2) / float(self.calculation['POTIM']) * 1000
+            self.base_df[column] = (self.base_df[self.columns_names[num] + '_x'].diff() ** 2 + self.base_df[self.columns_names[num] + '_y'].diff() ** 2 + self.base_df[self.columns_names[num] + '_z'].diff() ** 2) ** (1 / 2) * 1000
+            self.divine_on_POTIM(column)
         for num, column in enumerate(e_columns):
             self.base_df[column] = (self.base_df[v_columns[num]]) ** 2 * self.masses[num] / self.calc_const
         self.base_df.drop(self.base_df.index[0], inplace=True)
@@ -381,7 +400,8 @@ class VRProcessing(VRGUI, VRPrint):
                     self.base_df[f"{column_name}{direct_cols[index]}"] += self.base_df[f"{atom}{direct_cols[index]}"] * weight_masses[atom] / summary_mass
             self.v_columns.append(f'V{column_name}')
             self.e_columns.append(f'E{column_name}')
-            self.base_df[self.v_columns[-1]] = np.sqrt(self.base_df[f'{column_name}_x'].diff() ** 2 + self.base_df[f'{column_name}_y'].diff() ** 2 + self.base_df[f'{column_name}_z'].diff() ** 2) / float(self.calculation['POTIM']) * 1000
+            self.base_df[self.v_columns[-1]] = np.sqrt(self.base_df[f'{column_name}_x'].diff() ** 2 + self.base_df[f'{column_name}_y'].diff() ** 2 + self.base_df[f'{column_name}_z'].diff() ** 2) * 1000
+            self.divine_on_POTIM(self.v_columns[-1], is_COM=True)
             self.base_df[self.e_columns[-1]] = (self.base_df[self.v_columns[-1]]) ** 2 * summary_mass / self.calc_const
             if not self.value['DelCoordCheck']:
                 self.main_df.insert(len(self.columns_names) * 3 + 1, column_name + '_dir_1', self.base_df[column_name + '_dir_1'])
@@ -539,9 +559,11 @@ class VRProcessing(VRGUI, VRPrint):
                 self.base_df[f'cm_{col_name}--{atom}'] = np.sqrt((self.base_df[f'cm_{col_name}_x'] - self.base_df[f'{atom}_x']) ** 2 + (self.base_df[f'cm_{col_name}_y'] - self.base_df[f'{atom}_y']) ** 2 + (self.base_df[f'cm_{col_name}_z'] - self.base_df[f'{atom}_z']) ** 2)
                 temporary_columns.append(f'cm_{col_name}--{atom}')
             for atom in atoms:
-                self.base_df[f'Vvib_{col_name}({atom})'] = self.base_df[f'cm_{col_name}--{atom}'].diff() * 1000 / self.calculation['POTIM']
+                self.base_df[f'Vvib_{col_name}({atom})'] = self.base_df[f'cm_{col_name}--{atom}'].diff() * 1000
+                self.divine_on_POTIM(f'Vvib_{col_name}({atom})')
                 self.base_df[f'Evib_{col_name}({atom})'] = self.base_df[f'Vvib_{col_name}({atom})'] ** 2 * self.masses[self.columns_names.index(atom)] / self.calc_const
-                self.base_df[f'Vsum_{col_name}({atom})'] = np.sqrt((self.base_df[f'{atom}_x'].diff() - self.base_df[f'cm_{col_name}_x'].diff()) ** 2 + (self.base_df[f'{atom}_y'].diff() - self.base_df[f'cm_{col_name}_y'].diff()) ** 2 + (self.base_df[f'{atom}_z'].diff() - self.base_df[f'cm_{col_name}_z'].diff()) ** 2) * 1000 / self.calculation['POTIM']
+                self.base_df[f'Vsum_{col_name}({atom})'] = np.sqrt((self.base_df[f'{atom}_x'].diff() - self.base_df[f'cm_{col_name}_x'].diff()) ** 2 + (self.base_df[f'{atom}_y'].diff() - self.base_df[f'cm_{col_name}_y'].diff()) ** 2 + (self.base_df[f'{atom}_z'].diff() - self.base_df[f'cm_{col_name}_z'].diff()) ** 2) * 1000
+                self.divine_on_POTIM(f'Vsum_{col_name}({atom})')
                 self.base_df[f'Vrot_{col_name}({atom})'] = np.sqrt((self.base_df[f'Vsum_{col_name}({atom})'] ** 2 - self.base_df[f'Vvib_{col_name}({atom})'] ** 2).clip(lower=0))
                 self.base_df[f'Erot_{col_name}({atom})'] = self.base_df[f'Vrot_{col_name}({atom})'] ** 2 * self.masses[self.columns_names.index(atom)] / self.calc_const
                 self.e_columns.extend([f'Evib_{col_name}({atom})', f'Erot_{col_name}({atom})'])
@@ -653,7 +675,7 @@ class VRProcessing(VRGUI, VRPrint):
 
             if self.event == 'OSZICARcheck':
                 if self.value['OSZICARcheck']:
-                    osz_dataframe = VROszicarProcessing(self.calculation['DIRECTORY'], self.calculation['STEPS'], self.calculation['POTIM']).oszicar_df
+                    osz_dataframe = VROszicarProcessing(self.calculation['DIRECTORY'], self.calculation['STEPS_LIST'], self.calculation['POTIM']).oszicar_df
                     self.main_df = pd.concat([self.main_df, osz_dataframe[osz_dataframe.columns[1:]]], axis=1)
                     self.print('OSZICAR dataframe has been added.')
                     if self.value['TableActiveCheck']:

@@ -6,7 +6,7 @@ There are VaspReaderVisual and VaspReaderText classes in file and a lot of funct
 '''
 import sys
 import time
-from psgtray import SystemTray
+#from psgtray import SystemTray
 from functools import partial
 import OpenGL
 OpenGL.ERROR_CHECKING = False
@@ -235,43 +235,44 @@ def main():
     except:
         icon_image = sg.DEFAULT_BASE64_ICON
 
-    layout = [[sg.T('Empty Window', key='-T-')]]
+    #layout = [[sg.T('Empty Window', key='-T-')]]
 
-    window = sg.Window('Window in tray', layout, finalize=True, enable_close_attempted_event=True, alpha_channel=0)
-    window.hide()
-    while True:
-        if first_start:
-            first_start = False
-            program_window = VRVisual()
-            program_window.mainloop()
-            if not stay_in_tray:
-                break
-            else:
-                threading.Thread(target=thread_save_calculations, args=(program_window, opened_files)).start()
-            tray = SystemTray(menu, single_click_events=False, window=window, tooltip=tooltip, icon=icon_image, key='-TRAY-')
-            tray.show_message('VaspReader', 'VaspReader will stay in tray! You can run it from tray without start it again!')
-        event, values = window.read()
-        if event == tray.key:
-            event = values[event]
-        if event in (sg.WIN_CLOSED, 'Exit'):
-            break
-        if (event == 'Open program' or event == '__Double_Clicked__') and opened_files[0] is not None:
-            settings, calculations = opened_files
-            tray.hide_icon()
-            settings.close()
-            calculations.close()
-            program_window = VRVisual()
-            program_window.load_calculation_state('TEMP_CALC')
-            remove_temp_files()
-            program_window.mainloop()
-            if not stay_in_tray:
-                break
-            else:
-                threading.Thread(target=thread_save_calculations, args=(program_window, opened_files)).start()
-            tray.show_icon()
-    if tray:
-        tray.close()
-    window.close()
+    #window = sg.Window('Window in tray', layout, finalize=True, enable_close_attempted_event=True, alpha_channel=0)
+    #window.hide()
+    #while True:
+    #    if first_start:
+    #        first_start = False
+    #        program_window = VRVisual()
+    #        program_window.mainloop()
+    #        if not stay_in_tray:
+    #            break
+    #        else:
+    #            threading.Thread(target=thread_save_calculations, args=(program_window, opened_files)).start()
+    #        tray = SystemTray(menu, single_click_events=False, window=window, tooltip=tooltip, icon=icon_image, key='-TRAY-')
+    #        tray.show_message('VaspReader', 'VaspReader will stay in tray! You can run it from tray without start it again!')
+    #    event, values = window.read()
+    #    if event == tray.key:
+    #        event = values[event]
+    #    if event in (sg.WIN_CLOSED, 'Exit'):
+    #        break
+    #    if (event == 'Open program' or event == '__Double_Clicked__') and opened_files[0] is not None:
+    #        settings, calculations = opened_files
+    #        tray.hide_icon()
+    #        settings.close()
+    #        calculations.close()
+    #        program_window = VRVisual()
+    #        program_window.load_calculation_state('TEMP_CALC')
+    #        remove_temp_files()
+    #        program_window.mainloop()
+    #        if not stay_in_tray:
+    #            break
+    #        else:
+    #            threading.Thread(target=thread_save_calculations, args=(program_window, opened_files)).start()
+    #        tray.show_icon()
+    #if tray:
+    #    tray.close()
+    #window.close()
+    VRVisual().mainloop()
 
 
 class VRText(VRPrint):

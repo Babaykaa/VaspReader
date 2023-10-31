@@ -6,7 +6,6 @@ import numpy as np
 
 class VRMD:
     def __init__(self, directory):
-        super().__init__()
         self.different_calculations = False
         self.parser_parameters = {'DIRECTORY': directory}
         self.XMLLIST = []
@@ -39,9 +38,9 @@ class VRMD:
                         if '<field type="int">atomtype</field>' in line:
                             VASP.readline()
                             for index in range(self.parser_parameters[self.XMLLIST[v_ind]]['ATOMNUMBER']):
-                                atomtyp = VASP.readline()
-                                self.parser_parameters[self.XMLLIST[v_ind]]['ATOMNAMES'].append((atomtyp.split('>')[2]).split('<')[0])
-                                self.parser_parameters[self.XMLLIST[v_ind]]['TYPE'].append(int(atomtyp.split('<')[4].split('>')[1]))
+                                atomtype = VASP.readline()
+                                self.parser_parameters[self.XMLLIST[v_ind]]['ATOMNAMES'].append((atomtype.split('>')[2]).split('<')[0])
+                                self.parser_parameters[self.XMLLIST[v_ind]]['TYPE'].append(int(atomtype.split('<')[4].split('>')[1]))
                         if POTIM_read and 'name="POTIM">' in line:
                             self.parser_parameters[self.XMLLIST[v_ind]]['POTIM'] = float(line.split()[2].split('<')[0])
                             POTIM_read = False
@@ -54,28 +53,30 @@ class VRMD:
                                 if first_read_check:
                                     first_read_check = False
                                 else:
-                                    array = [list(map(float, VASP.readline().split()[1:4])) for index in range(self.parser_parameters[self.XMLLIST[v_ind]]['ATOMNUMBER'])]
+                                    array = [list(map(float, VASP.readline().split()[1:4])) for _ in range(self.parser_parameters[self.XMLLIST[v_ind]]['ATOMNUMBER'])]
                                     if first_cord_read:
                                         self.parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'].append(array)
                                         first_cord_read = False
                                     if array != self.parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'][-1]:
                                         self.parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'].append(array)
                             except:
-                                print(len(self.parser_parameters[self.XMLLIST[v_ind]]['POSITIONS']))
+                                self.breaker = True
                         if BASIS_read and '<varray name="basis" >' in line:
-                            basis_str = [VASP.readline() for line_index in range(3)]
+                            basis_str = [VASP.readline() for _ in range(3)]
                             basis = [list(map(float, basis_str[index].split()[1:4])) for index in range(len(basis_str))]
                             self.parser_parameters[self.XMLLIST[v_ind]]['BASIS'] = basis
                             BASIS_read = False
                 self.parser_parameters[self.XMLLIST[v_ind]]['VASPLEN'] = len(self.parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'])
             self.parser_parameters['MASSES'] = [self.parser_parameters[self.XMLLIST[0]]['POMASS'][index - 1] for index in self.parser_parameters[self.XMLLIST[0]]['TYPE']]
-            self.parser_parameters['STEPS'] = sum([self.parser_parameters[self.XMLLIST[index]]['VASPLEN'] for index in range(len(self.XMLLIST))]) - len(self.XMLLIST) + 1
+            self.parser_parameters['STEPS_LIST'] = [self.parser_parameters[self.XMLLIST[0]]['VASPLEN']]
+            for xml in self.XMLLIST[1:]:
+                self.parser_parameters['STEPS_LIST'].append(self.parser_parameters['STEPS_LIST'][-1] + self.parser_parameters[xml]['VASPLEN'] - 1)
+            self.parser_parameters['STEPS'] = sum([self.parser_parameters[xml]['VASPLEN'] for xml in self.XMLLIST]) - len(self.XMLLIST) + 1
             self.parser_parameters['ATOMNAMES'] = self.parser_parameters[self.XMLLIST[0]]['ATOMNAMES']
             self.form_atoms_with_nums_dict()
             self.removed_atoms_find(self.parser_parameters)
             self.position_array_form(self.parser_parameters)
-            if not self.breaker:
-                self.POTIM_cheak(self.parser_parameters)
+            self.parser_parameters['POTIM'] = [self.parser_parameters[xml_file]['POTIM'] for xml_file in self.parser_parameters['XMLLIST']]
             if not self.breaker:
                 try:
                     self.parser_parameters['POSITIONS'] = np.array(self.parser_parameters['POSITIONS'])
@@ -134,17 +135,6 @@ class VRMD:
                     for array_value in range(len(dictionary[XML[positions]]['POSITIONS'])):
                         dictionary[XML[positions]]['POSITIONS'][array_value].insert(different_pos, [10., 10., 10.])
             dictionary['POSITIONS'] += dictionary[XML[positions]]['POSITIONS'][1:]
-
-    def POTIM_cheak(self, dictionary):
-        XML = dictionary['XMLLIST']
-        self.breaker = False
-        POTIM_list = [dictionary[XML[0]]['POTIM']]
-        for index in range(1, len(XML)):
-            POTIM_list.append(dictionary[XML[index]]['POTIM'])
-        if POTIM_list == [dictionary[XML[0]]['POTIM']] * len(XML):
-            dictionary['POTIM'] = dictionary[XML[0]]['POTIM']
-        else:
-            self.breaker = True
 
     def form_atoms_with_nums_dict(self):
         self.parser_parameters['ATOM-NUMBERS'] = dict()

@@ -41,7 +41,7 @@ def preview_columns_form(result_df):
 
 
 class VROszicarProcessing(VRPrint):
-    def __init__(self, directory, steps=0, POTIM=0):
+    def __init__(self, directory, steps=[], POTIM=[]):
         VRPrint.__init__(self)
         self.directory, self.steps = directory, steps
         self.directory_files = os.listdir(directory)
@@ -79,8 +79,11 @@ class VROszicarProcessing(VRPrint):
                         add_to_data.extend(list(map(float, line.split()[2::2])))
                         self.data.append(list(add_to_data))
                         del add_to_data
-                        if self.POTIM:
-                            self.data[-1][0] = self.data[-1][0] * self.POTIM
+        if self.POTIM:
+            prev_index = 0
+            for index, POTIM in enumerate(self.POTIM):
+                self.data[prev_index:self.steps[index]][0] = self.data[prev_index:self.steps[index]][0] * POTIM
+                prev_index = self.steps[index]
         self.data.pop(-1)
         self.data.pop(-1)
 
