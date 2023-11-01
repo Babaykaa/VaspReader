@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'designerfTlsri.ui'
+## Form generated from reading UI file 'VRVisualGUIhYBPSM.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -16,23 +16,99 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QLineEdit,
-    QMainWindow, QMenu, QMenuBar, QPushButton,
-    QSizePolicy, QSlider, QTabWidget, QWidget)
-from PySide6 import QtWidgets
-import sys
+from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
+    QHBoxLayout, QLineEdit, QMainWindow, QMenu,
+    QMenuBar, QPushButton, QSizePolicy, QSlider,
+    QSpacerItem, QTabWidget, QVBoxLayout, QWidget)
+import Resource_rc
 
 class Ui_VaspReader(object):
     def setupUi(self, VaspReader):
         if not VaspReader.objectName():
             VaspReader.setObjectName(u"VaspReader")
         VaspReader.resize(480, 212)
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(VaspReader.sizePolicy().hasHeightForWidth())
+        VaspReader.setSizePolicy(sizePolicy)
         VaspReader.setMinimumSize(QSize(480, 212))
         VaspReader.setMaximumSize(QSize(1440, 636))
         icon = QIcon()
-        icon.addFile(u"C:/Users/AlexS/Documents/Программирование/VaspReaderStable/VR_icons/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u"../VR_icons/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
         VaspReader.setWindowIcon(icon)
         VaspReader.setAutoFillBackground(True)
+        VaspReader.setStyleSheet(u"QLineEdit{\n"
+"  border-radius: 8px;\n"
+"  border: 2px solid #000000;\n"
+"  padding: 3px 3px;\n"
+"}\n"
+"QLineEdit:focus {\n"
+"  border: 3px solid rgb(75, 75, 75);\n"
+"}\n"
+"\n"
+"QLineEdit::placeholder {\n"
+"  color: #000000;\n"
+"}\n"
+"QPushButton {\n"
+"  background-color: rgb(255, 240, 202);\n"
+"  color: black;\n"
+"  font-weight: 600;\n"
+"  border-radius: 8px;\n"
+"  border: 2px solid rgb(85, 0, 127);\n"
+"  padding: 3px 3px;\n"
+"  margin-top: 0px;\n"
+"  outline: 0px;\n"
+"}\n"
+"QPushButton:hover {\n"
+"  background-color: rgb(255, 212, 137);\n"
+"  border: 1px solid #000000;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"background-color: white;\n"
+"border: 3px solid #000000\n"
+"}\n"
+"QComboBox {\n"
+"  border-radius: 8px;\n"
+"  border: 2px solid #000000;\n"
+"  padding: 3px 3px;\n"
+"}\n"
+"QComboBox::drop-down {\n"
+"  width: 18px;\n"
+"  height:22px;\n"
+"  padding: 0px 1px;\n"
+"  border: 1px solid #000000;\n"
+"  border-radius: 8px;\n"
+"}\n"
+"QComboBox::down-arrow {\n"
+"  image: url(:/down-arrow_ico/down-arrow.ico);\n"
+"  width:"
+                        " 18px;\n"
+"  height:22px;\n"
+"}\n"
+"QComboBox::down-arrow:hover {\n"
+"    width: 18px;\n"
+"    height:22px;\n"
+"    padding: 0px 1px;\n"
+"    border: 1px solid #000000;\n"
+"    border-radius: 8px;\n"
+"	background-color: rgb(255, 229, 162);\n"
+"}\n"
+"QComboBox::down-arrow:pressed {\n"
+"    width: 18px;\n"
+"    height:22px;\n"
+"    padding: 0px 1px;\n"
+"    border: 0px solid #000000;\n"
+"    border-radius: 8px;\n"
+"	background-color: rgb(255, 232, 216);\n"
+"}\n"
+"QComboBox:pressed {\n"
+"	background-color: rgb(255, 250, 237);\n"
+"}\n"
+"QFrame{\n"
+"  border: 2px solid #000000;\n"
+"  border-radius: 5px;\n"
+"}")
         VaspReader.setInputMethodHints(Qt.ImhNone)
         VaspReader.setToolButtonStyle(Qt.ToolButtonIconOnly)
         VaspReader.setTabShape(QTabWidget.Rounded)
@@ -138,51 +214,54 @@ class Ui_VaspReader(object):
         self.actionChanges_history.setObjectName(u"actionChanges_history")
         self.centralwidget = QWidget(VaspReader)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.browseButton = QPushButton(self.centralwidget)
-        self.browseButton.setObjectName(u"browseButton")
-        self.browseButton.setGeometry(QRect(330, 20, 61, 21))
+        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
+        self.centralwidget.setSizePolicy(sizePolicy)
+        self.gridLayout = QGridLayout(self.centralwidget)
+        self.gridLayout.setSpacing(8)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(-1, 12, -1, -1)
+        self.step_widget = QWidget(self.centralwidget)
+        self.step_widget.setObjectName(u"step_widget")
+        self.horizontalLayout = QHBoxLayout(self.step_widget)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.pushButton_2 = QPushButton(self.step_widget)
+        self.pushButton_2.setObjectName(u"pushButton_2")
         font1 = QFont()
         font1.setFamilies([u"Times New Roman"])
         font1.setPointSize(12)
-        self.browseButton.setFont(font1)
-        self.browseButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.input_directory = QLineEdit(self.centralwidget)
-        self.input_directory.setObjectName(u"input_directory")
-        self.input_directory.setGeometry(QRect(20, 20, 301, 21))
-        self.input_directory.setFont(font1)
-        self.addButton_2 = QPushButton(self.centralwidget)
-        self.addButton_2.setObjectName(u"addButton_2")
-        self.addButton_2.setGeometry(QRect(400, 20, 61, 21))
-        self.addButton_2.setFont(font1)
-        self.addButton_2.setCursor(QCursor(Qt.PointingHandCursor))
-        self.addedCombo = QComboBox(self.centralwidget)
-        self.addedCombo.setObjectName(u"addedCombo")
-        self.addedCombo.setGeometry(QRect(20, 50, 301, 22))
-        self.addedCombo.setCursor(QCursor(Qt.PointingHandCursor))
-        self.deleteButton = QPushButton(self.centralwidget)
-        self.deleteButton.setObjectName(u"deleteButton")
-        self.deleteButton.setGeometry(QRect(330, 50, 131, 24))
-        self.deleteButton.setFont(font1)
-        self.deleteButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.leftmove = QPushButton(self.centralwidget)
+        font1.setBold(True)
+        self.pushButton_2.setFont(font1)
+
+        self.horizontalLayout.addWidget(self.pushButton_2)
+
+        self.leftmove = QPushButton(self.step_widget)
         self.leftmove.setObjectName(u"leftmove")
-        self.leftmove.setGeometry(QRect(30, 90, 41, 41))
         font2 = QFont()
         font2.setFamilies([u"Times New Roman"])
         font2.setPointSize(14)
         font2.setBold(True)
         self.leftmove.setFont(font2)
-        self.stepFrame = QFrame(self.centralwidget)
+
+        self.horizontalLayout.addWidget(self.leftmove)
+
+        self.stepFrame = QFrame(self.step_widget)
         self.stepFrame.setObjectName(u"stepFrame")
-        self.stepFrame.setGeometry(QRect(80, 90, 321, 41))
+        sizePolicy.setHeightForWidth(self.stepFrame.sizePolicy().hasHeightForWidth())
+        self.stepFrame.setSizePolicy(sizePolicy)
         self.stepFrame.setFrameShape(QFrame.Box)
         self.stepFrame.setFrameShadow(QFrame.Sunken)
         self.stepFrame.setLineWidth(3)
         self.stepFrame.setMidLineWidth(1)
+        self.verticalLayout_2 = QVBoxLayout(self.stepFrame)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(1, 1, 5, 1)
         self.stepSlider = QSlider(self.stepFrame)
         self.stepSlider.setObjectName(u"stepSlider")
-        self.stepSlider.setGeometry(QRect(10, 10, 301, 21))
-        self.stepSlider.setFont(font1)
+        font3 = QFont()
+        font3.setFamilies([u"Times New Roman"])
+        font3.setPointSize(12)
+        self.stepSlider.setFont(font3)
         self.stepSlider.setAcceptDrops(False)
         self.stepSlider.setAutoFillBackground(True)
         self.stepSlider.setSingleStep(1)
@@ -191,17 +270,98 @@ class Ui_VaspReader(object):
         self.stepSlider.setInvertedControls(False)
         self.stepSlider.setTickPosition(QSlider.TicksBelow)
         self.stepSlider.setTickInterval(5)
-        self.speedFrame = QFrame(self.centralwidget)
+
+        self.verticalLayout_2.addWidget(self.stepSlider)
+
+
+        self.horizontalLayout.addWidget(self.stepFrame)
+
+        self.rightmove = QPushButton(self.step_widget)
+        self.rightmove.setObjectName(u"rightmove")
+        self.rightmove.setFont(font2)
+
+        self.horizontalLayout.addWidget(self.rightmove)
+
+        self.pushButton = QPushButton(self.step_widget)
+        self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setFont(font1)
+
+        self.horizontalLayout.addWidget(self.pushButton)
+
+
+        self.gridLayout.addWidget(self.step_widget, 3, 0, 1, 4)
+
+        self.deleteButton = QPushButton(self.centralwidget)
+        self.deleteButton.setObjectName(u"deleteButton")
+        self.deleteButton.setFont(font1)
+        self.deleteButton.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.gridLayout.addWidget(self.deleteButton, 1, 2, 1, 2)
+
+        self.browseButton = QPushButton(self.centralwidget)
+        self.browseButton.setObjectName(u"browseButton")
+        self.browseButton.setFont(font1)
+        self.browseButton.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.gridLayout.addWidget(self.browseButton, 0, 2, 1, 1)
+
+        self.addButton = QPushButton(self.centralwidget)
+        self.addButton.setObjectName(u"addButton")
+        self.addButton.setFont(font1)
+        self.addButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.addButton.setFlat(False)
+
+        self.gridLayout.addWidget(self.addButton, 0, 3, 1, 1)
+
+        self.addedCombo = QComboBox(self.centralwidget)
+        self.addedCombo.setObjectName(u"addedCombo")
+        self.addedCombo.setFont(font)
+        self.addedCombo.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.gridLayout.addWidget(self.addedCombo, 1, 0, 1, 2)
+
+        self.input_directory = QLineEdit(self.centralwidget)
+        self.input_directory.setObjectName(u"input_directory")
+        palette = QPalette()
+        brush = QBrush(QColor(0, 0, 0, 255))
+        brush.setStyle(Qt.SolidPattern)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.Active, QPalette.PlaceholderText, brush)
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.Inactive, QPalette.PlaceholderText, brush)
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
+#endif
+        self.input_directory.setPalette(palette)
+        self.input_directory.setFont(font)
+
+        self.gridLayout.addWidget(self.input_directory, 0, 0, 1, 2)
+
+        self.speed_widget = QWidget(self.centralwidget)
+        self.speed_widget.setObjectName(u"speed_widget")
+        self.horizontalLayout_2 = QHBoxLayout(self.speed_widget)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer)
+
+        self.speedFrame = QFrame(self.speed_widget)
         self.speedFrame.setObjectName(u"speedFrame")
-        self.speedFrame.setGeometry(QRect(110, 140, 261, 41))
+        sizePolicy.setHeightForWidth(self.speedFrame.sizePolicy().hasHeightForWidth())
+        self.speedFrame.setSizePolicy(sizePolicy)
         self.speedFrame.setFrameShape(QFrame.Box)
         self.speedFrame.setFrameShadow(QFrame.Sunken)
         self.speedFrame.setLineWidth(2)
         self.speedFrame.setMidLineWidth(1)
+        self.verticalLayout = QVBoxLayout(self.speedFrame)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(1, 1, 5, 1)
         self.speedSlider = QSlider(self.speedFrame)
         self.speedSlider.setObjectName(u"speedSlider")
-        self.speedSlider.setGeometry(QRect(10, 10, 241, 21))
-        self.speedSlider.setFont(font1)
+        self.speedSlider.setFont(font3)
         self.speedSlider.setAcceptDrops(False)
         self.speedSlider.setAutoFillBackground(True)
         self.speedSlider.setSingleStep(1)
@@ -210,10 +370,23 @@ class Ui_VaspReader(object):
         self.speedSlider.setInvertedControls(False)
         self.speedSlider.setTickPosition(QSlider.TicksBelow)
         self.speedSlider.setTickInterval(5)
-        self.rightmove = QPushButton(self.centralwidget)
-        self.rightmove.setObjectName(u"rightmove")
-        self.rightmove.setGeometry(QRect(410, 90, 41, 41))
-        self.rightmove.setFont(font2)
+
+        self.verticalLayout.addWidget(self.speedSlider)
+
+
+        self.horizontalLayout_2.addWidget(self.speedFrame)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
+
+        self.horizontalLayout_2.setStretch(0, 1)
+        self.horizontalLayout_2.setStretch(1, 3)
+        self.horizontalLayout_2.setStretch(2, 1)
+
+        self.gridLayout.addWidget(self.speed_widget, 4, 0, 1, 4)
+
+        self.gridLayout.setColumnStretch(1, 1)
         VaspReader.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(VaspReader)
         self.menubar.setObjectName(u"menubar")
@@ -247,13 +420,10 @@ class Ui_VaspReader(object):
         self.menuView.setObjectName(u"menuView")
         VaspReader.setMenuBar(self.menubar)
         QWidget.setTabOrder(self.input_directory, self.browseButton)
-        QWidget.setTabOrder(self.browseButton, self.addButton_2)
-        QWidget.setTabOrder(self.addButton_2, self.addedCombo)
+        QWidget.setTabOrder(self.browseButton, self.addButton)
+        QWidget.setTabOrder(self.addButton, self.addedCombo)
         QWidget.setTabOrder(self.addedCombo, self.deleteButton)
-        QWidget.setTabOrder(self.deleteButton, self.leftmove)
-        QWidget.setTabOrder(self.leftmove, self.stepSlider)
-        QWidget.setTabOrder(self.stepSlider, self.rightmove)
-        QWidget.setTabOrder(self.rightmove, self.speedSlider)
+        QWidget.setTabOrder(self.deleteButton, self.stepSlider)
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -356,18 +526,23 @@ class Ui_VaspReader(object):
         self.actionWindow_description.setText(QCoreApplication.translate("VaspReader", u"Window description", None))
         self.actionLatest_update.setText(QCoreApplication.translate("VaspReader", u"Latest update", None))
         self.actionChanges_history.setText(QCoreApplication.translate("VaspReader", u"Changes history", None))
-        self.browseButton.setText(QCoreApplication.translate("VaspReader", u"Browse", None))
-        self.input_directory.setText("")
-        self.addButton_2.setText(QCoreApplication.translate("VaspReader", u"Add", None))
-        self.deleteButton.setText(QCoreApplication.translate("VaspReader", u"Delete", None))
+        self.pushButton_2.setText(QCoreApplication.translate("VaspReader", u"<<", None))
         self.leftmove.setText(QCoreApplication.translate("VaspReader", u"<", None))
 #if QT_CONFIG(tooltip)
         self.stepSlider.setToolTip("")
 #endif // QT_CONFIG(tooltip)
+        self.rightmove.setText(QCoreApplication.translate("VaspReader", u">", None))
+        self.pushButton.setText(QCoreApplication.translate("VaspReader", u">>", None))
+        self.deleteButton.setText(QCoreApplication.translate("VaspReader", u"Delete", None))
+        self.browseButton.setText(QCoreApplication.translate("VaspReader", u"Browse", None))
+        self.addButton.setText(QCoreApplication.translate("VaspReader", u"Add", None))
+        self.addedCombo.setCurrentText("")
+        self.addedCombo.setPlaceholderText(QCoreApplication.translate("VaspReader", u"Choose calculation to delete", None))
+        self.input_directory.setText("")
+        self.input_directory.setPlaceholderText(QCoreApplication.translate("VaspReader", u"Input calculation folder", None))
 #if QT_CONFIG(tooltip)
         self.speedSlider.setToolTip("")
 #endif // QT_CONFIG(tooltip)
-        self.rightmove.setText(QCoreApplication.translate("VaspReader", u">", None))
         self.menuFile.setTitle(QCoreApplication.translate("VaspReader", u"File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("VaspReader", u"Edit", None))
         self.menuLight.setTitle(QCoreApplication.translate("VaspReader", u"Light", None))
@@ -379,15 +554,3 @@ class Ui_VaspReader(object):
         self.menuView.setTitle(QCoreApplication.translate("VaspReader", u"View", None))
     # retranslateUi
 
-
-class MainWindow(QtWidgets.QMainWindow, Ui_VaspReader):
-    def __init__(self, *args, obj=None, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
-        self.setupUi(self)
-
-
-app = QtWidgets.QApplication(sys.argv)
-
-window = MainWindow()
-window.show()
-app.exec()

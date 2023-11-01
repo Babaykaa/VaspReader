@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="background">
+    <file>belka.jpg</file>
+  </qresource>
+  <qresource prefix="down-arrow_ico">
+    <file>down-arrow.ico</file>
+  </qresource>
+</RCC>

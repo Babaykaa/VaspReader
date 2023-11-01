@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VRProcessing</class>
+ <widget class="QMainWindow" name="VRProcessing">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1080</width>
+    <height>640</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Times New Roman</family>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>VaspReader (Processing Window)</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLineEdit{
+  border-radius: 8px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QLineEdit:focus {
+  border: 3px solid rgb(75, 75, 75);
+}
+
+QLineEdit::placeholder {
+  color: #000000;
+}
+QPushButton {
+  background-color: rgb(255, 240, 202);
+  color: black;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid rgb(85, 0, 127);
+  padding: 3px 3px;
+  margin-top: 0px;
+  outline: 0px;
+}
+QPushButton:hover {
+  background-color: rgb(255, 212, 137);
+  border: 1px solid #000000;
+}
+QPushButton:pressed {
+background-color: white;
+border: 3px solid #000000
+}
+QComboBox {
+  border-radius: 8px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QComboBox::drop-down {
+  width: 18px;
+  height:22px;
+  padding: 0px 1px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+}
+QComboBox::down-arrow {
+  image: url(:/down-arrow_ico/down-arrow.ico);
+  width: 18px;
+  height:22px;
+}
+QComboBox::down-arrow:hover {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 229, 162);
+}
+QComboBox::down-arrow:pressed {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 0px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 232, 216);
+}
+QComboBox:pressed {
+	background-color: rgb(255, 250, 237);
+}
+QFrame{
+  border: 2px solid #000000;
+  border-radius: 5px;
+}
+QScrollArea{border: none;}
+QScrollBar{background: white; border-radius: 5px;}
+QScrollBar:horizontal{height: 8px;}
+QScrollBar:vertical{width: 8px; background:white;}
+QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 4px; width: 4px}
+QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}
+QScrollBar::handle:vertical{width: 25px; min-height: 10px;}
+QScrollBar::add-line{border: none;background: none;}
+QScrollBar::sub-line{border: none; background: none;}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,2">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QWidget" name="widget_2" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_2"/>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Tab 1</string>
+          </attribute>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>Tab 2</string>
+          </attribute>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableView" name="tableView">
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::NoDragDrop</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1080</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
