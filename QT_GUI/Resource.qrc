@@ -5,4 +5,7 @@
   <qresource prefix="down-arrow_ico">
     <file>down-arrow.ico</file>
   </qresource>
+  <qresource prefix="visual">
+    <file>VRVisual_background.png</file>
+  </qresource>
 </RCC>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRVisualGUIhYBPSM.ui'
+## Form generated from reading UI file 'VRVisualGUIJzJavs.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -33,57 +33,67 @@ class Ui_VaspReader(object):
         sizePolicy.setHeightForWidth(VaspReader.sizePolicy().hasHeightForWidth())
         VaspReader.setSizePolicy(sizePolicy)
         VaspReader.setMinimumSize(QSize(480, 212))
-        VaspReader.setMaximumSize(QSize(1440, 636))
+        VaspReader.setMaximumSize(QSize(720, 318))
         icon = QIcon()
         icon.addFile(u"../VR_icons/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
         VaspReader.setWindowIcon(icon)
-        VaspReader.setAutoFillBackground(True)
-        VaspReader.setStyleSheet(u"QLineEdit{\n"
+        VaspReader.setAutoFillBackground(False)
+        VaspReader.setStyleSheet(u"QWidget#centralwidget{\n"
+"	background-image: url(:/visual/VRVisual_background.png);\n"
+"	background-position: right bottom;\n"
+"}\n"
+"QLineEdit{\n"
 "  border-radius: 8px;\n"
-"  border: 2px solid #000000;\n"
+"  border: 2px solid rgb(109, 20, 20);\n"
+"  padding: 3px 3px;\n"
+"}\n"
+"QLineEdit:hover{\n"
+"  border-radius: 8px;\n"
+"  background-color: rgb(255, 248, 231);\n"
+"  border: 1px solid rgb(109, 20, 20);\n"
 "  padding: 3px 3px;\n"
 "}\n"
 "QLineEdit:focus {\n"
-"  border: 3px solid rgb(75, 75, 75);\n"
+"  border: 3px solid rgb(0, 0, 0);\n"
 "}\n"
 "\n"
 "QLineEdit::placeholder {\n"
 "  color: #000000;\n"
 "}\n"
 "QPushButton {\n"
-"  background-color: rgb(255, 240, 202);\n"
+"  background-color: rgb(255, 255, 255);\n"
 "  color: black;\n"
 "  font-weight: 600;\n"
 "  border-radius: 8px;\n"
-"  border: 2px solid rgb(85, 0, 127);\n"
+"  border: 2px solid rgb(109, 20, 20);\n"
 "  padding: 3px 3px;\n"
 "  margin-top: 0px;\n"
 "  outline: 0px;\n"
 "}\n"
 "QPushButton:hover {\n"
-"  background-color: rgb(255, 212, 137);\n"
-"  border: 1px solid #000000;\n"
+"  background-color: rgb(255, 248, 231);\n"
+"  border: 1px solid rgb(74, 0, 0);\n"
 "}\n"
 "QPushButton:pressed {\n"
-"background-color: white;\n"
+"background-color: rgb(255, 247, 221);\n"
 "border: 3px solid #000000\n"
 "}\n"
 "QComboBox {\n"
-"  border-radius: 8px;\n"
-"  border: 2px solid #000000;\n"
+"  bord"
+                        "er-radius: 8px;\n"
+"  border: 2px solid rgb(109, 20, 20);\n"
 "  padding: 3px 3px;\n"
 "}\n"
 "QComboBox::drop-down {\n"
 "  width: 18px;\n"
 "  height:22px;\n"
 "  padding: 0px 1px;\n"
-"  border: 1px solid #000000;\n"
+"  border: 1px solid rgb(109, 20, 20);\n"
 "  border-radius: 8px;\n"
 "}\n"
 "QComboBox::down-arrow {\n"
 "  image: url(:/down-arrow_ico/down-arrow.ico);\n"
-"  width:"
-                        " 18px;\n"
+"  width: 18px;\n"
 "  height:22px;\n"
 "}\n"
 "QComboBox::down-arrow:hover {\n"
@@ -98,16 +108,65 @@ class Ui_VaspReader(object):
 "    width: 18px;\n"
 "    height:22px;\n"
 "    padding: 0px 1px;\n"
-"    border: 0px solid #000000;\n"
+"    border: 1px solid #000000;\n"
 "    border-radius: 8px;\n"
 "	background-color: rgb(255, 232, 216);\n"
 "}\n"
 "QComboBox:pressed {\n"
 "	background-color: rgb(255, 250, 237);\n"
+"	border: 3px solid #000000;\n"
+"    border-radius: 8px;\n"
+"}\n"
+"QComboBox:hover{\n"
+"  border-radius: 8px;\n"
+"  background-color: rgb(255, 248, 231"
+                        ");\n"
+"  border: 1px solid rgb(109, 20, 20);\n"
+"  padding: 3px 3px;\n"
 "}\n"
 "QFrame{\n"
-"  border: 2px solid #000000;\n"
+"  border: 2px solid rgb(109, 20, 20);\n"
 "  border-radius: 5px;\n"
+"	background-color: rgb(255, 255, 255);\n"
+"}\n"
+"QFrame:hover{\n"
+"  background-color: rgb(255, 248, 231);\n"
+"  border: 1px solid rgb(109, 20, 20);\n"
+"  background-color: rgb(255, 248, 231);\n"
+"}\n"
+"QSlider{\n"
+"  background-color: rgb(255, 255, 255);\n"
+"}\n"
+"QSlider:hover{\n"
+"  background-color: rgb(255, 248, 231);\n"
+"}\n"
+"\n"
+"QSlider::groove:horizontal{\n"
+"border: 1px solid #637EB8;\n"
+"background: white;\n"
+"height: 7px;\n"
+"border-radius: 3px;\n"
+"}\n"
+"QSlider::sub-page:horizontal {\n"
+"background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));\n"
+"border: 1px solid rgb(0, 0, 0);\n"
+"height: 10px;\n"
+"border-radius: 4px;\n"
+"}\n"
+"QSlider::add-page:horizontal {\n"
+"background: #fff;\n"
+"border: 1px solid rgb(170, 0, 0);\n"
+"height: 10px;\n"
+"border-radius:"
+                        " 4px;\n"
+"}\n"
+"QSlider::handle:horizontal{\n"
+"background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));\n"
+"border: 2px solid rgb(0, 0, 0);\n"
+"width: 5px;\n"
+"margin-top: -4px;\n"
+"margin-bottom: -4px;\n"
+"border-radius: 2px;\n"
 "}")
         VaspReader.setInputMethodHints(Qt.ImhNone)
         VaspReader.setToolButtonStyle(Qt.ToolButtonIconOnly)
@@ -192,14 +251,19 @@ class Ui_VaspReader(object):
         self.actionGraphs.setObjectName(u"actionGraphs")
         self.actionKeyboard = QAction(VaspReader)
         self.actionKeyboard.setObjectName(u"actionKeyboard")
+        self.actionKeyboard.setCheckable(True)
         self.actionMouse_keyboard = QAction(VaspReader)
         self.actionMouse_keyboard.setObjectName(u"actionMouse_keyboard")
+        self.actionMouse_keyboard.setCheckable(True)
         self.actionAtom_ID = QAction(VaspReader)
         self.actionAtom_ID.setObjectName(u"actionAtom_ID")
+        self.actionAtom_ID.setCheckable(True)
         self.actionBond = QAction(VaspReader)
         self.actionBond.setObjectName(u"actionBond")
+        self.actionBond.setCheckable(True)
         self.actionValence_angle = QAction(VaspReader)
         self.actionValence_angle.setObjectName(u"actionValence_angle")
+        self.actionValence_angle.setCheckable(True)
         self.actionScreenshot = QAction(VaspReader)
         self.actionScreenshot.setObjectName(u"actionScreenshot")
         self.actionForm_POSCAR = QAction(VaspReader)
@@ -216,6 +280,7 @@ class Ui_VaspReader(object):
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
+        self.centralwidget.setStyleSheet(u"")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setSpacing(8)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -249,13 +314,14 @@ class Ui_VaspReader(object):
         self.stepFrame.setObjectName(u"stepFrame")
         sizePolicy.setHeightForWidth(self.stepFrame.sizePolicy().hasHeightForWidth())
         self.stepFrame.setSizePolicy(sizePolicy)
+        self.stepFrame.setAutoFillBackground(False)
         self.stepFrame.setFrameShape(QFrame.Box)
         self.stepFrame.setFrameShadow(QFrame.Sunken)
         self.stepFrame.setLineWidth(3)
         self.stepFrame.setMidLineWidth(1)
         self.verticalLayout_2 = QVBoxLayout(self.stepFrame)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(1, 1, 5, 1)
+        self.verticalLayout_2.setContentsMargins(2, 2, 2, 2)
         self.stepSlider = QSlider(self.stepFrame)
         self.stepSlider.setObjectName(u"stepSlider")
         font3 = QFont()
@@ -263,7 +329,7 @@ class Ui_VaspReader(object):
         font3.setPointSize(12)
         self.stepSlider.setFont(font3)
         self.stepSlider.setAcceptDrops(False)
-        self.stepSlider.setAutoFillBackground(True)
+        self.stepSlider.setAutoFillBackground(False)
         self.stepSlider.setSingleStep(1)
         self.stepSlider.setOrientation(Qt.Horizontal)
         self.stepSlider.setInvertedAppearance(False)
@@ -352,18 +418,19 @@ class Ui_VaspReader(object):
         self.speedFrame.setObjectName(u"speedFrame")
         sizePolicy.setHeightForWidth(self.speedFrame.sizePolicy().hasHeightForWidth())
         self.speedFrame.setSizePolicy(sizePolicy)
+        self.speedFrame.setAutoFillBackground(False)
         self.speedFrame.setFrameShape(QFrame.Box)
         self.speedFrame.setFrameShadow(QFrame.Sunken)
         self.speedFrame.setLineWidth(2)
         self.speedFrame.setMidLineWidth(1)
         self.verticalLayout = QVBoxLayout(self.speedFrame)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(1, 1, 5, 1)
+        self.verticalLayout.setContentsMargins(2, 2, 2, 2)
         self.speedSlider = QSlider(self.speedFrame)
         self.speedSlider.setObjectName(u"speedSlider")
         self.speedSlider.setFont(font3)
         self.speedSlider.setAcceptDrops(False)
-        self.speedSlider.setAutoFillBackground(True)
+        self.speedSlider.setAutoFillBackground(False)
         self.speedSlider.setSingleStep(1)
         self.speedSlider.setOrientation(Qt.Horizontal)
         self.speedSlider.setInvertedAppearance(False)
