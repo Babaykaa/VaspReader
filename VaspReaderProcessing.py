@@ -560,10 +560,10 @@ class VRProcessing(VRGUI, VRPrint):
                 temporary_columns.append(f'cm_{col_name}--{atom}')
             for atom in atoms:
                 self.base_df[f'Vvib_{col_name}({atom})'] = self.base_df[f'cm_{col_name}--{atom}'].diff() * 1000
-                self.divine_on_POTIM(f'Vvib_{col_name}({atom})')
+                self.divine_on_POTIM(f'Vvib_{col_name}({atom})', is_COM=True)
                 self.base_df[f'Evib_{col_name}({atom})'] = self.base_df[f'Vvib_{col_name}({atom})'] ** 2 * self.masses[self.columns_names.index(atom)] / self.calc_const
                 self.base_df[f'Vsum_{col_name}({atom})'] = np.sqrt((self.base_df[f'{atom}_x'].diff() - self.base_df[f'cm_{col_name}_x'].diff()) ** 2 + (self.base_df[f'{atom}_y'].diff() - self.base_df[f'cm_{col_name}_y'].diff()) ** 2 + (self.base_df[f'{atom}_z'].diff() - self.base_df[f'cm_{col_name}_z'].diff()) ** 2) * 1000
-                self.divine_on_POTIM(f'Vsum_{col_name}({atom})')
+                self.divine_on_POTIM(f'Vsum_{col_name}({atom})', is_COM=True)
                 self.base_df[f'Vrot_{col_name}({atom})'] = np.sqrt((self.base_df[f'Vsum_{col_name}({atom})'] ** 2 - self.base_df[f'Vvib_{col_name}({atom})'] ** 2).clip(lower=0))
                 self.base_df[f'Erot_{col_name}({atom})'] = self.base_df[f'Vrot_{col_name}({atom})'] ** 2 * self.masses[self.columns_names.index(atom)] / self.calc_const
                 self.e_columns.extend([f'Evib_{col_name}({atom})', f'Erot_{col_name}({atom})'])
