@@ -182,16 +182,16 @@ class VRMD:
                 dictionary['COLORVALUE'].append([0.05, 0, 0.6])
                 dictionary['RADII'].append(0.38)
             elif dictionary['ATOMNAMES'][i] == 'Mo':
-                dictionary['COLORNAME'].append('#a100a1') # 1010 0001
-                dictionary['COLORVALUE'].append([0.63, 0, 0.63])
+                dictionary['COLORNAME'].append('#00c6c6') # #a100a1
+                dictionary['COLORVALUE'].append([0, 0.78, 0.78]) # old violet 0.63, 0, 0.63
                 dictionary['RADII'].append(0.5)
             elif dictionary['ATOMNAMES'][i] == 'S':
                 dictionary['COLORNAME'].append('#ffff00')
                 dictionary['COLORVALUE'].append([1.0, 1.0, 0])
                 dictionary['RADII'].append(0.36)
             elif dictionary['ATOMNAMES'][i] == 'N':
-                dictionary['COLORNAME'].append('#00ddfa')
-                dictionary['COLORVALUE'].append([0, 0.87, 0.98])
+                dictionary['COLORNAME'].append('#0000ff')
+                dictionary['COLORVALUE'].append([0, 0, 1]) # old light blue
                 dictionary['RADII'].append(0.24)
             elif dictionary['ATOMNAMES'][i] == 'Ne':
                 dictionary['COLORNAME'].append('#8b4513')
