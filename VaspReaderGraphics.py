@@ -110,8 +110,8 @@ class VRGraphsProcessing(VRGUI, VRPrint):
         while True:
             self.event, self.value = self.window.read(timeout=10)
             if self.event == 'OutCalc' or self.event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
-                if self.fig_canvas_agg:
-                    self.delete_figure_agg()
+                # if self.fig_canvas_agg:
+                #     self.delete_figure_agg()
                 self.window.close()
                 self.print('Graph window closed.')
                 break
