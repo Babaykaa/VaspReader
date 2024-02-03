@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VRGraphProcessing</class>
+ <widget class="QMainWindow" name="VRGraphProcessing">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>900</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>VaspReader (Graphs Processing)</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/VRlogo/VR-logo.ico</normaloff>:/VRlogo/VR-logo.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLineEdit{
+  border-radius: 8px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QLineEdit:focus {
+  border: 3px solid rgb(75, 75, 75);
+}
+QLineEdit:disabled {
+border-radius: 8px;
+padding: 3px 3px;  
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+}
+QLineEdit::placeholder {
+  color: #000000;
+}
+QPushButton {
+  background-color: rgb(255, 240, 202);
+  color: black;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid rgb(85, 0, 127);
+  padding: 3px 3px;
+  margin-top: 0px;
+  outline: 0px;
+}
+QPushButton:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+color: black;
+font-weight: 600;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+margin-top: 0px;
+outline: 0px;
+}
+QPushButton:hover {
+  background-color: rgb(255, 212, 137);
+  border: 1px solid #000000;
+}
+QPushButton:pressed {
+background-color: white;
+border: 3px solid #000000
+}
+QComboBox {
+  border-radius: 8px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QComboBox:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+}
+QComboBox::drop-down {
+  width: 18px;
+  height:22px;
+  padding: 0px 1px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+}
+QComboBox::down-arrow {
+  image: url(:/down-arrow_ico/down-arrow.ico);
+  width: 18px;
+  height:22px;
+}
+QComboBox::down-arrow:hover {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 229, 162);
+}
+QComboBox::down-arrow:pressed {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 0px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 232, 216);
+}
+QComboBox:pressed {
+	background-color: rgb(255, 250, 237);
+}
+QFrame{
+  border: 2px solid #000000;
+  border-radius: 5px;
+}
+QScrollArea{border: none;}
+QScrollBar{background: white; border-radius: 5px;}
+QScrollBar:horizontal{height: 8px;}
+QScrollBar:vertical{width: 8px; background:white;}
+QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 4px; width: 4px}
+QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}
+QScrollBar::handle:vertical{width: 25px; min-height: 10px;}
+QScrollBar::add-line{border: none;background: none;}
+QScrollBar::sub-line{border: none; background: none;}
+QLabel{
+background-color: rgb(255, 240, 202);
+color: black;
+font-weight: 600;
+height:28px;}
+QCheckBox{
+  border-radius: 6px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QRadioButton{
+  border-radius: 6px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}</string>
+  </property>
+  <widget class="QWidget" name="MainWidget">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="20,1">
+    <property name="spacing">
+     <number>14</number>
+    </property>
+    <property name="bottomMargin">
+     <number>18</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="TopLayout" stretch="2,5">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <item>
+       <layout class="QVBoxLayout" name="TopLeftLayout" stretch="1,0">
+        <property name="leftMargin">
+         <number>9</number>
+        </property>
+        <property name="rightMargin">
+         <number>9</number>
+        </property>
+        <item>
+         <widget class="QListView" name="ColumnsList">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>167</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="GraphOptionsTab">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>260</width>
+            <height>334</height>
+           </size>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="GraphLimits">
+           <attribute name="title">
+            <string>Limits</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>251</width>
+              <height>301</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="GraphLimitsLayout">
+             <property name="leftMargin">
+              <number>6</number>
+             </property>
+             <property name="topMargin">
+              <number>8</number>
+             </property>
+             <property name="rightMargin">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>8</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="XAxisLimitsLabel">
+               <property name="text">
+                <string>X-Axis:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="XAxisFromTo">
+               <item>
+                <widget class="QLineEdit" name="XAxisFrom">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="XAxisTo">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QLabel" name="YAxisLimitsLabel">
+               <property name="text">
+                <string>Y-Axis:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="YAxisFromTo">
+               <item>
+                <widget class="QLineEdit" name="YAxisFrom">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="YAxisTo"/>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="LimitsSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="SetLimitsButton">
+               <property name="text">
+                <string>Set Limits</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ResetLimitsButton">
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="GraphLabels">
+           <attribute name="title">
+            <string>Labels</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>251</width>
+              <height>301</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="GraphLabelsLayout">
+             <property name="leftMargin">
+              <number>6</number>
+             </property>
+             <property name="topMargin">
+              <number>8</number>
+             </property>
+             <property name="rightMargin">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>8</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="XAxisLabelLabel">
+               <property name="text">
+                <string>X-Label:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="XAxisLabelEdit"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="YAxisLabelLabel">
+               <property name="text">
+                <string>Y-Label:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="YAxisLabelEdit"/>
+             </item>
+             <item>
+              <spacer name="LabelsSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="SetLabelsButton">
+               <property name="text">
+                <string>Set Labels</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ResetLabelsButton">
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="GraphLegend">
+           <attribute name="title">
+            <string>Legend</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>251</width>
+              <height>301</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="GraphLegendLayout">
+             <property name="leftMargin">
+              <number>6</number>
+             </property>
+             <property name="topMargin">
+              <number>8</number>
+             </property>
+             <property name="rightMargin">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>8</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="AddLegendCheckbox">
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Add Legend</string>
+               </property>
+               <property name="tristate">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="RenameCurvesLabel">
+               <property name="text">
+                <string>Rename curves:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="RenameCurves">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="LegendEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="AutoRenameCurvesLabel">
+               <property name="text">
+                <string>Auto-Rename:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="AutoRenameCurves">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="LegendSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ChangeLegendButton">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Submit</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="GraphParameters">
+           <attribute name="title">
+            <string>Parameters</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget_4">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>251</width>
+              <height>301</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="GraphParametersLayout">
+             <property name="leftMargin">
+              <number>6</number>
+             </property>
+             <property name="topMargin">
+              <number>8</number>
+             </property>
+             <property name="rightMargin">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>8</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="CurveToChangeParametersLabel">
+               <property name="text">
+                <string>Curve to change:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="CurveToChangeParameters"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="LineWidthLabel">
+               <property name="text">
+                <string>Line Width:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="CurveLineWidthEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="CurveColorLabel">
+               <property name="text">
+                <string>Curve Color:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="ColorChangeLayout">
+               <item>
+                <widget class="QFrame" name="CurveColorCheck">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>150</width>
+                   <height>23</height>
+                  </size>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="CurveColorChoose">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Color</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="ParametersSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="CurveParametersChangeApply">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Submit</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QGraphicsView" name="GraphsView"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="BottomLayout" stretch="1,1,7">
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="CreateGraphButton">
+        <property name="text">
+         <string>Create Graph</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="GraphBackButton">
+        <property name="text">
+         <string>Back</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="BottomHSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="GraphProcessingMenubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>900</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="GraphProcessingMenuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="AAbout"/>
+    <addaction name="separator"/>
+    <addaction name="ABack"/>
+    <addaction name="separator"/>
+    <addaction name="AExit"/>
+   </widget>
+   <addaction name="GraphProcessingMenuWindow"/>
+  </widget>
+  <action name="AAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="ABack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+  </action>
+  <action name="AExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

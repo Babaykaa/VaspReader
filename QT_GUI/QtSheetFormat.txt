@@ -1,0 +1,127 @@
+QWidget#centralwidget{
+	background-image: url(:/visual/VRVisual_background.png);
+	background-position: right bottom;
+}
+QLineEdit{
+  border-radius: 8px;
+  border: 2px solid rgb(109, 20, 20);
+  padding: 3px 3px;
+}
+QLineEdit:hover{
+  border-radius: 8px;
+  background-color: rgb(255, 248, 231);
+  border: 1px solid rgb(109, 20, 20);
+  padding: 3px 3px;
+}
+QLineEdit:focus {
+  border: 3px solid rgb(0, 0, 0);
+}
+
+QLineEdit::placeholder {
+  color: #000000;
+}
+QPushButton {
+  background-color: rgb(255, 255, 255);
+  color: black;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid rgb(109, 20, 20);
+  padding: 3px 3px;
+  margin-top: 0px;
+  outline: 0px;
+}
+QPushButton:hover {
+  background-color: rgb(255, 248, 231);
+  border: 1px solid rgb(74, 0, 0);
+}
+QPushButton:pressed {
+background-color: rgb(255, 247, 221);
+border: 3px solid #000000
+}
+QComboBox {
+  border-radius: 8px;
+  border: 2px solid rgb(109, 20, 20);
+  padding: 3px 3px;
+}
+QComboBox::drop-down {
+  width: 18px;
+  height:22px;
+  padding: 0px 1px;
+  border: 1px solid rgb(109, 20, 20);
+  border-radius: 8px;
+}
+QComboBox::down-arrow {
+  image: url(:/down-arrow_ico/down-arrow.ico);
+  width: 18px;
+  height:22px;
+}
+QComboBox::down-arrow:hover {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 229, 162);
+}
+QComboBox::down-arrow:pressed {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 232, 216);
+}
+QComboBox:pressed {
+	background-color: rgb(255, 250, 237);
+	border: 3px solid #000000;
+    border-radius: 8px;
+}
+QComboBox:hover{
+  border-radius: 8px;
+  background-color: rgb(255, 248, 231);
+  border: 1px solid rgb(109, 20, 20);
+  padding: 3px 3px;
+}
+QFrame{
+  border: 2px solid rgb(109, 20, 20);
+  border-radius: 5px;
+	background-color: rgb(255, 255, 255);
+}
+QFrame:hover{
+  background-color: rgb(255, 248, 231);
+  border: 1px solid rgb(109, 20, 20);
+  background-color: rgb(255, 248, 231);
+}
+QSlider{
+  background-color: rgb(255, 255, 255);
+}
+QSlider:hover{
+  background-color: rgb(255, 248, 231);
+}
+
+QSlider::groove:horizontal{
+border: 1px solid #637EB8;
+background: white;
+height: 7px;
+border-radius: 3px;
+}
+QSlider::sub-page:horizontal {
+background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));
+border: 1px solid rgb(0, 0, 0);
+height: 10px;
+border-radius: 4px;
+}
+QSlider::add-page:horizontal {
+background: #fff;
+border: 1px solid rgb(170, 0, 0);
+height: 10px;
+border-radius: 4px;
+}
+QSlider::handle:horizontal{
+background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));
+border: 2px solid rgb(0, 0, 0);
+width: 5px;
+margin-top: -4px;
+margin-bottom: -4px;
+border-radius: 2px;
+}
