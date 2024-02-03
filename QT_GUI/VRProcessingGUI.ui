@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1080</width>
-    <height>640</height>
+    <height>657</height>
    </rect>
   </property>
   <property name="font">
@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>VaspReader (Processing Window)</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/VRlogo/VR-logo.ico</normaloff>:/VRlogo/VR-logo.ico</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true">QLineEdit{
   border-radius: 8px;
@@ -28,7 +32,12 @@
 QLineEdit:focus {
   border: 3px solid rgb(75, 75, 75);
 }
-
+QLineEdit:disabled {
+border-radius: 8px;
+padding: 3px 3px;  
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+}
 QLineEdit::placeholder {
   color: #000000;
 }
@@ -42,6 +51,17 @@ QPushButton {
   margin-top: 0px;
   outline: 0px;
 }
+QPushButton:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+color: black;
+font-weight: 600;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+margin-top: 0px;
+outline: 0px;
+}
 QPushButton:hover {
   background-color: rgb(255, 212, 137);
   border: 1px solid #000000;
@@ -54,6 +74,13 @@ QComboBox {
   border-radius: 8px;
   border: 2px solid #000000;
   padding: 3px 3px;
+}
+QComboBox:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
 }
 QComboBox::drop-down {
   width: 18px;
@@ -98,46 +125,474 @@ QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 4px; width: 4px}
 QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}
 QScrollBar::handle:vertical{width: 25px; min-height: 10px;}
 QScrollBar::add-line{border: none;background: none;}
-QScrollBar::sub-line{border: none; background: none;}</string>
+QScrollBar::sub-line{border: none; background: none;}
+QLabel{
+background-color: rgb(255, 240, 202);
+color: black;
+font-weight: 600;
+height:28px;}
+QCheckBox{
+  border-radius: 6px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QRadioButton{
+  border-radius: 6px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="MainProcessingWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="leftMargin">
      <number>0</number>
     </property>
     <item>
-     <widget class="QWidget" name="widget" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,2">
+     <widget class="QWidget" name="CentralWidget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="8,18">
        <property name="spacing">
         <number>6</number>
        </property>
        <property name="leftMargin">
-        <number>0</number>
+        <number>9</number>
        </property>
        <item>
-        <widget class="QWidget" name="widget_2" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_2"/>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTabWidget" name="tabWidget">
-         <property name="currentIndex">
-          <number>0</number>
+        <widget class="QWidget" name="LeftCentralWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <widget class="QWidget" name="tab">
-          <attribute name="title">
-           <string>Tab 1</string>
-          </attribute>
-         </widget>
-         <widget class="QWidget" name="tab_2">
-          <attribute name="title">
-           <string>Tab 2</string>
-          </attribute>
-         </widget>
+         <property name="minimumSize">
+          <size>
+           <width>320</width>
+           <height>500</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,30,3">
+          <property name="rightMargin">
+           <number>9</number>
+          </property>
+          <item>
+           <spacer name="LeftCentralVSpacer1">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QTabWidget" name="ProcessingTab">
+            <property name="tabShape">
+             <enum>QTabWidget::Rounded</enum>
+            </property>
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <property name="documentMode">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="DCPM">
+             <attribute name="title">
+              <string>Distance|COM|+|-</string>
+             </attribute>
+             <widget class="QWidget" name="verticalLayoutWidget">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>301</width>
+                <height>391</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="DCPMVLayout" stretch="2,0,0,0,0,0">
+               <property name="spacing">
+                <number>14</number>
+               </property>
+               <property name="leftMargin">
+                <number>8</number>
+               </property>
+               <property name="topMargin">
+                <number>8</number>
+               </property>
+               <property name="rightMargin">
+                <number>10</number>
+               </property>
+               <property name="bottomMargin">
+                <number>18</number>
+               </property>
+               <item>
+                <widget class="QListWidget" name="DCPMList"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="DCPMSelected">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="DCPMRadioLayout" stretch="1,1,1,1">
+                 <item>
+                  <widget class="QRadioButton" name="DistanceRadio">
+                   <property name="text">
+                    <string>Distance</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="COMRadio">
+                   <property name="text">
+                    <string>COM</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="PlusRadio">
+                   <property name="text">
+                    <string>+</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="MinusRadio">
+                   <property name="text">
+                    <string>-</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QPushButton" name="DCMPAddCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Add Column</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="DCPMAdded">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="DCPMRemoveCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Remove Column</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="Angle">
+             <attribute name="title">
+              <string>Angle</string>
+             </attribute>
+             <widget class="QWidget" name="verticalLayoutWidget_2">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>301</width>
+                <height>391</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="AngleVLayout" stretch="2,0,0,0,0,0">
+               <property name="spacing">
+                <number>14</number>
+               </property>
+               <property name="leftMargin">
+                <number>8</number>
+               </property>
+               <property name="topMargin">
+                <number>8</number>
+               </property>
+               <property name="rightMargin">
+                <number>10</number>
+               </property>
+               <property name="bottomMargin">
+                <number>18</number>
+               </property>
+               <item>
+                <widget class="QListWidget" name="AngleList"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="AngleSelected">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="AnglePlaneSelectLayout" stretch="0,0,0">
+                 <item>
+                  <widget class="QCheckBox" name="AnglePlaneXY">
+                   <property name="text">
+                    <string>xy</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="AnglePlaneYZ">
+                   <property name="text">
+                    <string>yz</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="AnglePlaneZX">
+                   <property name="text">
+                    <string>zx</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QPushButton" name="AngleAddCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Add Column</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="AngleAdded">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="AngleRemoveCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Remove Column</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="Divide">
+             <attribute name="title">
+              <string>Divide</string>
+             </attribute>
+             <widget class="QWidget" name="verticalLayoutWidget_3">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>301</width>
+                <height>391</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="DivideVLayout" stretch="2,0,0,0,0">
+               <property name="spacing">
+                <number>14</number>
+               </property>
+               <property name="leftMargin">
+                <number>8</number>
+               </property>
+               <property name="topMargin">
+                <number>8</number>
+               </property>
+               <property name="rightMargin">
+                <number>10</number>
+               </property>
+               <property name="bottomMargin">
+                <number>18</number>
+               </property>
+               <item>
+                <widget class="QListWidget" name="DivideList"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="DivideSelected">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="DivideAddCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Add Column</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="DivideAdded">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="DivideRemoveCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Remove Column</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="Rename">
+             <attribute name="title">
+              <string>Rename</string>
+             </attribute>
+             <widget class="QWidget" name="verticalLayoutWidget_4">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>301</width>
+                <height>391</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="RenameVLayout" stretch="1,1,1,0,20">
+               <property name="spacing">
+                <number>14</number>
+               </property>
+               <property name="leftMargin">
+                <number>8</number>
+               </property>
+               <property name="topMargin">
+                <number>8</number>
+               </property>
+               <property name="rightMargin">
+                <number>10</number>
+               </property>
+               <property name="bottomMargin">
+                <number>18</number>
+               </property>
+               <item>
+                <widget class="QComboBox" name="RenameSelect"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="RenameLine">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="RenameButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Rename</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="RenameVSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="RenameBottomLayout" stretch="1,2,1">
+                 <item>
+                  <spacer name="RenameHSpacer1">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QWidget" name="RenameLogoWidget" native="true">
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>100</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QWidget{image:url(:/VRlogo/VR-logo.ico);}</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="RenameHSpacer2">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <spacer name="LeftCentralVSpacer2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <widget class="QTableView" name="tableView">
+        <widget class="QTableView" name="ViewTable">
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOn</enum>
          </property>
@@ -152,9 +607,59 @@ QScrollBar::sub-line{border: none; background: none;}</string>
       </layout>
      </widget>
     </item>
+    <item>
+     <layout class="QHBoxLayout" name="LowerButtonsWidget" stretch="1,1,1,7">
+      <property name="leftMargin">
+       <number>16</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="CreateExcel">
+        <property name="text">
+         <string>Create Excel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="BuildGraph">
+        <property name="text">
+         <string>Build Graph</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Back">
+        <property name="text">
+         <string>Back</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="LowerButtonsWidgetSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="QMenuBar" name="ProcessingMenubar">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -163,8 +668,116 @@ QScrollBar::sub-line{border: none; background: none;}</string>
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="ProcessingMenuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="AAbout"/>
+    <addaction name="separator"/>
+    <addaction name="ABack"/>
+    <addaction name="separator"/>
+    <addaction name="AExit"/>
+   </widget>
+   <widget class="QMenu" name="ProcessingMenuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="ASelected_atoms"/>
+    <addaction name="separator"/>
+    <addaction name="ADel_coords_of_sel_atoms"/>
+    <addaction name="ADel_energy_of_sel_atoms"/>
+    <addaction name="separator"/>
+    <addaction name="AOSZICAR"/>
+    <addaction name="separator"/>
+    <addaction name="AInclude_OSZICAR"/>
+    <addaction name="separator"/>
+    <addaction name="ATable"/>
+    <addaction name="separator"/>
+    <addaction name="APreview_of_table"/>
+   </widget>
+   <addaction name="ProcessingMenuWindow"/>
+   <addaction name="ProcessingMenuOptions"/>
   </widget>
+  <action name="AAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="ABack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+  </action>
+  <action name="AExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="ADel_coords_of_sel_atoms">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Delete coords</string>
+   </property>
+  </action>
+  <action name="ADel_energy_of_sel_atoms">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Delete energy</string>
+   </property>
+  </action>
+  <action name="AInclude_OSZICAR">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Add to table</string>
+   </property>
+  </action>
+  <action name="APreview_of_table">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show</string>
+   </property>
+  </action>
+  <action name="ASelected_atoms">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Selected atoms</string>
+   </property>
+  </action>
+  <action name="AOSZICAR">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>OSZICAR</string>
+   </property>
+  </action>
+  <action name="ATable">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Table</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

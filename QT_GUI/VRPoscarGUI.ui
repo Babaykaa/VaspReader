@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VRPoscar</class>
+ <widget class="QMainWindow" name="VRPoscar">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>332</width>
+    <height>250</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>330</width>
+    <height>250</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>500</width>
+    <height>350</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>VaspReader (POSCAR)</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/VRlogo/VR-logo.ico</normaloff>:/VRlogo/VR-logo.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLineEdit{
+  border-radius: 8px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QLineEdit:focus {
+  border: 3px solid rgb(75, 75, 75);
+}
+QLineEdit:disabled {
+border-radius: 8px;
+padding: 3px 3px;  
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+}
+QLineEdit::placeholder {
+  color: #000000;
+}
+QPushButton {
+  background-color: rgb(255, 240, 202);
+  color: black;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid rgb(85, 0, 127);
+  padding: 3px 3px;
+  margin-top: 0px;
+  outline: 0px;
+}
+QPushButton:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+color: black;
+font-weight: 600;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+margin-top: 0px;
+outline: 0px;
+}
+QPushButton:hover {
+  background-color: rgb(255, 212, 137);
+  border: 1px solid #000000;
+}
+QPushButton:pressed {
+background-color: white;
+border: 3px solid #000000
+}
+QComboBox {
+  border-radius: 8px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QComboBox:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+}
+QComboBox::drop-down {
+  width: 18px;
+  height:22px;
+  padding: 0px 1px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+}
+QComboBox::down-arrow {
+  image: url(:/down-arrow_ico/down-arrow.ico);
+  width: 18px;
+  height:22px;
+}
+QComboBox::down-arrow:hover {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 229, 162);
+}
+QComboBox::down-arrow:pressed {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 0px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 232, 216);
+}
+QComboBox:pressed {
+	background-color: rgb(255, 250, 237);
+}
+QFrame{
+  border: 2px solid #000000;
+  border-radius: 5px;
+}
+QScrollArea{border: none;}
+QScrollBar{background: white; border-radius: 5px;}
+QScrollBar:horizontal{height: 8px;}
+QScrollBar:vertical{width: 8px; background:white;}
+QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 4px; width: 4px}
+QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}
+QScrollBar::handle:vertical{width: 25px; min-height: 10px;}
+QScrollBar::add-line{border: none;background: none;}
+QScrollBar::sub-line{border: none; background: none;}
+QLabel{
+border: 0px solid #000000;
+background-color: rgb(255, 255, 255, 255);
+color: black;
+font-weight: 600;
+height:28px;}
+QCheckBox{
+  border-radius: 6px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QRadioButton{
+  border-radius: 6px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}</string>
+  </property>
+  <widget class="QWidget" name="PoscarMainWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>13</number>
+    </property>
+    <property name="rightMargin">
+     <number>12</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="PoscarTopLayout" stretch="1,1,3">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Step:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1,3">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Max. Step:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_2"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,100">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Type Of Coordinates:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBox"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkBox">
+      <property name="text">
+       <string>Fix Coordinates Of Atoms</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1">
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Create POSCAR</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>Back</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>332</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="separator"/>
+    <addaction name="actionBack"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuWindow"/>
+  </widget>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
