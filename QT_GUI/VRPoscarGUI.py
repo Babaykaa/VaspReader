@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRPoscarGUIyAxjlL.ui'
+## Form generated from reading UI file 'VRPoscarGUITyNEtl.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -58,6 +58,7 @@ class Ui_VRPoscar(object):
 "  padding: 3px 3px;\n"
 "  margin-top: 0px;\n"
 "  outline: 0px;\n"
+"  border-style: outset;\n"
 "}\n"
 "QPushButton:disabled {\n"
 "border-radius: 8px;\n"
@@ -69,13 +70,15 @@ class Ui_VRPoscar(object):
 "background-color:rgb(150, 150, 150);\n"
 "margin-top: 0px;\n"
 "outline: 0px;\n"
+"border-style: outset;\n"
 "}\n"
 "QPushButton:hover {\n"
 "  background-color: rgb(255, 212, 137);\n"
-"  border: 1px solid #000000;\n"
+"  bord"
+                        "er: 1px solid #000000;\n"
+"  border-style: outset;\n"
 "}\n"
-"QPushButton:pressed {"
-                        "\n"
+"QPushButton:pressed {\n"
 "background-color: white;\n"
 "border: 3px solid #000000\n"
 "}\n"
@@ -114,11 +117,11 @@ class Ui_VRPoscar(object):
 "QComboBox::down-arrow:pressed {\n"
 "    width: 18px;\n"
 "    height:22px;\n"
-"    padding: 0px 1px;\n"
+"    padding: 0px 1"
+                        "px;\n"
 "    border: 0px solid #000000;\n"
 "    border-radius: 8px;\n"
-"	background"
-                        "-color: rgb(255, 232, 216);\n"
+"	background-color: rgb(255, 232, 216);\n"
 "}\n"
 "QComboBox:pressed {\n"
 "	background-color: rgb(255, 250, 237);\n"
@@ -127,15 +130,6 @@ class Ui_VRPoscar(object):
 "  border: 2px solid #000000;\n"
 "  border-radius: 5px;\n"
 "}\n"
-"QScrollArea{border: none;}\n"
-"QScrollBar{background: white; border-radius: 5px;}\n"
-"QScrollBar:horizontal{height: 8px;}\n"
-"QScrollBar:vertical{width: 8px; background:white;}\n"
-"QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 4px; width: 4px}\n"
-"QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}\n"
-"QScrollBar::handle:vertical{width: 25px; min-height: 10px;}\n"
-"QScrollBar::add-line{border: none;background: none;}\n"
-"QScrollBar::sub-line{border: none; background: none;}\n"
 "QLabel{\n"
 "border: 0px solid #000000;\n"
 "background-color: rgb(255, 255, 255, 255);\n"
@@ -146,13 +140,8 @@ class Ui_VRPoscar(object):
 "  border-radius: 6px;\n"
 "  border: 2px solid #000000;\n"
 "  padding: 3px 3px;\n"
-"}\n"
-"QRadioButton{\n"
-"  border-radius: 6px;\n"
-"  border: 2px solid #000000;\n"
-""
-                        "  padding: 3px 3px;\n"
 "}")
+        VRPoscar.setLocale(QLocale(QLocale.English, QLocale.UnitedStates))
         self.actionAbout = QAction(VRPoscar)
         self.actionAbout.setObjectName(u"actionAbout")
         self.actionBack = QAction(VRPoscar)

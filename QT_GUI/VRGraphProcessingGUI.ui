@@ -47,6 +47,7 @@ QPushButton {
   font-weight: 600;
   border-radius: 8px;
   border: 2px solid rgb(85, 0, 127);
+  border-style: outset;
   padding: 3px 3px;
   margin-top: 0px;
   outline: 0px;
@@ -61,10 +62,12 @@ border: 2px solid rgb(75, 75, 75);
 background-color:rgb(150, 150, 150);
 margin-top: 0px;
 outline: 0px;
+border-style: outset;
 }
 QPushButton:hover {
   background-color: rgb(255, 212, 137);
   border: 1px solid #000000;
+  border-style: outset;
 }
 QPushButton:pressed {
 background-color: white;
@@ -117,15 +120,6 @@ QFrame{
   border: 2px solid #000000;
   border-radius: 5px;
 }
-QScrollArea{border: none;}
-QScrollBar{background: white; border-radius: 5px;}
-QScrollBar:horizontal{height: 8px;}
-QScrollBar:vertical{width: 8px; background:white;}
-QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 4px; width: 4px}
-QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}
-QScrollBar::handle:vertical{width: 25px; min-height: 10px;}
-QScrollBar::add-line{border: none;background: none;}
-QScrollBar::sub-line{border: none; background: none;}
 QLabel{
 background-color: rgb(255, 240, 202);
 color: black;
@@ -140,7 +134,110 @@ QRadioButton{
   border-radius: 6px;
   border: 2px solid #000000;
   padding: 3px 3px;
+}
+
+QScrollBar:vertical {
+    border-radius: 6px;
+    border: 2px solid rgb(0, 0, 0);
+	color: rgb(0, 0, 0);
+    background: rgb(182, 182, 182);
+    width: 16px;
+    margin: 23px 0 23px 0;
+}
+QScrollBar::handle:vertical {
+    background: rgb(0, 203, 203);
+    min-height: 18px;
+    border-radius: 5px;
+}
+QScrollBar::handle:hover:vertical {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::add-line:vertical {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    height: 18px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    height: 18px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:hover:vertical, QScrollBar::sub-line:hover:vertical {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 2px;
+    width: 3.5px;
+    height: 3.5px;
+    background: rgb(255, 255, 255);
+}
+QScrollBar::up-arrow:vertical:hover, QScrollBar::down-arrow:vertical:hover {
+    background: rgb(0, 203, 203);
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    border-radius: 6px;
+    border: 2px solid rgb(0, 0, 0);
+	color: rgb(0, 0, 0);
+    background: rgb(182, 182, 182);
+    height: 16px;
+    margin: 0 23px 0 23px;
+}
+QScrollBar::handle:horizontal {
+    background: rgb(0, 203, 203);
+    min-width: 18px;
+    border-radius: 5px;
+}
+QScrollBar::handle:hover:horizontal {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::add-line:horizontal {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    width: 18px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+QScrollBar::sub-line:horizontal {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    width: 18px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:hover:horizontal, QScrollBar::sub-line:hover:horizontal {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 2px;
+    width: 3.5px;
+    height: 3.5px;
+    background: rgb(255, 255, 255);
+}
+QScrollBar::left-arrow:horizontal:hover, QScrollBar::right-arrow:horizontal:hover {
+    background: rgb(0, 203, 203);
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
 }</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="MainWidget">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="20,1">

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChooseFileWindow</class>
+ <widget class="QWidget" name="ChooseFileWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>400</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Choose POSCAR file</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/VRlogo/VR-logo.ico</normaloff>:/VRlogo/VR-logo.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QPushButton {
+  background-color: rgb(255, 240, 202);
+  color: black;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid rgb(85, 0, 127);
+  border-style: outset;
+  padding: 3px 3px;
+  margin-top: 0px;
+  outline: 0px;
+}
+QPushButton:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+color: black;
+font-weight: 600;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+margin-top: 0px;
+outline: 0px;
+border-style: outset;
+}
+QPushButton:hover {
+  background-color: rgb(255, 212, 137);
+  border: 1px solid #000000;
+  border-style: outset;
+}
+QPushButton:pressed {
+background-color: white;
+border: 3px solid #000000
+}
+QComboBox {
+  border-radius: 8px;
+  border: 2px solid #000000;
+  padding: 3px 3px;
+}
+QComboBox:disabled {
+border-radius: 8px;
+padding: 3px 3px;
+border-radius: 8px;
+border: 2px solid rgb(75, 75, 75);
+background-color:rgb(150, 150, 150);
+}
+QComboBox::drop-down {
+  width: 18px;
+  height:22px;
+  padding: 0px 1px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+}
+QComboBox::down-arrow {
+  image: url(:/down-arrow_ico/down-arrow.ico);
+  width: 18px;
+  height:22px;
+}
+QComboBox::down-arrow:hover {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 229, 162);
+}
+QComboBox::down-arrow:pressed {
+    width: 18px;
+    height:22px;
+    padding: 0px 1px;
+    border: 0px solid #000000;
+    border-radius: 8px;
+	background-color: rgb(255, 232, 216);
+}
+QComboBox:pressed {
+	background-color: rgb(255, 250, 237);
+}
+QFrame{
+  border: 2px solid #000000;
+  border-radius: 5px;
+}</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QComboBox" name="PoscarFileChoose">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>381</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="PoscarChooseSubmitButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>270</y>
+     <width>381</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Submit</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="PoscarOpenGLFrame">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>381</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QOpenGLWidget" name="PoscarOpenGL">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>361</width>
+      <height>161</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

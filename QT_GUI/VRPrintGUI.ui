@@ -481,8 +481,63 @@
     <normaloff>:/VRlogo/VR-logo.ico</normaloff>:/VRlogo/VR-logo.ico</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">gridline-color: rgb(53, 0, 80);
-border-color: rgb(78, 0, 117);</string>
+   <string notr="true">QMainWindow{
+gridline-color: rgb(53, 0, 80);
+border-color: rgb(78, 0, 117);
+}
+QScrollBar:vertical {
+    border-radius: 6px;
+    border: 2px solid rgb(0, 0, 0);
+	color: rgb(0, 0, 0);
+    background: rgb(182, 182, 182);
+    width: 16px;
+    margin: 23px 0 23px 0;
+}
+QScrollBar::handle:vertical {
+    background: rgb(0, 203, 203);
+    min-height: 18px;
+    border-radius: 5px;
+}
+QScrollBar::handle:hover:vertical {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::add-line:vertical {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    height: 18px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    height: 18px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:hover:vertical, QScrollBar::sub-line:hover:vertical {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 2px;
+    width: 3.5px;
+    height: 3.5px;
+    background: rgb(255, 255, 255);
+}
+QScrollBar::up-arrow:vertical:hover, QScrollBar::down-arrow:vertical:hover {
+    background: rgb(0, 203, 203);
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+QTextBrowser{border-image: url(:/background/belka.jpg) 0 0 0 0 scratch scratch;}</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="MainWidget">
    <property name="sizePolicy">
@@ -979,17 +1034,7 @@ border-color: rgb(78, 0, 117);</string>
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">QTextBrowser{border-image: url(:/background/belka.jpg) 0 0 0 0 scratch scratch;}
-QScrollArea{border: none;}
-QScrollBar{background: white; border-radius: 5px;}
-QScrollBar:horizontal{height: 10px;}
-QScrollBar:vertical{width: 10px; background:white;}
-QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 5px; width: 10px}
-QScrollBar::handle:hover{background: rgb(0, 150, 150); border-radius: 5px; width: 10px}
-QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}
-QScrollBar::handle:vertical{width: 25px; min-height: 10px;}
-QScrollBar::add-line{border: none;background: none;}
-QScrollBar::sub-line{border: none; background: none;}</string>
+       <string notr="true"/>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>

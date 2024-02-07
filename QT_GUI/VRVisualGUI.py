@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRVisualGUIeLJrrS.ui'
+## Form generated from reading UI file 'VRVisualGUIcntgUI.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -19,10 +19,13 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
     QHBoxLayout, QLineEdit, QMainWindow, QMenu,
     QMenuBar, QPushButton, QSizePolicy, QSlider,
-    QSpacerItem, QTabWidget, QVBoxLayout, QWidget)
+    QSpacerItem, QTabWidget, QVBoxLayout, QWidget, QFileDialog)
 import QT_GUI.Resource_rc
 
 class Ui_VRVisual(object):
+    def __init__(self):
+        self.file = None
+
     def setupUi(self, VRVisual):
         if not VRVisual.objectName():
             VRVisual.setObjectName(u"VRVisual")
@@ -72,18 +75,20 @@ class Ui_VRVisual(object):
 "  padding: 3px 3px;\n"
 "  margin-top: 0px;\n"
 "  outline: 0px;\n"
+"  border-style: outset;\n"
 "}\n"
 "QPushButton:hover {\n"
 "  background-color: rgb(255, 248, 231);\n"
 "  border: 1px solid rgb(74, 0, 0);\n"
+"  border-style: outset;\n"
 "}\n"
 "QPushButton:pressed {\n"
 "background-color: rgb(255, 247, 221);\n"
-"border: 3px solid #000000\n"
+"borde"
+                        "r: 3px solid #000000\n"
 "}\n"
 "QComboBox {\n"
-"  border-"
-                        "radius: 8px;\n"
+"  border-radius: 8px;\n"
 "  border: 2px solid rgb(109, 20, 20);\n"
 "  padding: 3px 3px;\n"
 "}\n"
@@ -121,10 +126,10 @@ class Ui_VRVisual(object):
 "    border-radius: 8px;\n"
 "}\n"
 "QComboBox:hover{\n"
-"  border-radius: 8px;\n"
+"  border-r"
+                        "adius: 8px;\n"
 "  background-color: rgb(255, 248, 231);\n"
-""
-                        "  border: 1px solid rgb(109, 20, 20);\n"
+"  border: 1px solid rgb(109, 20, 20);\n"
 "  padding: 3px 3px;\n"
 "}\n"
 "QFrame{\n"
@@ -158,11 +163,11 @@ class Ui_VRVisual(object):
 "}\n"
 "QSlider::add-page:horizontal {\n"
 "background: #fff;\n"
-"border: 1px solid rgb(170, 0, 0);\n"
+"border: 1px solid"
+                        " rgb(170, 0, 0);\n"
 "height: 10px;\n"
 "border-radius: 4px;\n"
-""
-                        "}\n"
+"}\n"
 "QSlider::handle:horizontal{\n"
 "background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));\n"
 "border: 2px solid rgb(0, 0, 0);\n"
@@ -184,21 +189,27 @@ class Ui_VRVisual(object):
         font.setFamilies([u"Times New Roman"])
         font.setPointSize(10)
         self.AOpen_calculation.setFont(font)
+        self.AOpen_calculation.triggered.connect(self.load_calculation)
         self.ALoad_Calculation_State = QAction(VRVisual)
         self.ALoad_Calculation_State.setObjectName(u"ALoad_Calculation_State")
         self.ALoad_Calculation_State.setFont(font)
+        self.ALoad_Calculation_State.triggered.connect(self.load_calculation_state)
         self.ASave_Calculation_State = QAction(VRVisual)
         self.ASave_Calculation_State.setObjectName(u"ASave_Calculation_State")
         self.ASave_Calculation_State.setFont(font)
+        self.ASave_Calculation_State.triggered.connect(self.save_calculation_state)
         self.ALoad_Configuration = QAction(VRVisual)
         self.ALoad_Configuration.setObjectName(u"ALoad_Configuration")
         self.ALoad_Configuration.setFont(font)
+        self.ALoad_Configuration.triggered.connect(self.load_configuration_state)
         self.ASave_Configuration = QAction(VRVisual)
         self.ASave_Configuration.setObjectName(u"ASave_Configuration")
         self.ASave_Configuration.setFont(font)
+        self.ASave_Configuration.triggered.connect(self.save_configuration_state)
         self.AExit = QAction(VRVisual)
         self.AExit.setObjectName(u"AExit")
         self.AExit.setFont(font)
+        self.AExit.triggered.connect(VRVisual.close)
         self.AAxes = QAction(VRVisual)
         self.AAxes.setObjectName(u"AAxes")
         self.AAxes.setCheckable(True)
@@ -653,3 +664,17 @@ class Ui_VRVisual(object):
         self.VisualMenuView.setTitle(QCoreApplication.translate("VRVisual", u"View", None))
     # retranslateUi
 
+    def load_calculation(self):
+        folder = str(QFileDialog.getExistingDirectory(None, "Select Directory"))
+
+    def load_calculation_state(self):
+        file = str(QFileDialog.getOpenFileName(None, "Select File"))
+
+    def save_calculation_state(self):
+        file = str(QFileDialog.getSaveFileName(None, "Save File"))
+
+    def load_configuration_state(self):
+        file = str(QFileDialog.getOpenFileName(None, "Select File"))
+
+    def save_configuration_state(self):
+        file = str(QFileDialog.getSaveFileName(None, "Save File"))

@@ -56,6 +56,7 @@ QPushButton {
   padding: 3px 3px;
   margin-top: 0px;
   outline: 0px;
+  border-style: outset;
 }
 QPushButton:disabled {
 border-radius: 8px;
@@ -67,10 +68,12 @@ border: 2px solid rgb(75, 75, 75);
 background-color:rgb(150, 150, 150);
 margin-top: 0px;
 outline: 0px;
+border-style: outset;
 }
 QPushButton:hover {
   background-color: rgb(255, 212, 137);
   border: 1px solid #000000;
+  border-style: outset;
 }
 QPushButton:pressed {
 background-color: white;
@@ -123,15 +126,6 @@ QFrame{
   border: 2px solid #000000;
   border-radius: 5px;
 }
-QScrollArea{border: none;}
-QScrollBar{background: white; border-radius: 5px;}
-QScrollBar:horizontal{height: 8px;}
-QScrollBar:vertical{width: 8px; background:white;}
-QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 4px; width: 4px}
-QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}
-QScrollBar::handle:vertical{width: 25px; min-height: 10px;}
-QScrollBar::add-line{border: none;background: none;}
-QScrollBar::sub-line{border: none; background: none;}
 QLabel{
 border: 0px solid #000000;
 background-color: rgb(255, 255, 255, 255);
@@ -142,12 +136,10 @@ QCheckBox{
   border-radius: 6px;
   border: 2px solid #000000;
   padding: 3px 3px;
-}
-QRadioButton{
-  border-radius: 6px;
-  border: 2px solid #000000;
-  padding: 3px 3px;
 }</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="PoscarMainWidget">
    <layout class="QVBoxLayout" name="verticalLayout">

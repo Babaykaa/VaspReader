@@ -164,7 +164,7 @@ def processing_GUI():
 
 
 def graph_processing_GUI():
-    """"VaspReader window of creating and saving graphs."""
+    """VaspReader window of creating and saving graphs."""
     graph_interval = [[sg.Text('Set the interval along the axes.')],
                       [sg.Text('X-axis:', pad=((5, 5), (0, 0)))],
                       [sg.Text('from ', size=(5, 1)),
@@ -437,4 +437,4 @@ class VRGUI:
         return self.window
 
 
-# core_test = VRGUI(processing_GUI, title='TEST', resizable=True).testloop()
+core_test = VRGUI(file_hosting, title='TEST', resizable=True).testloop()

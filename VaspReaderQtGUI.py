@@ -4,6 +4,10 @@ from QT_GUI.VRPoscarGUI import Ui_VRPoscar
 from QT_GUI.VROszicarGUI import Ui_VROszicar
 from QT_GUI.VRGraphProcessingGUI import Ui_VRGraphProcessing
 from QT_GUI.VRProcessingGUI import Ui_VRProcessing
+from QT_GUI.VRChoosePoscarGUI import Ui_ChooseFileWindow
+from QT_GUI.VRAuthSupercomputerGUI import Ui_VRAuthSupercomputer
+from QT_GUI.VRRewriteFileGUI import Ui_RewriteFile
+from QT_GUI.VRTransferredGUI import Ui_VRTransferProgress
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
@@ -22,7 +26,7 @@ class VRGUI(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    window = VRGUI(Ui_VRPrint)
+    window = VRGUI(Ui_VRVisual)
     window.show()
 
     sys.exit(app.exec())

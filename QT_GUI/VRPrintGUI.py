@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRPrintGUIiJXSGw.ui'
+## Form generated from reading UI file 'VRPrintGUIMJScvM.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -126,8 +126,62 @@ class Ui_VRPrint(object):
         icon = QIcon()
         icon.addFile(u":/VRlogo/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
         VRPrint.setWindowIcon(icon)
-        VRPrint.setStyleSheet(u"gridline-color: rgb(53, 0, 80);\n"
-"border-color: rgb(78, 0, 117);")
+        VRPrint.setStyleSheet(u"QMainWindow{\n"
+"gridline-color: rgb(53, 0, 80);\n"
+"border-color: rgb(78, 0, 117);\n"
+"}\n"
+"QScrollBar:vertical {\n"
+"    border-radius: 6px;\n"
+"    border: 2px solid rgb(0, 0, 0);\n"
+"	color: rgb(0, 0, 0);\n"
+"    background: rgb(182, 182, 182);\n"
+"    width: 16px;\n"
+"    margin: 23px 0 23px 0;\n"
+"}\n"
+"QScrollBar::handle:vertical {\n"
+"    background: rgb(0, 203, 203);\n"
+"    min-height: 18px;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"QScrollBar::handle:hover:vertical {\n"
+"    background: rgb(255, 255, 255);\n"
+"}\n"
+"QScrollBar::add-line:vertical {\n"
+"    border: 1.5px solid rgb(0, 0, 0);\n"
+"    border-radius: 6px;\n"
+"    background: rgb(0, 203, 203);\n"
+"    height: 18px;\n"
+"    subcontrol-position: bottom;\n"
+"    subcontrol-origin: margin;\n"
+"}\n"
+"QScrollBar::sub-line:vertical {\n"
+"    border: 1.5px solid rgb(0, 0, 0);\n"
+"    border-radius: 6px;\n"
+"    background: rgb(0, 203, 203);\n"
+"    height: 18px;\n"
+"    subcontrol-position: top;\n"
+"    subcontrol-origin: margin;\n"
+"}\n"
+"QScrollBar"
+                        "::add-line:hover:vertical, QScrollBar::sub-line:hover:vertical {\n"
+"    background: rgb(255, 255, 255);\n"
+"}\n"
+"QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {\n"
+"    border: 1px solid rgb(0, 0, 0);\n"
+"    border-radius: 2px;\n"
+"    width: 3.5px;\n"
+"    height: 3.5px;\n"
+"    background: rgb(255, 255, 255);\n"
+"}\n"
+"QScrollBar::up-arrow:vertical:hover, QScrollBar::down-arrow:vertical:hover {\n"
+"    background: rgb(0, 203, 203);\n"
+"}\n"
+"\n"
+"QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\n"
+"    background: none;\n"
+"}\n"
+"QTextBrowser{border-image: url(:/background/belka.jpg) 0 0 0 0 scratch scratch;}")
+        VRPrint.setLocale(QLocale(QLocale.English, QLocale.UnitedStates))
         self.MainWidget = QWidget(VRPrint)
         self.MainWidget.setObjectName(u"MainWidget")
         sizePolicy.setHeightForWidth(self.MainWidget.sizePolicy().hasHeightForWidth())
@@ -207,17 +261,7 @@ class Ui_VRPrint(object):
         self.Logger.setFont(font)
         self.Logger.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.Logger.setAutoFillBackground(False)
-        self.Logger.setStyleSheet(u"QTextBrowser{border-image: url(:/background/belka.jpg) 0 0 0 0 scratch scratch;}\n"
-"QScrollArea{border: none;}\n"
-"QScrollBar{background: white; border-radius: 5px;}\n"
-"QScrollBar:horizontal{height: 10px;}\n"
-"QScrollBar:vertical{width: 10px; background:white;}\n"
-"QScrollBar::handle{background: rgb(0, 203, 203); border-radius: 5px; width: 10px}\n"
-"QScrollBar::handle:hover{background: rgb(0, 150, 150); border-radius: 5px; width: 10px}\n"
-"QScrollBar::handle:horizontal{height: 25px; min-width: 10px;}\n"
-"QScrollBar::handle:vertical{width: 25px; min-height: 10px;}\n"
-"QScrollBar::add-line{border: none;background: none;}\n"
-"QScrollBar::sub-line{border: none; background: none;}")
+        self.Logger.setStyleSheet(u"")
         self.Logger.setFrameShape(QFrame.Box)
         self.Logger.setFrameShadow(QFrame.Sunken)
         self.Logger.setLineWidth(3)

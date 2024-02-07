@@ -79,10 +79,12 @@ QPushButton {
   padding: 3px 3px;
   margin-top: 0px;
   outline: 0px;
+  border-style: outset;
 }
 QPushButton:hover {
   background-color: rgb(255, 248, 231);
   border: 1px solid rgb(74, 0, 0);
+  border-style: outset;
 }
 QPushButton:pressed {
 background-color: rgb(255, 247, 221);
