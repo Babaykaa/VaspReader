@@ -24,7 +24,7 @@ The list of VaspReader functions:
 
    1.9. form a POSCAR file for chosen step,
 
-   1.10. do an screenshot,
+   1.10. do a screenshot,
 
    1.11. save and load visualisation state.
 
@@ -34,7 +34,7 @@ The list of VaspReader functions:
 
    2.2. angles with selected planes or valence angles,
 
-   2.3. energy of center of mass for chosen atoms,
+   2.3. center of mass energy for chosen atoms,
 
    2.4. summary energy for chosen atoms,
 
@@ -46,8 +46,8 @@ Also user can include OSZICAR data to table and save resulted tables in .csv and
 
 3. Plotting. After processing user can plot gained dependences (with ability of including several dependences) and save it at .png, .pdf, .jpg, .tif formats. Also this window provides functions for choose x and y diapasones and change a graph legend and labels.
 4. OSZICAR processing.
-5. Linking with supercomputer (only for lomonosov-2 supercomputer now). Suggest two options: filesharing and console management, which helps with starting of tasks and sharing of files with supercomputer from VaspReader program. This function is not completed.
-6. Raman and IR spectra calculations. This function is not completed.
+5. Linking with supercomputer (only for lomonosov-2 supercomputer now). Suggest two options: filesharing and console management, which helps with starting of tasks and sharing of files with supercomputer from VaspReader program. This function is not finished.
+6. Raman and IR spectra calculations. This function is not finished.
 7. POSCAR visualitation. Draw an POSCAR file chosen from list of files (if it more than one file in directory).
 
 I hope that you will enjoy the expirience of using this program. For any sugestions and bug reports send me a mail to: solovykh.aa19@physics.msu.ru.
