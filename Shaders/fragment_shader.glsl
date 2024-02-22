@@ -11,15 +11,42 @@ struct LightInfo{
 };
 uniform LightInfo lights[8];
 
+struct FogInfo{
+    vec3 FogColor;
+    float FogMaxDist;
+    float FogMinDist;
+    float FogDensity;
+    int FogPower;
+};
+uniform FogInfo fog;
 
 uniform vec3 Ka;
 uniform vec3 Kd;
 uniform vec3 Ks;
 uniform float Shininess;
+uniform vec3 EyePosition;
 
 
 layout (location=0) out vec4 FragColor;
 
+
+float FogSetLinear(vec3 Position, vec3 EyePosition)
+{
+    float d = distance(EyePosition, Position);
+    return 1 - clamp((fog.FogMaxDist - d) / (fog.FogMaxDist - fog.FogMinDist), 0.0, 1.0);
+}
+
+float FogSetExp(vec3 Position, vec3 EyePosition)
+{
+    float d = distance(EyePosition, Position) / 10;
+    return 1 - exp(-fog.FogDensity * d);
+}
+
+float FogSetExpMod(vec3 Position, vec3 EyePosition)
+{
+    float d = distance(EyePosition, Position) / 10;
+    return 1 - exp(-pow(fog.FogDensity * d, fog.FogPower));
+}
 
 vec3 ads(int lightIndex)
 {
@@ -52,8 +79,11 @@ vec3 customModel(int lightIndex)
 
 void main() {
     vec3 ResColor = vec3(0.0);
+    float alpha = FogSetExpMod(Position, EyePosition);
+    // float alpha = pow(smoothstep(fog.FogMaxDist - fog.FogMinDist, 1, distance(Position, EyePosition)), fog.FogDensity);
     for (int i = 0; i < 8; i++)
         ResColor += ads(i);
 
-    FragColor = vec4(ResColor, 1.0);
+    FragColor = mix(vec4(ResColor, 1.0), vec4(fog.FogColor, 1.0), alpha);
+    // FragColor = vec4(ResColor, 1.0);
 }

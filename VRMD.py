@@ -146,9 +146,12 @@ class VRMD:
                         self.parser_parameters['ATOM-NUMBERS'][stripped_atom].append(number)
                     else:
                         self.parser_parameters['ATOM-NUMBERS'][stripped_atom] = [number]
+        for key in self.parser_parameters['ATOM-NUMBERS']:
+            self.parser_parameters['ATOM-NUMBERS'][key] = np.array(self.parser_parameters['ATOM-NUMBERS'][key])
 
     @ staticmethod
     def atoms_info_filling(dictionary):
+        dictionary['RADII'] = []
         for _, name in enumerate(set(dictionary['ATOMNAMES'])):
             dictionary['ATOMSINFO'][name] = {'COLORVALUE': [], 'RADII': 1, 'FILLED': False}
 
@@ -157,47 +160,51 @@ class VRMD:
             now_filling_atom = dictionary['ATOMSINFO'][dictionary['ATOMNAMES'][i]]
             if not now_filling_atom['FILLED']:
                 if atom == 'O':
-                    now_filling_atom['COLORVALUE'] = [1, 0, 0] # 'red'
+                    now_filling_atom['COLORVALUE'] = np.asarray([1, 0, 0]) # 'red'
                     now_filling_atom['RADII'] = 0.3
                 elif atom == 'Si':
-                    now_filling_atom['COLORVALUE'] = [1, 1, 0]  # 'yellow'
+                    now_filling_atom['COLORVALUE'] = np.asarray([1, 1, 0])  # 'yellow'
                     now_filling_atom['RADII'] = 0.4
                 elif atom == 'H':
-                    now_filling_atom['COLORVALUE'] = [0.5, 0.5, 0.5]  # 'gray'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0.5, 0.5, 0.5])  # 'gray'
                     now_filling_atom['RADII'] = 0.2
                 elif atom == 'C':
-                    now_filling_atom['COLORVALUE'] = [0.2, 0.2, 0.2]  # 'black'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0.2, 0.2, 0.2])  # 'black'
                     now_filling_atom['RADII'] = 0.33
                 elif atom == 'He':
-                    now_filling_atom['COLORVALUE'] = [0, 1, 0]  # 'green'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0, 1, 0])  # 'green'
                     now_filling_atom['RADII'] = 0.18
                 elif atom == 'Ar':
-                    now_filling_atom['COLORVALUE'] = [0.6, 0, 0.6]  # 'purple'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0.6, 0, 0.6])  # 'purple'
                     now_filling_atom['RADII'] = 0.34
                 elif atom == 'Xe':
-                    now_filling_atom['COLORVALUE'] = [0.05, 0, 0.6]  # 'blue'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0.05, 0, 0.6])  # 'blue'
                     now_filling_atom['RADII'] = 0.38
                 elif atom == 'Mo':
-                    now_filling_atom['COLORVALUE'] = [0, 0.78, 0.78] # old violet 0.63, 0, 0.63 '#00c6c6' #a100a1
+                    now_filling_atom['COLORVALUE'] = np.asarray([0, 0.78, 0.78]) # old violet 0.63, 0, 0.63 '#00c6c6' #a100a1
                     now_filling_atom['RADII'] = 0.5
                 elif atom == 'S':
-                    now_filling_atom['COLORVALUE'] = [1.0, 1.0, 0]  # '#ffff00'
+                    now_filling_atom['COLORVALUE'] = np.asarray([1.0, 1.0, 0])  # '#ffff00'
                     now_filling_atom['RADII'] = 0.36
                 elif atom == 'N':
-                    now_filling_atom['COLORVALUE'] = [0, 0, 1] # old light blue '#0000ff'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0, 0, 1]) # old light blue '#0000ff'
                     now_filling_atom['RADII'] = 0.24
                 elif atom == 'Ne':
-                    now_filling_atom['COLORVALUE'] = [0.543, 0.27, 0.07]  # '#8b4513'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0.543, 0.27, 0.07])  # '#8b4513'
                     now_filling_atom['RADII'] = 0.16
                 elif atom == 'Cl':
-                    now_filling_atom['COLORVALUE'] = [0.12, 0.77, 0.65]  # '1fc4a6'
+                    now_filling_atom['COLORVALUE'] = np.asarray([0.12, 0.77, 0.65])  # '1fc4a6'
                     now_filling_atom['RADII'] = 0.3
                 else:
                     r, g, b = random.random(), random.random(), random.random()
                     rad = random.uniform(0.24, 0.42)
-                    now_filling_atom['COLORVALUE'] = [r, g, b]
+                    now_filling_atom['COLORVALUE'] = np.asarray([r, g, b])
                     now_filling_atom['RADII'] = rad
                 now_filling_atom['FILLED'] = True
+
+
+        for i in range(dictionary['ATOMNUMBER']):
+            dictionary['RADII'].append(dictionary['ATOMSINFO'][dictionary['ATOMNAMES'][i]]['RADII'])
         return dictionary
 
 
