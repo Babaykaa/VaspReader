@@ -34,11 +34,12 @@ class VRVBO:
 
     def __del__(self) -> None:
         """A rule for deleting a VRVBO object."""
-        self.array.delete()
-        if self.vao is not None:
-            glDeleteVertexArrays(1, [self.vao])
-        if self.indexes is not None:
-            self.indexes.delete()
+        if glDeleteBuffers:
+            self.array.delete()
+            # if self.vao is not None and glDeleteVertexArrays:
+            #     glDeleteVertexArrays(1, [self.vao])
+            if self.indexes is not None:
+                self.indexes.delete()
 
     def create_vao_buffer(self):
         """Creates VAO buffer from VBO buffers and return the class object."""
@@ -114,11 +115,17 @@ class VRVBO:
     def set_fog_parameters(self, uniform_variables_dict, eyePosition, fogColor, fogMinDist, fogMaxDist, fogPower, fogDensity) -> None:
         """Loads fog settings into program."""
         self.load_uniform_vec3(uniform_variables_dict[('EyePosition', 'vec3')], eyePosition)
-        self.load_uniform_vec3(uniform_variables_dict[('fog.FogColor', '=')], fogColor)
+        self.load_uniform_vec4(uniform_variables_dict[('fog.FogColor', '=')], fogColor)
         # self.load_uniform_float(uniform_variables_dict[('fog.FogMaxDist', '1')], fogMaxDist)
         # self.load_uniform_float(uniform_variables_dict[('fog.FogMinDist', '1')], fogMinDist)
         self.load_uniform_int(uniform_variables_dict[('fog.FogPower', '1')], fogPower)
         self.load_uniform_float(uniform_variables_dict[('fog.FogDensity', '1')], fogDensity)
+
+    def is_texture_exist(self, uniform_variables_dict, value):
+        self.load_uniform_int(uniform_variables_dict[('isTextureExist', 'int')], value)
+
+    def set_texture_info(self, uniform_variables_dict, texture):
+        self.load_uniform_int(uniform_variables_dict[('textureMap', 'sampler2D')], texture)
 
     def draw_from_vao_buffer(self, primitive_type, uniform_variables_dict, ModelMatrix='', ViewMatrix='', ProjectionMatrix='', NormalMatrix='', TranslationMatrix='', texture='') -> None:
         """Sends command to draw elements from VAO buffer."""

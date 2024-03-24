@@ -3,7 +3,7 @@
 in vec3 Position;
 in vec3 Normal;
 in vec3 Color;
-
+in vec2 TexCoord;
 
 struct LightInfo{
     vec4 Position;
@@ -12,7 +12,7 @@ struct LightInfo{
 uniform LightInfo lights[8];
 
 struct FogInfo{
-    vec3 FogColor;
+    vec4 FogColor;
     float FogMaxDist;
     float FogMinDist;
     float FogDensity;
@@ -26,6 +26,8 @@ uniform vec3 Ks;
 uniform float Shininess;
 uniform vec3 EyePosition;
 
+uniform sampler2D textureMap;
+uniform int isTextureExist;
 
 layout (location=0) out vec4 FragColor;
 
@@ -84,6 +86,13 @@ void main() {
     for (int i = 0; i < 8; i++)
         ResColor += ads(i);
 
-    FragColor = mix(vec4(ResColor, 1.0), vec4(fog.FogColor, 1.0), alpha);
+    vec4 textureData = texture(textureMap, TexCoord);
+
+    FragColor = mix(vec4(ResColor, 1.0), fog.FogColor, alpha);
+    if (isTextureExist != 0) {
+        FragColor = mix(FragColor, textureData, 0.5);
+    }
+    // FragColor = min(FragColor, textureData);
+    // FragColor = textureData ; // + vec4(ResColor, 1.0);
     // FragColor = vec4(ResColor, 1.0);
 }

@@ -265,8 +265,14 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
           </size>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,30,3">
-          <property name="rightMargin">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
            <number>9</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
           </property>
           <item>
            <spacer name="LeftCentralVSpacer1">
@@ -292,20 +298,20 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="documentMode">
              <bool>true</bool>
             </property>
-            <widget class="QWidget" name="DCPM">
+            <widget class="QWidget" name="DC">
              <attribute name="title">
-              <string>Distance|COM|+|-</string>
+              <string>Distance|COM</string>
              </attribute>
              <widget class="QWidget" name="verticalLayoutWidget">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>301</width>
+                <width>321</width>
                 <height>391</height>
                </rect>
               </property>
-              <layout class="QVBoxLayout" name="DCPMVLayout" stretch="2,0,0,0,0,0">
+              <layout class="QVBoxLayout" name="DCVLayout" stretch="2,0,0,0,0,0">
                <property name="spacing">
                 <number>14</number>
                </property>
@@ -316,23 +322,27 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 <number>8</number>
                </property>
                <property name="rightMargin">
-                <number>10</number>
+                <number>12</number>
                </property>
                <property name="bottomMargin">
                 <number>18</number>
                </property>
                <item>
-                <widget class="QListWidget" name="DCPMList"/>
+                <widget class="QListWidget" name="DCList">
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::MultiSelection</enum>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="DCPMSelected">
+                <widget class="QLineEdit" name="DCSelected">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="DCPMRadioLayout" stretch="1,1,1,1">
+                <layout class="QHBoxLayout" name="DCRadioLayout" stretch="1,1">
                  <item>
                   <widget class="QRadioButton" name="DistanceRadio">
                    <property name="text">
@@ -350,24 +360,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QRadioButton" name="PlusRadio">
-                   <property name="text">
-                    <string>+</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="MinusRadio">
-                   <property name="text">
-                    <string>-</string>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </item>
                <item>
-                <widget class="QPushButton" name="DCMPAddCol">
+                <widget class="QPushButton" name="DCAddCol">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -377,14 +373,108 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="DCPMAdded">
+                <widget class="QComboBox" name="DCAdded">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="DCPMRemoveCol">
+                <widget class="QPushButton" name="DCRemoveCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Remove Column</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="PM">
+             <attribute name="title">
+              <string>+|-</string>
+             </attribute>
+             <widget class="QWidget" name="verticalLayoutWidget_5">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>321</width>
+                <height>391</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="PMVLayout" stretch="2,0,0,0,0,0">
+               <property name="spacing">
+                <number>14</number>
+               </property>
+               <property name="leftMargin">
+                <number>8</number>
+               </property>
+               <property name="topMargin">
+                <number>8</number>
+               </property>
+               <property name="rightMargin">
+                <number>12</number>
+               </property>
+               <property name="bottomMargin">
+                <number>18</number>
+               </property>
+               <item>
+                <widget class="QListWidget" name="PMList">
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::MultiSelection</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="PMSelected">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="PMRadioLayout" stretch="1,1">
+                 <item>
+                  <widget class="QRadioButton" name="PlusRadio_2">
+                   <property name="text">
+                    <string>+</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="MinusRadio_2">
+                   <property name="text">
+                    <string>-</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QPushButton" name="PMAddCol">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Add Column</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="PMAdded">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="PMRemoveCol">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -405,7 +495,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>301</width>
+                <width>321</width>
                 <height>391</height>
                </rect>
               </property>
@@ -420,13 +510,17 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 <number>8</number>
                </property>
                <property name="rightMargin">
-                <number>10</number>
+                <number>12</number>
                </property>
                <property name="bottomMargin">
                 <number>18</number>
                </property>
                <item>
-                <widget class="QListWidget" name="AngleList"/>
+                <widget class="QListWidget" name="AngleList">
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::MultiSelection</enum>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QLineEdit" name="AngleSelected">
@@ -499,7 +593,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>301</width>
+                <width>321</width>
                 <height>391</height>
                </rect>
               </property>
@@ -514,13 +608,17 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 <number>8</number>
                </property>
                <property name="rightMargin">
-                <number>10</number>
+                <number>12</number>
                </property>
                <property name="bottomMargin">
                 <number>18</number>
                </property>
                <item>
-                <widget class="QListWidget" name="DivideList"/>
+                <widget class="QListWidget" name="DivideList">
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::MultiSelection</enum>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QLineEdit" name="DivideSelected">
@@ -568,7 +666,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>301</width>
+                <width>321</width>
                 <height>391</height>
                </rect>
               </property>
@@ -583,7 +681,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 <number>8</number>
                </property>
                <property name="rightMargin">
-                <number>10</number>
+                <number>12</number>
                </property>
                <property name="bottomMargin">
                 <number>18</number>

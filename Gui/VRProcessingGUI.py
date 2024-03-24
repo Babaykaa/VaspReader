@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRProcessingGUIypJfos.ui'
+## Form generated from reading UI file 'VRProcessingGUIqfDbpD.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComb
     QListWidgetItem, QMainWindow, QMenu, QMenuBar,
     QPushButton, QRadioButton, QSizePolicy, QSpacerItem,
     QTabWidget, QTableView, QVBoxLayout, QWidget)
-import QT_GUI.Resource_rc
+import Gui.Resource_rc
 
 class Ui_VRProcessing(object):
     def setupUi(self, VRProcessing):
@@ -301,7 +301,7 @@ class Ui_VRProcessing(object):
         self.LeftCentralWidget.setMinimumSize(QSize(320, 500))
         self.verticalLayout_2 = QVBoxLayout(self.LeftCentralWidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(-1, -1, 9, -1)
+        self.verticalLayout_2.setContentsMargins(0, 9, 0, -1)
         self.LeftCentralVSpacer1 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_2.addItem(self.LeftCentralVSpacer1)
@@ -310,87 +310,136 @@ class Ui_VRProcessing(object):
         self.ProcessingTab.setObjectName(u"ProcessingTab")
         self.ProcessingTab.setTabShape(QTabWidget.Rounded)
         self.ProcessingTab.setDocumentMode(True)
-        self.DCPM = QWidget()
-        self.DCPM.setObjectName(u"DCPM")
-        self.verticalLayoutWidget = QWidget(self.DCPM)
+        self.DC = QWidget()
+        self.DC.setObjectName(u"DC")
+        self.verticalLayoutWidget = QWidget(self.DC)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(0, 0, 301, 391))
-        self.DCPMVLayout = QVBoxLayout(self.verticalLayoutWidget)
-        self.DCPMVLayout.setSpacing(14)
-        self.DCPMVLayout.setObjectName(u"DCPMVLayout")
-        self.DCPMVLayout.setContentsMargins(8, 8, 10, 18)
-        self.DCPMList = QListWidget(self.verticalLayoutWidget)
-        self.DCPMList.setObjectName(u"DCPMList")
+        self.verticalLayoutWidget.setGeometry(QRect(0, 0, 321, 391))
+        self.DCVLayout = QVBoxLayout(self.verticalLayoutWidget)
+        self.DCVLayout.setSpacing(14)
+        self.DCVLayout.setObjectName(u"DCVLayout")
+        self.DCVLayout.setContentsMargins(8, 8, 12, 18)
+        self.DCList = QListWidget(self.verticalLayoutWidget)
+        self.DCList.setObjectName(u"DCList")
+        self.DCList.setSelectionMode(QAbstractItemView.MultiSelection)
 
-        self.DCPMVLayout.addWidget(self.DCPMList)
+        self.DCVLayout.addWidget(self.DCList)
 
-        self.DCPMSelected = QLineEdit(self.verticalLayoutWidget)
-        self.DCPMSelected.setObjectName(u"DCPMSelected")
-        self.DCPMSelected.setEnabled(False)
+        self.DCSelected = QLineEdit(self.verticalLayoutWidget)
+        self.DCSelected.setObjectName(u"DCSelected")
+        self.DCSelected.setEnabled(False)
 
-        self.DCPMVLayout.addWidget(self.DCPMSelected)
+        self.DCVLayout.addWidget(self.DCSelected)
 
-        self.DCPMRadioLayout = QHBoxLayout()
-        self.DCPMRadioLayout.setObjectName(u"DCPMRadioLayout")
+        self.DCRadioLayout = QHBoxLayout()
+        self.DCRadioLayout.setObjectName(u"DCRadioLayout")
         self.DistanceRadio = QRadioButton(self.verticalLayoutWidget)
         self.DistanceRadio.setObjectName(u"DistanceRadio")
         self.DistanceRadio.setChecked(True)
 
-        self.DCPMRadioLayout.addWidget(self.DistanceRadio)
+        self.DCRadioLayout.addWidget(self.DistanceRadio)
 
         self.COMRadio = QRadioButton(self.verticalLayoutWidget)
         self.COMRadio.setObjectName(u"COMRadio")
 
-        self.DCPMRadioLayout.addWidget(self.COMRadio)
+        self.DCRadioLayout.addWidget(self.COMRadio)
 
-        self.PlusRadio = QRadioButton(self.verticalLayoutWidget)
-        self.PlusRadio.setObjectName(u"PlusRadio")
+        self.DCRadioLayout.setStretch(0, 1)
+        self.DCRadioLayout.setStretch(1, 1)
 
-        self.DCPMRadioLayout.addWidget(self.PlusRadio)
+        self.DCVLayout.addLayout(self.DCRadioLayout)
 
-        self.MinusRadio = QRadioButton(self.verticalLayoutWidget)
-        self.MinusRadio.setObjectName(u"MinusRadio")
+        self.DCAddCol = QPushButton(self.verticalLayoutWidget)
+        self.DCAddCol.setObjectName(u"DCAddCol")
+        self.DCAddCol.setEnabled(False)
 
-        self.DCPMRadioLayout.addWidget(self.MinusRadio)
+        self.DCVLayout.addWidget(self.DCAddCol)
 
-        self.DCPMRadioLayout.setStretch(0, 1)
-        self.DCPMRadioLayout.setStretch(1, 1)
-        self.DCPMRadioLayout.setStretch(2, 1)
-        self.DCPMRadioLayout.setStretch(3, 1)
+        self.DCAdded = QComboBox(self.verticalLayoutWidget)
+        self.DCAdded.setObjectName(u"DCAdded")
+        self.DCAdded.setEnabled(False)
 
-        self.DCPMVLayout.addLayout(self.DCPMRadioLayout)
+        self.DCVLayout.addWidget(self.DCAdded)
 
-        self.DCMPAddCol = QPushButton(self.verticalLayoutWidget)
-        self.DCMPAddCol.setObjectName(u"DCMPAddCol")
-        self.DCMPAddCol.setEnabled(False)
+        self.DCRemoveCol = QPushButton(self.verticalLayoutWidget)
+        self.DCRemoveCol.setObjectName(u"DCRemoveCol")
+        self.DCRemoveCol.setEnabled(False)
 
-        self.DCPMVLayout.addWidget(self.DCMPAddCol)
+        self.DCVLayout.addWidget(self.DCRemoveCol)
 
-        self.DCPMAdded = QComboBox(self.verticalLayoutWidget)
-        self.DCPMAdded.setObjectName(u"DCPMAdded")
-        self.DCPMAdded.setEnabled(False)
+        self.DCVLayout.setStretch(0, 2)
+        self.ProcessingTab.addTab(self.DC, "")
+        self.PM = QWidget()
+        self.PM.setObjectName(u"PM")
+        self.verticalLayoutWidget_5 = QWidget(self.PM)
+        self.verticalLayoutWidget_5.setObjectName(u"verticalLayoutWidget_5")
+        self.verticalLayoutWidget_5.setGeometry(QRect(0, 0, 321, 391))
+        self.PMVLayout = QVBoxLayout(self.verticalLayoutWidget_5)
+        self.PMVLayout.setSpacing(14)
+        self.PMVLayout.setObjectName(u"PMVLayout")
+        self.PMVLayout.setContentsMargins(8, 8, 12, 18)
+        self.PMList = QListWidget(self.verticalLayoutWidget_5)
+        self.PMList.setObjectName(u"PMList")
+        self.PMList.setSelectionMode(QAbstractItemView.MultiSelection)
 
-        self.DCPMVLayout.addWidget(self.DCPMAdded)
+        self.PMVLayout.addWidget(self.PMList)
 
-        self.DCPMRemoveCol = QPushButton(self.verticalLayoutWidget)
-        self.DCPMRemoveCol.setObjectName(u"DCPMRemoveCol")
-        self.DCPMRemoveCol.setEnabled(False)
+        self.PMSelected = QLineEdit(self.verticalLayoutWidget_5)
+        self.PMSelected.setObjectName(u"PMSelected")
+        self.PMSelected.setEnabled(False)
 
-        self.DCPMVLayout.addWidget(self.DCPMRemoveCol)
+        self.PMVLayout.addWidget(self.PMSelected)
 
-        self.DCPMVLayout.setStretch(0, 2)
-        self.ProcessingTab.addTab(self.DCPM, "")
+        self.PMRadioLayout = QHBoxLayout()
+        self.PMRadioLayout.setObjectName(u"PMRadioLayout")
+        self.PlusRadio_2 = QRadioButton(self.verticalLayoutWidget_5)
+        self.PlusRadio_2.setObjectName(u"PlusRadio_2")
+        self.PlusRadio_2.setChecked(True)
+
+        self.PMRadioLayout.addWidget(self.PlusRadio_2)
+
+        self.MinusRadio_2 = QRadioButton(self.verticalLayoutWidget_5)
+        self.MinusRadio_2.setObjectName(u"MinusRadio_2")
+
+        self.PMRadioLayout.addWidget(self.MinusRadio_2)
+
+        self.PMRadioLayout.setStretch(0, 1)
+        self.PMRadioLayout.setStretch(1, 1)
+
+        self.PMVLayout.addLayout(self.PMRadioLayout)
+
+        self.PMAddCol = QPushButton(self.verticalLayoutWidget_5)
+        self.PMAddCol.setObjectName(u"PMAddCol")
+        self.PMAddCol.setEnabled(False)
+
+        self.PMVLayout.addWidget(self.PMAddCol)
+
+        self.PMAdded = QComboBox(self.verticalLayoutWidget_5)
+        self.PMAdded.setObjectName(u"PMAdded")
+        self.PMAdded.setEnabled(False)
+
+        self.PMVLayout.addWidget(self.PMAdded)
+
+        self.PMRemoveCol = QPushButton(self.verticalLayoutWidget_5)
+        self.PMRemoveCol.setObjectName(u"PMRemoveCol")
+        self.PMRemoveCol.setEnabled(False)
+
+        self.PMVLayout.addWidget(self.PMRemoveCol)
+
+        self.PMVLayout.setStretch(0, 2)
+        self.ProcessingTab.addTab(self.PM, "")
         self.Angle = QWidget()
         self.Angle.setObjectName(u"Angle")
         self.verticalLayoutWidget_2 = QWidget(self.Angle)
         self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(0, 0, 301, 391))
+        self.verticalLayoutWidget_2.setGeometry(QRect(0, 0, 321, 391))
         self.AngleVLayout = QVBoxLayout(self.verticalLayoutWidget_2)
         self.AngleVLayout.setSpacing(14)
         self.AngleVLayout.setObjectName(u"AngleVLayout")
-        self.AngleVLayout.setContentsMargins(8, 8, 10, 18)
+        self.AngleVLayout.setContentsMargins(8, 8, 12, 18)
         self.AngleList = QListWidget(self.verticalLayoutWidget_2)
         self.AngleList.setObjectName(u"AngleList")
+        self.AngleList.setSelectionMode(QAbstractItemView.MultiSelection)
 
         self.AngleVLayout.addWidget(self.AngleList)
 
@@ -444,13 +493,14 @@ class Ui_VRProcessing(object):
         self.Divide.setObjectName(u"Divide")
         self.verticalLayoutWidget_3 = QWidget(self.Divide)
         self.verticalLayoutWidget_3.setObjectName(u"verticalLayoutWidget_3")
-        self.verticalLayoutWidget_3.setGeometry(QRect(0, 0, 301, 391))
+        self.verticalLayoutWidget_3.setGeometry(QRect(0, 0, 321, 391))
         self.DivideVLayout = QVBoxLayout(self.verticalLayoutWidget_3)
         self.DivideVLayout.setSpacing(14)
         self.DivideVLayout.setObjectName(u"DivideVLayout")
-        self.DivideVLayout.setContentsMargins(8, 8, 10, 18)
+        self.DivideVLayout.setContentsMargins(8, 8, 12, 18)
         self.DivideList = QListWidget(self.verticalLayoutWidget_3)
         self.DivideList.setObjectName(u"DivideList")
+        self.DivideList.setSelectionMode(QAbstractItemView.MultiSelection)
 
         self.DivideVLayout.addWidget(self.DivideList)
 
@@ -484,11 +534,11 @@ class Ui_VRProcessing(object):
         self.Rename.setObjectName(u"Rename")
         self.verticalLayoutWidget_4 = QWidget(self.Rename)
         self.verticalLayoutWidget_4.setObjectName(u"verticalLayoutWidget_4")
-        self.verticalLayoutWidget_4.setGeometry(QRect(0, 0, 301, 391))
+        self.verticalLayoutWidget_4.setGeometry(QRect(0, 0, 321, 391))
         self.RenameVLayout = QVBoxLayout(self.verticalLayoutWidget_4)
         self.RenameVLayout.setSpacing(14)
         self.RenameVLayout.setObjectName(u"RenameVLayout")
-        self.RenameVLayout.setContentsMargins(8, 8, 10, 18)
+        self.RenameVLayout.setContentsMargins(8, 8, 12, 18)
         self.RenameSelect = QComboBox(self.verticalLayoutWidget_4)
         self.RenameSelect.setObjectName(u"RenameSelect")
 
@@ -645,11 +695,14 @@ class Ui_VRProcessing(object):
         self.ATable.setText(QCoreApplication.translate("VRProcessing", u"Table", None))
         self.DistanceRadio.setText(QCoreApplication.translate("VRProcessing", u"Distance", None))
         self.COMRadio.setText(QCoreApplication.translate("VRProcessing", u"COM", None))
-        self.PlusRadio.setText(QCoreApplication.translate("VRProcessing", u"+", None))
-        self.MinusRadio.setText(QCoreApplication.translate("VRProcessing", u"-", None))
-        self.DCMPAddCol.setText(QCoreApplication.translate("VRProcessing", u"Add Column", None))
-        self.DCPMRemoveCol.setText(QCoreApplication.translate("VRProcessing", u"Remove Column", None))
-        self.ProcessingTab.setTabText(self.ProcessingTab.indexOf(self.DCPM), QCoreApplication.translate("VRProcessing", u"Distance|COM|+|-", None))
+        self.DCAddCol.setText(QCoreApplication.translate("VRProcessing", u"Add Column", None))
+        self.DCRemoveCol.setText(QCoreApplication.translate("VRProcessing", u"Remove Column", None))
+        self.ProcessingTab.setTabText(self.ProcessingTab.indexOf(self.DC), QCoreApplication.translate("VRProcessing", u"Distance|COM", None))
+        self.PlusRadio_2.setText(QCoreApplication.translate("VRProcessing", u"+", None))
+        self.MinusRadio_2.setText(QCoreApplication.translate("VRProcessing", u"-", None))
+        self.PMAddCol.setText(QCoreApplication.translate("VRProcessing", u"Add Column", None))
+        self.PMRemoveCol.setText(QCoreApplication.translate("VRProcessing", u"Remove Column", None))
+        self.ProcessingTab.setTabText(self.ProcessingTab.indexOf(self.PM), QCoreApplication.translate("VRProcessing", u"+|-", None))
         self.AnglePlaneXY.setText(QCoreApplication.translate("VRProcessing", u"xy", None))
         self.AnglePlaneYZ.setText(QCoreApplication.translate("VRProcessing", u"yz", None))
         self.AnglePlaneZX.setText(QCoreApplication.translate("VRProcessing", u"zx", None))

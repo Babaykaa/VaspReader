@@ -4,9 +4,10 @@ from numba.core.types import int64
 import numpy as np
 import os
 from os import environ
-from VRPrimitives import Primitives
+from Visual.VRPrimitives import Primitives
 import random
 import time
+from PIL import Image
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 OpenGL.ERROR_CHECKING = False
 from OpenGL.GL import *
@@ -14,9 +15,9 @@ from OpenGL.GLU import *
 from OpenGL.WGL import *
 import pygame
 from pygame.locals import *
-from VRMD import VRMD
 from Visual.VRVBO import VRVBO
-from Shaders.VRShaders import VRShaders
+from Visual.Shaders.VRShaders import VRShaders
+from Logs.VRLogger import sendDataToLogger
 
 
 def TransformVec3(vecA, mat44) -> tuple[list[float], int]:
@@ -99,6 +100,20 @@ def build_projection_matrix(scree_width, scree_height, eye_point, fov, near, far
     return pMatrix
 
 
+def build_orthographic_matrix(left, right, top, bottom, near, far):
+    """Build the orthographic matrix according to the formula:
+    2 / (r - l)      , 0.0               , 0.0                 , 0.0
+    0.0              , 2 / (t - b)       , 0.0                 , 0.0
+    0.0              , 0.0               , 1 / (near - far)    , 0.0
+    (l + r) / (l - r), (t + b) / (b - t) , near / (near - far) , 1.0
+    """
+    pMatrix = np.array([[2 / (right - left), 0.0, 0.0, 0.0],
+                        [0.0, 2 / (top - bottom), 0.0, 0.0],
+                        [0.0, 0.0, 1 / (near - far), 0.0],
+                        [(left + right) / (left - right), (top + bottom) / (bottom - top), near / (near - far), 1.0]], np.float32)
+    return pMatrix
+
+
 def m3dLookAt(eye, target, up):
     """Define view matrix: eye - eye position (x, y, z), target - position where eye is looking, up - normal vector definition."""
     res_vec = eye - target
@@ -118,9 +133,6 @@ def GL_version():
     version = glGetString(GL_VERSION)
 
     return vendor.decode(), renderer.decode(), version.decode()
-    # print(f"GL Vendor : {vendor.decode()}")
-    # print(f"GL Renderer : {renderer.decode()}")
-    # print(f"GL Version : {version.decode()}")
 
 
 class VROpenGL:
@@ -136,47 +148,59 @@ class VROpenGL:
     __draw_type = GL_TRIANGLES
     __calculation = dict()
     # __primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Cube(__draw_type)}
-    __primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Tube(1, 2, 32)}
-    __background_color = (0.6, 0.6, 0.6)
+    # __primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Sphere(1, 32, 32)}
+    __primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Quad(1.0)}
+    __project_directory = os.path.abspath('')
+    _background_color = (0.6, 0.6, 0.6, 1.0)
     __lights_default = [[10, 10, 10, 0.0], [-10, -10, 10, 1.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
     __intensities = [[0.4, 0.4, 0.4], [0.4, 0.4, 0.4], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
     __Kd = np.array([0.3, 0.3, 0.3], np.float32)
     __Ld = np.array([0.7, 0.7, 0.7], np.float32)
     __Ka, __Ks, __Shininess = np.array([0.5, 0.5, 0.5], dtype=np.float32), np.array([0.8, 0.8, 0.8], dtype=np.float32), 32.0
     __eye_position = np.array([0.0, 20.0, 0.0])
-    _fogColor = [0.6, 0.6, 0.6]
+    _fogColor = (0.6, 0.6, 0.6, 1.0)
     _defaultBondLength = 1.8
     _defaultBondRadius = 0.2
 
-    def __init__(self):
+    @sendDataToLogger
+    def __init__(self, app=None, settings=None, visual_window=None, print_window=None):
         """Initialization function of VROpenGL"""
+        self.__settings_object = settings
+        self.__visual_window = visual_window
+        self.__logger = print_window
+        self._parent_window_closed = False
+        self.__app = app
+
         self.__display, self.window_size = list(self.__default_display), list(self.__default_display)
         self.__view_matrix = m3dLookAt(self.__eye_position, np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 1.0]))
-        self.__projection_matrix = build_projection_matrix(self.__display[0], self.__display[1], 0, 45, 0.1, 60)
+        self.__perspective_matrix = build_projection_matrix(self.__display[0], self.__display[1], 0, 45, 0.1, 60)
+        self.__orthographic_matrix = build_orthographic_matrix(-12, 12, 9, -9, 0.1, 60)
+        self.__projection_matrix = self.__perspective_matrix
         self._x_d, self._y_d, self._z_d, self._scale_parameter = 0.0, 0.0, 0.0, 1.0
         self.rotation_matrix = np.array([[-1.0, 0.0, 0.0, 0.0],
-                                        [0.0, 0.0, 1.0, 0],
-                                        [0.0, -1.0, 0.0, 0.0],
-                                        [self._x_d, self._y_d, self._z_d, self._scale_parameter]],
+                                         [0.0, 0.0, 1.0, 0],
+                                         [0.0, -1.0, 0.0, 0.0],
+                                         [self._x_d, self._y_d, self._z_d, self._scale_parameter]],
                                         dtype=np.float64)
         self.__translation_matrix = np.array([[1.0, 0.0, 0.0, 0.0],
-                                            [0.0, 1.0, 0.0, 0.0],
-                                            [0.0, 0.0, 1.0, 0.0],
-                                            [0.0, 0.0, 0.0, 1.0]], dtype=np.float64)
+                                              [0.0, 1.0, 0.0, 0.0],
+                                              [0.0, 0.0, 1.0, 0.0],
+                                              [0.0, 0.0, 0.0, 1.0]], dtype=np.float64)
         self.__lights = np.dot(np.asarray(self.__lights_default), self.rotation_matrix)
         self.model_view_matrix, self.normal_matrix = None, None
         self.mouse_pressed, self.Back_Step, self.Forward_Step, self.only_keyboard_select, self.draw_cell, self.draw_axes, self.is_perspective = False, False, True, True, True, True, True
-        self.display_scaling, self._step, self._fogMinDist, self._fogMaxDist, self._fogPower, self._fogDensity = 1.0, 0, 0.1, 60, 1, 0.05
+        self.display_scaling, self._step, self._speed, self._fogMinDist, self._fogMaxDist, self._fogPower, self._fogDensity = 1.0, 0, 1, 0.1, 60, 1, 0.05
         self._set_ID_mode, self._set_bond_mode, self._set_valence_mode = False, False, False
         self.new_coordinate_start = [0, 0]
-        self.rotation_info, self.default_cube_position = [0.0, 0.0], [[0, 0, 0]]
+        self.rotation_info, self.default_cube_position = np.array([0.0, 0.0]), [[0, 0, 0]]
         self._Buffers_Labels = []
         self.__cell_position = self.__eye_position.copy()
         self._BondRadius, self._BondLength, self._allBondsCalculate, self._BondsInfo = None, None, True, dict()
-        os.environ['SDL_VIDEODRIVER'] = 'windib'
+        self._cube_covered_texture, self._cube_covered_texture_sampler = None, None
+        environ['SDL_VIDEODRIVER'] = 'windib'
         pygame.init()
         try:
-            self.__win_icon = r'VR_icons/VR-logo.png'
+            self.__win_icon = self.__project_directory + r'\VR_icons\VR-logo.png'
             pygame.display.set_icon(pygame.image.load(self.__win_icon))
         except FileNotFoundError:
             pass
@@ -187,6 +211,11 @@ class VROpenGL:
         glEnable(GL_TEXTURE_2D)
         glShadeModel(GL_SMOOTH)
 
+        vendor, renderer, version = GL_version()
+        self.__logger.addMessage(f"GL Vendor version: {vendor}", self.__class__.__name__)
+        self.__logger.addMessage(f"GL Renderer version: {renderer}", self.__class__.__name__)
+        self.__logger.addMessage(f"GL Version: {version}", self.__class__.__name__)
+        self.__logger.addMessage(f"Pygame Version: {pygame.__version__}\n", self.__class__.__name__)
 
         gluPerspective(45, (self.__default_display[0] / self.__default_display[1]), 0.1, 60.0)
         gluLookAt(0, 20, 0, 0, 0, 0, 0, 0, 1)
@@ -199,9 +228,22 @@ class VROpenGL:
         glEnable(GL_DEPTH_TEST)
         self.__DisplayCenter = [self.__scree.get_size()[i] // 2 for i in range(2)]
         pygame.mouse.set_pos(self.__DisplayCenter)
-        self.__program = VRShaders(r'Shaders', [r'vertex_shader.glsl', r'fragment_shader.glsl'], ['VERTEX', 'FRAGMENT'])
+        self.__program = VRShaders(self.__project_directory + '\\Visual\\Shaders', [r'vertex_shader.glsl', r'fragment_shader.glsl'], ['VERTEX', 'FRAGMENT'])
         self._VBO_Buffers = [VRVBO(self.__primitives['Primitive'][:-1], self.__primitives['Primitive'][-1]).create_vao_buffer()]
+        self.load_texture()
 
+    def get_logger(self):
+        return self.__logger
+
+    @sendDataToLogger
+    def hide(self):
+        self.__scree = pygame.display.set_mode(self.__display, DOUBLEBUF | OPENGL | pygame.RESIZABLE | pygame.HIDDEN)
+
+    @sendDataToLogger
+    def show(self):
+        self.__scree = pygame.display.set_mode(self.__display, DOUBLEBUF | OPENGL | pygame.RESIZABLE)
+
+    @sendDataToLogger
     def change_light(self, light_variable_number, light_position):
         self.__light_states[light_variable_number] = not self.__light_states[light_variable_number]
         if self.__light_states[light_variable_number]:
@@ -213,6 +255,7 @@ class VROpenGL:
         else:
             glDisable(self.__light_variables[light_variable_number])
 
+    @sendDataToLogger
     def find_window_dimensions(self, far):
         far = 20 + far
         x_limit = np.sin(np.pi / 16 * 3) * far
@@ -223,9 +266,11 @@ class VROpenGL:
             y_limit = y_limit * (self.window_size[1] / self.__display[1])
         return x_limit, y_limit, -(far - 20)
 
+    @sendDataToLogger
     def change_light_position(self, new_position, light_index):
         self.__light_positions[light_index] = new_position
 
+    @sendDataToLogger(operation_type='user')
     def display_resize(self, event):
         self.__display = [int(event.w), int(event.h)]
         self.window_size = [int(event.w), int(event.h)]
@@ -243,6 +288,7 @@ class VROpenGL:
         self.new_coordinate_start = [nlw, nlh]
         glViewport(nlw, nlh, self.__display[0], self.__display[1])
 
+    @sendDataToLogger
     def load_calculation_info(self, calculation):
         self.__calculation = calculation
         self.__primitives.clear()
@@ -256,15 +302,18 @@ class VROpenGL:
             self._VBO_Buffers.append(VRVBO(self.__primitives[key][:-1], self.__primitives[key][-1]).create_vao_buffer())
             self._Buffers_Labels.append(key)
 
+    @sendDataToLogger
     def without_calculation(self):
         self.__calculation = None
         self.__primitives.clear()
         self._VBO_Buffers.clear()
         self._Buffers_Labels.clear()
         self.__cell_position[1] = self._fogMaxDist = 20
-        self.__primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Cube(self.__draw_type)}
+        self.__primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Quad(1.0)}
+        # self.__primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Cube(self.__draw_type)}
         self._VBO_Buffers.append(VRVBO(self.__primitives['Primitive'][:-1], self.__primitives['Primitive'][-1]).create_vao_buffer())
 
+    @sendDataToLogger
     def set_default_rotation_matrix(self):
         self.rotation_matrix = self.rotation_matrix = np.array([[-1.0, 0.0, 0.0, 0.0],
                                                                 [0.0, 0.0, 1.0, 0],
@@ -288,8 +337,43 @@ class VROpenGL:
                 glVertex3fv(cell[edge[1]])
         glEnd()
 
+    @sendDataToLogger
+    def load_texture(self):  # , texture
+        image = Image.open(r'VR_icons\VR-logo.png')
+        image = image.convert("RGBA")
+
+        img_data = image.tobytes()
+
+        self._cube_covered_texture = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, self._cube_covered_texture)
+        # self._cube_covered_texture_sampler = glGenSamplers(1)
+        # glBindSampler(self._cube_covered_texture, self._cube_covered_texture_sampler)
+
+
+        # Set the texture wrapping parameters
+
+        # glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER)
+        color = [1.0, 1.0, 1.0, 1.0]
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color)
+
+        # Set texture filtering parameters
+
+        # glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        # glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data)
+        glGenerateMipmap(GL_TEXTURE_2D)
+        # print(glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE))
+        glBindTexture(GL_TEXTURE_2D, 0)
+
+
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def define_rotation_around_axes(x_d, y_d, z_d, scale_parameter, x_r, y_r, z_r, limit_rotations=True):
         if limit_rotations:
             x_r, y_r, z_r = x_r % 360 - 180, y_r % 360 - 180, z_r % 360 - 180
@@ -311,7 +395,7 @@ class VROpenGL:
         return matrix
 
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def define_rotation(define_rotation_function, rotation_matrix, rotation_info, x_d, y_d, z_d, scale_parameter):
         if rotation_info[0] or rotation_info[1] or x_d or y_d or z_d or scale_parameter - 1.0:
             rotation_matrix = np.dot(rotation_matrix, define_rotation_function(x_d, y_d, z_d, scale_parameter, rotation_info[1], 0, rotation_info[0]))
@@ -319,11 +403,12 @@ class VROpenGL:
         return rotation_matrix
 
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def define_normal_matrix(view_matrix, rotation_matrix):
         model_view_matrix = np.dot(view_matrix, rotation_matrix.transpose())
         return np.linalg.inv(model_view_matrix[:3, :3]).transpose()
 
+    @sendDataToLogger(operation_type='user')
     def select_atom(self, select):
         self.Back_Step, self.Forward_Step = False, False
         mouseClick = pygame.mouse.get_pos()
@@ -334,7 +419,7 @@ class VROpenGL:
             prjMat = np.dot(self.rotation_matrix, np.array(prjMat).reshape((4, 4))).reshape((16, 1))
             onRect = perspective_choose(prjMat, mouseClick, self.__calculation['POSITIONS'][self._step], self.__display, self.__calculation['RADII'])
         else:
-            coordinates = (np.dot(self.__calculation['POSITIONS'][self._step], self.rotation_matrix[:3, :3]) + np.array([[*self.rotation_matrix[3, :3]] for _ in range(self.self.__calculation['POSITIONS'][self._step].shape[0])])) / self.rotation_matrix[-1, -1]
+            coordinates = (np.dot(self.__calculation['POSITIONS'][self._step], self.rotation_matrix[:3, :3]) + np.array([[*self.rotation_matrix[3, :3]] for _ in range(self.__calculation['POSITIONS'][self._step].shape[0])])) / self.rotation_matrix[-1, -1]
             onRect = orthographic_choose(mouseClick, coordinates, self.__display, self.__calculation['RADII'])
         already_selected = False
         if select:
@@ -350,11 +435,11 @@ class VROpenGL:
                 elif selected and self.__calculation['ATOMNAMES'][num].split('_')[-1] != 'Sel':
                     already_selected = True
         if already_selected:
-            print('This atom was already chose.' if select else 'This atom was already deleted.')
+            self.__logger.addMessage('This atom was already chose.' if select else 'This atom was already deleted.', self.__class__.__name__)
         pygame.time.wait(200)
 
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def nonoptimal_dimension_search(positions, number_of_dividings):
         length = len(positions) - 1
         size_array = np.zeros((3, number_of_dividings + 1))
@@ -371,7 +456,7 @@ class VROpenGL:
         return delta_dim.argsort()[-2]
 
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def neighbours_search_body(num, index, positions, indexes, dimension, bond_length):
         highest_index = max_index = len(indexes) - num
         min_index = 0
@@ -407,7 +492,7 @@ class VROpenGL:
         return np.array(returning_indexes)
 
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def neighbours_search(search_algoritm, positions, indexes, dimension, bond_length):
         neighbours = dict()
         indexes_cp = indexes[:-1]
@@ -416,7 +501,7 @@ class VROpenGL:
         return neighbours
 
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def neighbours_search_between_types_body(index, positions, indexes, dimension, bond_length):
         highest_index = max_index = len(indexes)
         min_index = 0
@@ -452,7 +537,7 @@ class VROpenGL:
         return np.array(returning_indexes)
 
     @staticmethod
-    @jit(fastmath=True, nopython=True)
+    @jit(fastmath=True, nopython=True, cache=True)
     def neighbours_search_between_types(search_algoritm, positions, indexes_type1, indexes_type2, dimension, bond_length):
         neighbours = dict()
         for _, index in enumerate(indexes_type1):
@@ -468,7 +553,7 @@ class VROpenGL:
             neighbours = self.neighbours_search(self.neighbours_search_body, one_step_positions, indexes_big, biggest_dim, self._BondLength)
         else:
             type1, type2 = 'Mo', 'S'
-            indexes1, indexes2 = calc['ATOM-NUMBERS'][type1], calc['ATOM-NUMBERS'][type2]
+            indexes1, indexes2 = self.__calculation['ATOM-NUMBERS'][type1], self.__calculation['ATOM-NUMBERS'][type2]
             one_step_positions_type2 = one_step_positions[indexes2]
             one_step_positions_tr = one_step_positions_type2.transpose()
             indexes_big = one_step_positions_tr[biggest_dim].argsort() + min(indexes2)
@@ -486,6 +571,7 @@ class VROpenGL:
             self._VBO_Buffers.append(VRVBO(self.__primitives[key + '_Bond'][:-1], self.__primitives[key + '_Bond'][-1]).create_vao_buffer())
             self._Buffers_Labels.append(key + '_Bond')
 
+    @sendDataToLogger
     def mainloop(self):
         target_fps = 60
         prev_time = time.time()
@@ -494,16 +580,23 @@ class VROpenGL:
         while run:
             # glLoadIdentity()
             # glMultMatrixf(self.rotation_matrix)
-
+            if self.is_perspective:
+                self.__projection_matrix = self.__perspective_matrix
+            else:
+                self.__projection_matrix = self.__orthographic_matrix
+            if self._parent_window_closed:
+                break
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.Back_Step, self.Forward_Step = False, False
                     run = False
+                    self.__app.closeAllWindows()
                     break
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.Back_Step, self.Forward_Step = False, False
                         run = False
+                        self.__app.closeAllWindows()
                         break
                     if event.key == pygame.K_F4:
                         raise KeyError("Pushed exit key. Don't push F4 if you don't want to exit program.")
@@ -551,7 +644,7 @@ class VROpenGL:
             ##################################
             if keypress[pygame.K_BACKSPACE]:
                 self.Back_Step, self.Forward_Step = False, False
-                self.rotation_info = [0.0, 0.0]
+                self.rotation_info[0], self.rotation_info[1] = 0.0, 0.0
                 self._x_d, self._y_d, self._z_d = 0, 0, 0
                 self._scale_parameter = 1.0
                 self.set_default_rotation_matrix()
@@ -591,15 +684,18 @@ class VROpenGL:
                 self._fogDensity = self._fogDensity / 1.05
                 time.sleep(0.08)
 
-            if keypress[pygame.K_COMMA] and self._Buffers_Labels:
-                self._step -= 1
+            if (keypress[pygame.K_COMMA] or self.Back_Step) and self._Buffers_Labels:
+                self._step -= 1 * self._speed
                 if self._step < 0:
-                    self._step = self.__calculation['STEPS'] - 1
-            if keypress[pygame.K_PERIOD] and self._Buffers_Labels:
-                self._step += 1
-                if self._step == self.__calculation['STEPS']:
-                    self._step = 0
-
+                    self._step = self.__calculation['STEPS'] - 1 + self._step
+                self.__visual_window.StepSlider.setSliderPosition(self._step)
+                self.Back_Step = True
+            if (keypress[pygame.K_PERIOD] or self.Forward_Step) and self._Buffers_Labels:
+                self._step += 1 * self._speed
+                if self._step >= self.__calculation['STEPS']:
+                    self._step = self._step - self.__calculation['STEPS']
+                self.__visual_window.StepSlider.setSliderPosition(self._step)
+                self.Forward_Step = True
 
             if keypress[pygame.K_a]:
                 self.select_atom(True)
@@ -613,7 +709,7 @@ class VROpenGL:
                     self.mouse_pressed = False
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-            glClearColor(*self.__background_color, 1.0)
+            glClearColor(*self._background_color)
             self.rotation_matrix = self.define_rotation(self.define_rotation_around_axes, self.rotation_matrix, self.rotation_info, self._x_d, self._y_d, self._z_d, self._scale_parameter)
             self.normal_matrix = self.define_normal_matrix(self.__view_matrix, self.rotation_matrix)
             # # Отрисовка границ ячейки
@@ -626,12 +722,18 @@ class VROpenGL:
                 Buffer.set_light_settings(self.__program.uniform_variables_dict, self.__Ka, self.__Kd, self.__Ks, self.__Shininess, self.__lights, self.__intensities)
                 Buffer.set_fog_parameters(self.__program.uniform_variables_dict, self.__cell_position, self._fogColor, self._fogMinDist, self._fogMaxDist, self._fogPower, self._fogDensity)
                 if not self._Buffers_Labels:
+                    glActiveTexture(GL_TEXTURE0)
+                    glBindTexture(GL_TEXTURE_2D, self._cube_covered_texture)
+                    Buffer.is_texture_exist(self.__program.uniform_variables_dict, 1)
+                    Buffer.set_texture_info(self.__program.uniform_variables_dict, 0)
                     for x_d, y_d, z_d in self.default_cube_position:
                         self.__translation_matrix[0][-1] = x_d
                         self.__translation_matrix[1][-1] = y_d
                         self.__translation_matrix[2][-1] = z_d
                         Buffer.draw_from_vao_buffer(self.__draw_type, self.__program.uniform_variables_dict, self.rotation_matrix.transpose(), self.__view_matrix, self.__projection_matrix.transpose(), self.normal_matrix, self.__translation_matrix)
+                    glBindTexture(GL_TEXTURE_2D, 0)
                 else:
+                    Buffer.is_texture_exist(self.__program.uniform_variables_dict, 0)
                     for atom_index, (x_d, y_d, z_d) in enumerate(self.__calculation['POSITIONS'][self._step]):
                         if self._Buffers_Labels[index] == self.__calculation['ATOMNAMES'][atom_index]:
                             self.__translation_matrix[0][-1] = x_d
@@ -654,12 +756,7 @@ class VROpenGL:
             time.sleep(delay)
             fps = 1.0 / (delay + diff)
             prev_time = curr_time
+        for _ in range(len(self._VBO_Buffers)):
+            self._VBO_Buffers.pop(0).__del__()
+        self.__visual_window.close()
         pygame.quit()
-
-
-
-# calc = VRMD(r'C:\Users\AlexS\Documents\Научка\MoS2\N2\Mo\MoS2_N2_25eV_perp_Mo').parser_parameters
-# main = VROpenGL()
-# main.load_calculation_info(calc)
-# main.prepareBondBuffers()
-# main.mainloop()

@@ -684,6 +684,8 @@ border-radius: 2px;
      <addaction name="ALight_6"/>
      <addaction name="ALight_7"/>
      <addaction name="ALight_8"/>
+     <addaction name="separator"/>
+     <addaction name="actionLight_Settings"/>
     </widget>
     <addaction name="ADelete_coordinates_after_leave_cell"/>
     <addaction name="separator"/>
@@ -785,8 +787,17 @@ border-radius: 2px;
     <property name="title">
      <string>View</string>
     </property>
+    <widget class="QMenu" name="menuProjection">
+     <property name="title">
+      <string>Projection</string>
+     </property>
+     <addaction name="APerspective"/>
+     <addaction name="AOrthographic"/>
+    </widget>
     <addaction name="AAxes"/>
     <addaction name="ACell_boarder"/>
+    <addaction name="separator"/>
+    <addaction name="menuProjection"/>
     <addaction name="separator"/>
     <addaction name="ABonds"/>
    </widget>
@@ -1129,6 +1140,30 @@ border-radius: 2px;
   <action name="AFileSharing">
    <property name="text">
     <string>FileSharing</string>
+   </property>
+  </action>
+  <action name="actionLight_Settings">
+   <property name="text">
+    <string>Light Settings</string>
+   </property>
+  </action>
+  <action name="APerspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Perspective</string>
+   </property>
+  </action>
+  <action name="AOrthographic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Orthographic</string>
    </property>
   </action>
  </widget>

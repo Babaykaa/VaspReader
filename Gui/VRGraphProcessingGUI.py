@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
     QListView, QMainWindow, QMenu, QMenuBar,
     QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
     QVBoxLayout, QWidget)
-import QT_GUI.Resource_rc
+import Gui.Resource_rc
 
 class Ui_VRGraphProcessing(object):
     def setupUi(self, VRGraphProcessing):

@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QLabel, QLineEdit,
     QMainWindow, QPushButton, QSizePolicy, QSpacerItem,
     QTabWidget, QVBoxLayout, QWidget)
-import QT_GUI.Resource_rc
+import Gui.Resource_rc
 
 class Ui_VRAuthSupercomputer(object):
     def setupUi(self, VRAuthSupercomputer):

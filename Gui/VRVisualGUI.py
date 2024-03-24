@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRVisualGUIcntgUI.ui'
+## Form generated from reading UI file 'VRVisualGUIZynayh.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -9,22 +9,21 @@
 ################################################################################
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
+                            QMetaObject, QObject, QPoint, QRect,
+                            QSize, QTime, QUrl, Qt)
 from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
-    QCursor, QFont, QFontDatabase, QGradient,
-    QIcon, QImage, QKeySequence, QLinearGradient,
-    QPainter, QPalette, QPixmap, QRadialGradient,
-    QTransform)
+                           QCursor, QFont, QFontDatabase, QGradient,
+                           QIcon, QImage, QKeySequence, QLinearGradient,
+                           QPainter, QPalette, QPixmap, QRadialGradient,
+                           QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
-    QHBoxLayout, QLineEdit, QMainWindow, QMenu,
-    QMenuBar, QPushButton, QSizePolicy, QSlider,
-    QSpacerItem, QTabWidget, QVBoxLayout, QWidget, QFileDialog)
-import QT_GUI.Resource_rc
+                               QHBoxLayout, QLineEdit, QMainWindow, QMenu,
+                               QMenuBar, QPushButton, QSizePolicy, QSlider, QColorDialog,
+                               QSpacerItem, QTabWidget, QVBoxLayout, QWidget, QFileDialog)
+import Gui.Resource_rc
+
 
 class Ui_VRVisual(object):
-    def __init__(self):
-        self.file = None
 
     def setupUi(self, VRVisual):
         if not VRVisual.objectName():
@@ -45,137 +44,137 @@ class Ui_VRVisual(object):
         VRVisual.setWindowIcon(icon)
         VRVisual.setAutoFillBackground(False)
         VRVisual.setStyleSheet(u"QWidget#MainWidget{\n"
-"	background-image: url(:/visual/VRVisual_background.png);\n"
-"	background-position: right bottom;\n"
-"}\n"
-"QLineEdit{\n"
-"  border-radius: 8px;\n"
-"  border: 2px solid rgb(109, 20, 20);\n"
-"  padding: 3px 3px;\n"
-"}\n"
-"QLineEdit:hover{\n"
-"  border-radius: 8px;\n"
-"  background-color: rgb(255, 248, 231);\n"
-"  border: 1px solid rgb(109, 20, 20);\n"
-"  padding: 3px 3px;\n"
-"}\n"
-"QLineEdit:focus {\n"
-"  border: 3px solid rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QLineEdit::placeholder {\n"
-"  color: #000000;\n"
-"}\n"
-"QPushButton {\n"
-"  background-color: rgb(255, 255, 255);\n"
-"  color: black;\n"
-"  font-weight: 600;\n"
-"  border-radius: 8px;\n"
-"  border: 2px solid rgb(109, 20, 20);\n"
-"  padding: 3px 3px;\n"
-"  margin-top: 0px;\n"
-"  outline: 0px;\n"
-"  border-style: outset;\n"
-"}\n"
-"QPushButton:hover {\n"
-"  background-color: rgb(255, 248, 231);\n"
-"  border: 1px solid rgb(74, 0, 0);\n"
-"  border-style: outset;\n"
-"}\n"
-"QPushButton:pressed {\n"
-"background-color: rgb(255, 247, 221);\n"
-"borde"
-                        "r: 3px solid #000000\n"
-"}\n"
-"QComboBox {\n"
-"  border-radius: 8px;\n"
-"  border: 2px solid rgb(109, 20, 20);\n"
-"  padding: 3px 3px;\n"
-"}\n"
-"QComboBox::drop-down {\n"
-"  width: 18px;\n"
-"  height:22px;\n"
-"  padding: 0px 1px;\n"
-"  border: 1px solid rgb(109, 20, 20);\n"
-"  border-radius: 8px;\n"
-"}\n"
-"QComboBox::down-arrow {\n"
-"  image: url(:/down-arrow_ico/down-arrow.ico);\n"
-"  width: 18px;\n"
-"  height:22px;\n"
-"}\n"
-"QComboBox::down-arrow:hover {\n"
-"    width: 18px;\n"
-"    height:22px;\n"
-"    padding: 0px 1px;\n"
-"    border: 1px solid #000000;\n"
-"    border-radius: 8px;\n"
-"	background-color: rgb(255, 229, 162);\n"
-"}\n"
-"QComboBox::down-arrow:pressed {\n"
-"    width: 18px;\n"
-"    height:22px;\n"
-"    padding: 0px 1px;\n"
-"    border: 1px solid #000000;\n"
-"    border-radius: 8px;\n"
-"	background-color: rgb(255, 232, 216);\n"
-"}\n"
-"QComboBox:pressed {\n"
-"	background-color: rgb(255, 250, 237);\n"
-"	border: 3px solid #000000;\n"
-"    border-radius: 8px;\n"
-"}\n"
-"QComboBox:hover{\n"
-"  border-r"
-                        "adius: 8px;\n"
-"  background-color: rgb(255, 248, 231);\n"
-"  border: 1px solid rgb(109, 20, 20);\n"
-"  padding: 3px 3px;\n"
-"}\n"
-"QFrame{\n"
-"  border: 2px solid rgb(109, 20, 20);\n"
-"  border-radius: 5px;\n"
-"	background-color: rgb(255, 255, 255);\n"
-"}\n"
-"QFrame:hover{\n"
-"  background-color: rgb(255, 248, 231);\n"
-"  border: 1px solid rgb(109, 20, 20);\n"
-"  background-color: rgb(255, 248, 231);\n"
-"}\n"
-"QSlider{\n"
-"  background-color: rgb(255, 255, 255);\n"
-"}\n"
-"QSlider:hover{\n"
-"  background-color: rgb(255, 248, 231);\n"
-"}\n"
-"\n"
-"QSlider::groove:horizontal{\n"
-"border: 1px solid #637EB8;\n"
-"background: white;\n"
-"height: 7px;\n"
-"border-radius: 3px;\n"
-"}\n"
-"QSlider::sub-page:horizontal {\n"
-"background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));\n"
-"border: 1px solid rgb(0, 0, 0);\n"
-"height: 10px;\n"
-"border-radius: 4px;\n"
-"}\n"
-"QSlider::add-page:horizontal {\n"
-"background: #fff;\n"
-"border: 1px solid"
-                        " rgb(170, 0, 0);\n"
-"height: 10px;\n"
-"border-radius: 4px;\n"
-"}\n"
-"QSlider::handle:horizontal{\n"
-"background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));\n"
-"border: 2px solid rgb(0, 0, 0);\n"
-"width: 5px;\n"
-"margin-top: -4px;\n"
-"margin-bottom: -4px;\n"
-"border-radius: 2px;\n"
-"}")
+                               "	background-image: url(:/visual/VRVisual_background.png);\n"
+                               "	background-position: right bottom;\n"
+                               "}\n"
+                               "QLineEdit{\n"
+                               "  border-radius: 8px;\n"
+                               "  border: 2px solid rgb(109, 20, 20);\n"
+                               "  padding: 3px 3px;\n"
+                               "}\n"
+                               "QLineEdit:hover{\n"
+                               "  border-radius: 8px;\n"
+                               "  background-color: rgb(255, 248, 231);\n"
+                               "  border: 1px solid rgb(109, 20, 20);\n"
+                               "  padding: 3px 3px;\n"
+                               "}\n"
+                               "QLineEdit:focus {\n"
+                               "  border: 3px solid rgb(0, 0, 0);\n"
+                               "}\n"
+                               "\n"
+                               "QLineEdit::placeholder {\n"
+                               "  color: #000000;\n"
+                               "}\n"
+                               "QPushButton {\n"
+                               "  background-color: rgb(255, 255, 255);\n"
+                               "  color: black;\n"
+                               "  font-weight: 600;\n"
+                               "  border-radius: 8px;\n"
+                               "  border: 2px solid rgb(109, 20, 20);\n"
+                               "  padding: 3px 3px;\n"
+                               "  margin-top: 0px;\n"
+                               "  outline: 0px;\n"
+                               "  border-style: outset;\n"
+                               "}\n"
+                               "QPushButton:hover {\n"
+                               "  background-color: rgb(255, 248, 231);\n"
+                               "  border: 1px solid rgb(74, 0, 0);\n"
+                               "  border-style: outset;\n"
+                               "}\n"
+                               "QPushButton:pressed {\n"
+                               "background-color: rgb(255, 247, 221);\n"
+                               "borde"
+                               "r: 3px solid #000000\n"
+                               "}\n"
+                               "QComboBox {\n"
+                               "  border-radius: 8px;\n"
+                               "  border: 2px solid rgb(109, 20, 20);\n"
+                               "  padding: 3px 3px;\n"
+                               "}\n"
+                               "QComboBox::drop-down {\n"
+                               "  width: 18px;\n"
+                               "  height:22px;\n"
+                               "  padding: 0px 1px;\n"
+                               "  border: 1px solid rgb(109, 20, 20);\n"
+                               "  border-radius: 8px;\n"
+                               "}\n"
+                               "QComboBox::down-arrow {\n"
+                               "  image: url(:/down-arrow_ico/down-arrow.ico);\n"
+                               "  width: 18px;\n"
+                               "  height:22px;\n"
+                               "}\n"
+                               "QComboBox::down-arrow:hover {\n"
+                               "    width: 18px;\n"
+                               "    height:22px;\n"
+                               "    padding: 0px 1px;\n"
+                               "    border: 1px solid #000000;\n"
+                               "    border-radius: 8px;\n"
+                               "	background-color: rgb(255, 229, 162);\n"
+                               "}\n"
+                               "QComboBox::down-arrow:pressed {\n"
+                               "    width: 18px;\n"
+                               "    height:22px;\n"
+                               "    padding: 0px 1px;\n"
+                               "    border: 1px solid #000000;\n"
+                               "    border-radius: 8px;\n"
+                               "	background-color: rgb(255, 232, 216);\n"
+                               "}\n"
+                               "QComboBox:pressed {\n"
+                               "	background-color: rgb(255, 250, 237);\n"
+                               "	border: 3px solid #000000;\n"
+                               "    border-radius: 8px;\n"
+                               "}\n"
+                               "QComboBox:hover{\n"
+                               "  border-r"
+                               "adius: 8px;\n"
+                               "  background-color: rgb(255, 248, 231);\n"
+                               "  border: 1px solid rgb(109, 20, 20);\n"
+                               "  padding: 3px 3px;\n"
+                               "}\n"
+                               "QFrame{\n"
+                               "  border: 2px solid rgb(109, 20, 20);\n"
+                               "  border-radius: 5px;\n"
+                               "	background-color: rgb(255, 255, 255);\n"
+                               "}\n"
+                               "QFrame:hover{\n"
+                               "  background-color: rgb(255, 248, 231);\n"
+                               "  border: 1px solid rgb(109, 20, 20);\n"
+                               "  background-color: rgb(255, 248, 231);\n"
+                               "}\n"
+                               "QSlider{\n"
+                               "  background-color: rgb(255, 255, 255);\n"
+                               "}\n"
+                               "QSlider:hover{\n"
+                               "  background-color: rgb(255, 248, 231);\n"
+                               "}\n"
+                               "\n"
+                               "QSlider::groove:horizontal{\n"
+                               "border: 1px solid #637EB8;\n"
+                               "background: white;\n"
+                               "height: 7px;\n"
+                               "border-radius: 3px;\n"
+                               "}\n"
+                               "QSlider::sub-page:horizontal {\n"
+                               "background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));\n"
+                               "border: 1px solid rgb(0, 0, 0);\n"
+                               "height: 10px;\n"
+                               "border-radius: 4px;\n"
+                               "}\n"
+                               "QSlider::add-page:horizontal {\n"
+                               "background: #fff;\n"
+                               "border: 1px solid"
+                               " rgb(170, 0, 0);\n"
+                               "height: 10px;\n"
+                               "border-radius: 4px;\n"
+                               "}\n"
+                               "QSlider::handle:horizontal{\n"
+                               "background: qlineargradient(spread:reflect, x1:0.534, y1:0, x2:0.534, y2:0.5, stop:0 rgba(106, 0, 255, 255), stop:1 rgba(255, 255, 255, 255));\n"
+                               "border: 2px solid rgb(0, 0, 0);\n"
+                               "width: 5px;\n"
+                               "margin-top: -4px;\n"
+                               "margin-bottom: -4px;\n"
+                               "border-radius: 2px;\n"
+                               "}")
         VRVisual.setLocale(QLocale(QLocale.English, QLocale.UnitedStates))
         VRVisual.setInputMethodHints(Qt.ImhNone)
         VRVisual.setIconSize(QSize(24, 24))
@@ -189,27 +188,21 @@ class Ui_VRVisual(object):
         font.setFamilies([u"Times New Roman"])
         font.setPointSize(10)
         self.AOpen_calculation.setFont(font)
-        self.AOpen_calculation.triggered.connect(self.load_calculation)
         self.ALoad_Calculation_State = QAction(VRVisual)
         self.ALoad_Calculation_State.setObjectName(u"ALoad_Calculation_State")
         self.ALoad_Calculation_State.setFont(font)
-        self.ALoad_Calculation_State.triggered.connect(self.load_calculation_state)
         self.ASave_Calculation_State = QAction(VRVisual)
         self.ASave_Calculation_State.setObjectName(u"ASave_Calculation_State")
         self.ASave_Calculation_State.setFont(font)
-        self.ASave_Calculation_State.triggered.connect(self.save_calculation_state)
         self.ALoad_Configuration = QAction(VRVisual)
         self.ALoad_Configuration.setObjectName(u"ALoad_Configuration")
         self.ALoad_Configuration.setFont(font)
-        self.ALoad_Configuration.triggered.connect(self.load_configuration_state)
         self.ASave_Configuration = QAction(VRVisual)
         self.ASave_Configuration.setObjectName(u"ASave_Configuration")
         self.ASave_Configuration.setFont(font)
-        self.ASave_Configuration.triggered.connect(self.save_configuration_state)
         self.AExit = QAction(VRVisual)
         self.AExit.setObjectName(u"AExit")
         self.AExit.setFont(font)
-        self.AExit.triggered.connect(VRVisual.close)
         self.AAxes = QAction(VRVisual)
         self.AAxes.setObjectName(u"AAxes")
         self.AAxes.setCheckable(True)
@@ -251,8 +244,8 @@ class Ui_VRVisual(object):
         self.ALight_8 = QAction(VRVisual)
         self.ALight_8.setObjectName(u"ALight_8")
         self.ALight_8.setFont(font)
-        self.AProvessing = QAction(VRVisual)
-        self.AProvessing.setObjectName(u"AProvessing")
+        self.AProcessing = QAction(VRVisual)
+        self.AProcessing.setObjectName(u"AProcessing")
         self.AOSZICAR = QAction(VRVisual)
         self.AOSZICAR.setObjectName(u"AOSZICAR")
         self.APOSCAR = QAction(VRVisual)
@@ -302,6 +295,15 @@ class Ui_VRVisual(object):
         self.AConsole.setObjectName(u"AConsole")
         self.AFileSharing = QAction(VRVisual)
         self.AFileSharing.setObjectName(u"AFileSharing")
+        self.actionLight_Settings = QAction(VRVisual)
+        self.actionLight_Settings.setObjectName(u"actionLight_Settings")
+        self.APerspective = QAction(VRVisual)
+        self.APerspective.setObjectName(u"APerspective")
+        self.APerspective.setCheckable(True)
+        self.APerspective.setChecked(True)
+        self.AOrthographic = QAction(VRVisual)
+        self.AOrthographic.setObjectName(u"AOrthographic")
+        self.AOrthographic.setCheckable(True)
         self.MainWidget = QWidget(VRVisual)
         self.MainWidget.setObjectName(u"MainWidget")
         sizePolicy.setHeightForWidth(self.MainWidget.sizePolicy().hasHeightForWidth())
@@ -365,7 +367,6 @@ class Ui_VRVisual(object):
 
         self.verticalLayout_2.addWidget(self.StepSlider)
 
-
         self.horizontalLayout.addWidget(self.StepSliderWidget)
 
         self.MoveForward = QPushButton(self.CentralWidget)
@@ -379,7 +380,6 @@ class Ui_VRVisual(object):
         self.ToLastStep.setFont(font1)
 
         self.horizontalLayout.addWidget(self.ToLastStep)
-
 
         self.gridLayout.addWidget(self.CentralWidget, 3, 0, 1, 4)
 
@@ -417,15 +417,15 @@ class Ui_VRVisual(object):
         palette = QPalette()
         brush = QBrush(QColor(0, 0, 0, 255))
         brush.setStyle(Qt.SolidPattern)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette.setBrush(QPalette.Active, QPalette.PlaceholderText, brush)
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        # endif
+        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette.setBrush(QPalette.Inactive, QPalette.PlaceholderText, brush)
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        # endif
+        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
-#endif
+        # endif
         self.DirectoryPath.setPalette(palette)
         self.DirectoryPath.setFont(font)
 
@@ -465,7 +465,6 @@ class Ui_VRVisual(object):
         self.SpeedSlider.setTickInterval(5)
 
         self.verticalLayout.addWidget(self.SpeedSlider)
-
 
         self.horizontalLayout_2.addWidget(self.SpeedSliderWidget)
 
@@ -513,6 +512,8 @@ class Ui_VRVisual(object):
         self.VisualMenuHelp.setFont(font)
         self.VisualMenuView = QMenu(self.VisualMenubar)
         self.VisualMenuView.setObjectName(u"VisualMenuView")
+        self.VisualMenuProjection = QMenu(self.VisualMenuView)
+        self.VisualMenuProjection.setObjectName(u"VisualMenuProjection")
         VRVisual.setMenuBar(self.VisualMenubar)
         QWidget.setTabOrder(self.DirectoryPath, self.BrowseButton)
         QWidget.setTabOrder(self.BrowseButton, self.CalculationAddButton)
@@ -552,7 +553,9 @@ class Ui_VRVisual(object):
         self.VisualMenuLight.addAction(self.ALight_6)
         self.VisualMenuLight.addAction(self.ALight_7)
         self.VisualMenuLight.addAction(self.ALight_8)
-        self.VisualMenuMods.addAction(self.AProvessing)
+        self.VisualMenuLight.addSeparator()
+        self.VisualMenuLight.addAction(self.actionLight_Settings)
+        self.VisualMenuMods.addAction(self.AProcessing)
         self.VisualMenuMods.addAction(self.AOSZICAR)
         self.VisualMenuMods.addAction(self.APOSCAR)
         self.VisualMenuMods.addAction(self.ACHGCAR)
@@ -585,96 +588,92 @@ class Ui_VRVisual(object):
         self.VisualMenuView.addAction(self.AAxes)
         self.VisualMenuView.addAction(self.ACell_boarder)
         self.VisualMenuView.addSeparator()
+        self.VisualMenuView.addAction(self.VisualMenuProjection.menuAction())
+        self.VisualMenuView.addSeparator()
         self.VisualMenuView.addAction(self.ABonds)
+        self.VisualMenuProjection.addAction(self.APerspective)
+        self.VisualMenuProjection.addAction(self.AOrthographic)
+        # self.link_elements_with_functions()
 
         self.retranslateUi(VRVisual)
 
         QMetaObject.connectSlotsByName(VRVisual)
-    # setupUi
+        # setupUi
 
     def retranslateUi(self, VRVisual):
-        VRVisual.setWindowTitle(QCoreApplication.translate("VRVisual", u"VaspReader", None))
-        self.AOpen_calculation.setText(QCoreApplication.translate("VRVisual", u"Open calculation", None))
-        self.ALoad_Calculation_State.setText(QCoreApplication.translate("VRVisual", u"Load", None))
-        self.ASave_Calculation_State.setText(QCoreApplication.translate("VRVisual", u"Save", None))
-        self.ALoad_Configuration.setText(QCoreApplication.translate("VRVisual", u"Load", None))
-        self.ASave_Configuration.setText(QCoreApplication.translate("VRVisual", u"Save", None))
-        self.AExit.setText(QCoreApplication.translate("VRVisual", u"Exit", None))
-        self.AAxes.setText(QCoreApplication.translate("VRVisual", u"Axes", None))
-        self.ACell_boarder.setText(QCoreApplication.translate("VRVisual", u"Cell boarder", None))
-        self.ABonds.setText(QCoreApplication.translate("VRVisual", u"Bonds", None))
-        self.actionChange_background.setText(QCoreApplication.translate("VRVisual", u"Change background", None))
-        self.ADelete_coordinates_after_leave_cell.setText(QCoreApplication.translate("VRVisual", u"Delete coordinates after leave cell", None))
-        self.ALight_1.setText(QCoreApplication.translate("VRVisual", u"Light 1", None))
-        self.ALight_2.setText(QCoreApplication.translate("VRVisual", u"Light 2", None))
-        self.ALight_3.setText(QCoreApplication.translate("VRVisual", u"Light 3", None))
-        self.ALight_4.setText(QCoreApplication.translate("VRVisual", u"Light 4", None))
-        self.ALight_5.setText(QCoreApplication.translate("VRVisual", u"Light 5", None))
-        self.ALight_6.setText(QCoreApplication.translate("VRVisual", u"Light 6", None))
-        self.ALight_7.setText(QCoreApplication.translate("VRVisual", u"Light 7", None))
-        self.ALight_8.setText(QCoreApplication.translate("VRVisual", u"Light 8", None))
-        self.AProvessing.setText(QCoreApplication.translate("VRVisual", u"Processing", None))
-        self.AOSZICAR.setText(QCoreApplication.translate("VRVisual", u"OSZICAR", None))
-        self.APOSCAR.setText(QCoreApplication.translate("VRVisual", u"POSCAR", None))
-        self.ACHGCAR.setText(QCoreApplication.translate("VRVisual", u"CHGCAR", None))
-        self.AIR_and_RAMAN.setText(QCoreApplication.translate("VRVisual", u"IR and RAMAN", None))
-        self.AGraphs.setText(QCoreApplication.translate("VRVisual", u"Graphs", None))
-        self.AKeyboard.setText(QCoreApplication.translate("VRVisual", u"Keyboard", None))
-        self.AMouse_keyboard.setText(QCoreApplication.translate("VRVisual", u"Mouse+keyboard", None))
-        self.AAtom_ID.setText(QCoreApplication.translate("VRVisual", u"Atom ID", None))
-        self.ABond.setText(QCoreApplication.translate("VRVisual", u"Bond", None))
-        self.AValence_angle.setText(QCoreApplication.translate("VRVisual", u"Valence angle", None))
-        self.AScreenshot.setText(QCoreApplication.translate("VRVisual", u"Make a screenshot", None))
-        self.AForm_POSCAR.setText(QCoreApplication.translate("VRVisual", u"Form POSCAR", None))
-        self.AAbout_the_program.setText(QCoreApplication.translate("VRVisual", u"About the program", None))
-        self.AAbout_window.setText(QCoreApplication.translate("VRVisual", u"About window", None))
-        self.ALatest_update.setText(QCoreApplication.translate("VRVisual", u"Latest update", None))
-        self.AChanges_history.setText(QCoreApplication.translate("VRVisual", u"Changes history", None))
-        self.ACalculation_State.setText(QCoreApplication.translate("VRVisual", u"Calculation State", None))
-        self.AProgram_Configuration.setText(QCoreApplication.translate("VRVisual", u"Program Configuration", None))
-        self.ABackground.setText(QCoreApplication.translate("VRVisual", u"Background", None))
-        self.AConsole.setText(QCoreApplication.translate("VRVisual", u"Console", None))
-        self.AFileSharing.setText(QCoreApplication.translate("VRVisual", u"FileSharing", None))
-        self.ToFirstStep.setText(QCoreApplication.translate("VRVisual", u"<<", None))
-        self.MoveBack.setText(QCoreApplication.translate("VRVisual", u"<", None))
-#if QT_CONFIG(tooltip)
+        VRVisual.setWindowTitle(QCoreApplication.translate("VRVisual", u"VaspReader", u"VaspReader"))
+        self.AOpen_calculation.setText(QCoreApplication.translate("VRVisual", u"Open calculation", u"Загрузить расчет"))
+        self.ALoad_Calculation_State.setText(QCoreApplication.translate("VRVisual", u"Load", u"Загрузить"))
+        self.ASave_Calculation_State.setText(QCoreApplication.translate("VRVisual", u"Save", u"Сохранить"))
+        self.ALoad_Configuration.setText(QCoreApplication.translate("VRVisual", u"Load", u"Загрузить"))
+        self.ASave_Configuration.setText(QCoreApplication.translate("VRVisual", u"Save", u"Сохранить"))
+        self.AExit.setText(QCoreApplication.translate("VRVisual", u"Exit", u"Выход"))
+        self.AAxes.setText(QCoreApplication.translate("VRVisual", u"Axes", u"Оси"))
+        self.ACell_boarder.setText(QCoreApplication.translate("VRVisual", u"Cell boarder", u"Границы ячейки"))
+        self.ABonds.setText(QCoreApplication.translate("VRVisual", u"Bonds", u"Связи"))
+        self.actionChange_background.setText(QCoreApplication.translate("VRVisual", u"Change background", u"Цвет фона"))
+        self.ADelete_coordinates_after_leave_cell.setText(
+            QCoreApplication.translate("VRVisual", u"Delete coordinates after leave cell", u"Удаление координат после покидания ячейки"))
+        self.ALight_1.setText(QCoreApplication.translate("VRVisual", u"Light 1", u"Свет 1"))
+        self.ALight_2.setText(QCoreApplication.translate("VRVisual", u"Light 2", u"Свет 2"))
+        self.ALight_3.setText(QCoreApplication.translate("VRVisual", u"Light 3", u"Свет 3"))
+        self.ALight_4.setText(QCoreApplication.translate("VRVisual", u"Light 4", u"Свет 4"))
+        self.ALight_5.setText(QCoreApplication.translate("VRVisual", u"Light 5", u"Свет 5"))
+        self.ALight_6.setText(QCoreApplication.translate("VRVisual", u"Light 6", u"Свет 6"))
+        self.ALight_7.setText(QCoreApplication.translate("VRVisual", u"Light 7", u"Свет 7"))
+        self.ALight_8.setText(QCoreApplication.translate("VRVisual", u"Light 8", u"Свет 8"))
+        self.AProcessing.setText(QCoreApplication.translate("VRVisual", u"Processing", u"Обработка"))
+        self.AOSZICAR.setText(QCoreApplication.translate("VRVisual", u"OSZICAR", u"OSZICAR"))
+        self.APOSCAR.setText(QCoreApplication.translate("VRVisual", u"POSCAR", u"POSCAR"))
+        self.ACHGCAR.setText(QCoreApplication.translate("VRVisual", u"CHGCAR", u"CHGCAR"))
+        self.AIR_and_RAMAN.setText(QCoreApplication.translate("VRVisual", u"IR and RAMAN", u"IR и RAMAN"))
+        self.AGraphs.setText(QCoreApplication.translate("VRVisual", u"Graphs", u"Графики"))
+        self.AKeyboard.setText(QCoreApplication.translate("VRVisual", u"Keyboard", u"Клавиатура"))
+        self.AMouse_keyboard.setText(QCoreApplication.translate("VRVisual", u"Mouse+keyboard", u"Клавиатура+мышь"))
+        self.AAtom_ID.setText(QCoreApplication.translate("VRVisual", u"Atom ID", u"ID атома"))
+        self.ABond.setText(QCoreApplication.translate("VRVisual", u"Bond", u"Связь"))
+        self.AValence_angle.setText(QCoreApplication.translate("VRVisual", u"Valence angle", u"Валентный угол"))
+        self.AScreenshot.setText(QCoreApplication.translate("VRVisual", u"Make a screenshot", u"Сделать скриншот"))
+        self.AForm_POSCAR.setText(QCoreApplication.translate("VRVisual", u"Form POSCAR", u"Сформировать POSCAR"))
+        self.AAbout_the_program.setText(QCoreApplication.translate("VRVisual", u"About the program", u"О программе"))
+        self.AAbout_window.setText(QCoreApplication.translate("VRVisual", u"About window", u"Об окне"))
+        self.ALatest_update.setText(QCoreApplication.translate("VRVisual", u"Latest update", u"Последнее обновление"))
+        self.AChanges_history.setText(QCoreApplication.translate("VRVisual", u"Changes history", u"История изменений"))
+        self.ACalculation_State.setText(QCoreApplication.translate("VRVisual", u"Calculation State", u"Состояние расчета"))
+        self.AProgram_Configuration.setText(QCoreApplication.translate("VRVisual", u"Program Configuration", u"Конфигурация программы"))
+        self.ABackground.setText(QCoreApplication.translate("VRVisual", u"Background", u"Фон"))
+        self.AConsole.setText(QCoreApplication.translate("VRVisual", u"Console", u"Консоль"))
+        self.AFileSharing.setText(QCoreApplication.translate("VRVisual", u"FileSharing", u"Обмен файлами"))
+        self.actionLight_Settings.setText(QCoreApplication.translate("VRVisual", u"Light Settings", u"Настройки света"))
+        self.APerspective.setText(QCoreApplication.translate("VRVisual", u"Perspective", u"Перспективная"))
+        self.AOrthographic.setText(QCoreApplication.translate("VRVisual", u"Orthographic", u"Ортографическая"))
+        self.ToFirstStep.setText(QCoreApplication.translate("VRVisual", u"<<", u"<<"))
+        self.MoveBack.setText(QCoreApplication.translate("VRVisual", u"<", u"<"))
+        # if QT_CONFIG(tooltip)
         self.StepSlider.setToolTip("")
-#endif // QT_CONFIG(tooltip)
-        self.MoveForward.setText(QCoreApplication.translate("VRVisual", u">", None))
-        self.ToLastStep.setText(QCoreApplication.translate("VRVisual", u">>", None))
-        self.DeleteCalculationButton.setText(QCoreApplication.translate("VRVisual", u"Delete", None))
-        self.BrowseButton.setText(QCoreApplication.translate("VRVisual", u"Browse", None))
-        self.CalculationAddButton.setText(QCoreApplication.translate("VRVisual", u"Add", None))
+        # endif // QT_CONFIG(tooltip)
+        self.MoveForward.setText(QCoreApplication.translate("VRVisual", u">", u">"))
+        self.ToLastStep.setText(QCoreApplication.translate("VRVisual", u">>", u">>"))
+        self.DeleteCalculationButton.setText(QCoreApplication.translate("VRVisual", u"Delete", u"Удалить"))
+        self.BrowseButton.setText(QCoreApplication.translate("VRVisual", u"Browse", u"Обзор"))
+        self.CalculationAddButton.setText(QCoreApplication.translate("VRVisual", u"Add", u"Добавить"))
         self.AddedCalculations.setCurrentText("")
-        self.AddedCalculations.setPlaceholderText(QCoreApplication.translate("VRVisual", u"Choose calculation to delete", None))
+        self.AddedCalculations.setPlaceholderText(
+            QCoreApplication.translate("VRVisual", u"Choose calculation to delete", u"Выбрать расчет для удаления"))
         self.DirectoryPath.setText("")
-        self.DirectoryPath.setPlaceholderText(QCoreApplication.translate("VRVisual", u"Input calculation folder", None))
-#if QT_CONFIG(tooltip)
+        self.DirectoryPath.setPlaceholderText(QCoreApplication.translate("VRVisual", u"Input calculation folder", u"Введите директорию расчета"))
+        # if QT_CONFIG(tooltip)
         self.SpeedSlider.setToolTip("")
-#endif // QT_CONFIG(tooltip)
-        self.VisualMenuFile.setTitle(QCoreApplication.translate("VRVisual", u"File", None))
-        self.VisualMenuEdit.setTitle(QCoreApplication.translate("VRVisual", u"Edit", None))
-        self.VisualMenuLight.setTitle(QCoreApplication.translate("VRVisual", u"Light", None))
-        self.VisualMenuMods.setTitle(QCoreApplication.translate("VRVisual", u"Mods", None))
-        self.VisualMenuSupercomputer.setTitle(QCoreApplication.translate("VRVisual", u"Supercomputer", None))
-        self.VisualMenuTools.setTitle(QCoreApplication.translate("VRVisual", u"Tools", None))
-        self.VisualMenuSelect_mode.setTitle(QCoreApplication.translate("VRVisual", u"Selection type", None))
-        self.VisualMenuLabel.setTitle(QCoreApplication.translate("VRVisual", u"Label", None))
-        self.VisualMenuHelp.setTitle(QCoreApplication.translate("VRVisual", u"Help", None))
-        self.VisualMenuView.setTitle(QCoreApplication.translate("VRVisual", u"View", None))
-    # retranslateUi
-
-    def load_calculation(self):
-        folder = str(QFileDialog.getExistingDirectory(None, "Select Directory"))
-
-    def load_calculation_state(self):
-        file = str(QFileDialog.getOpenFileName(None, "Select File"))
-
-    def save_calculation_state(self):
-        file = str(QFileDialog.getSaveFileName(None, "Save File"))
-
-    def load_configuration_state(self):
-        file = str(QFileDialog.getOpenFileName(None, "Select File"))
-
-    def save_configuration_state(self):
-        file = str(QFileDialog.getSaveFileName(None, "Save File"))
+        # endif // QT_CONFIG(tooltip)
+        self.VisualMenuFile.setTitle(QCoreApplication.translate("VRVisual", u"File", u"Файл"))
+        self.VisualMenuEdit.setTitle(QCoreApplication.translate("VRVisual", u"Edit", u"Редактировать"))
+        self.VisualMenuLight.setTitle(QCoreApplication.translate("VRVisual", u"Light", u"Свет"))
+        self.VisualMenuMods.setTitle(QCoreApplication.translate("VRVisual", u"Mods", u"Режимы"))
+        self.VisualMenuSupercomputer.setTitle(QCoreApplication.translate("VRVisual", u"Supercomputer", u"Суперкомпьютер"))
+        self.VisualMenuTools.setTitle(QCoreApplication.translate("VRVisual", u"Tools", u"Инструменты"))
+        self.VisualMenuSelect_mode.setTitle(QCoreApplication.translate("VRVisual", u"Selection type", u"Тип выбора"))
+        self.VisualMenuLabel.setTitle(QCoreApplication.translate("VRVisual", u"Label", u"Отметить"))
+        self.VisualMenuHelp.setTitle(QCoreApplication.translate("VRVisual", u"Help", u"Помощь"))
+        self.VisualMenuView.setTitle(QCoreApplication.translate("VRVisual", u"View", u"Обзор"))
+        self.VisualMenuProjection.setTitle(QCoreApplication.translate("VRVisual", u"Projection", u"Проекция"))
+        # retranslateUi

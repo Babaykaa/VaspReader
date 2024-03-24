@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QPushButton,
     QSizePolicy, QWidget)
-import QT_GUI.Resource_rc
+import Gui.Resource_rc
 
 class Ui_ChooseFileWindow(object):
     def setupUi(self, ChooseFileWindow):

@@ -10,7 +10,7 @@ layout (location=3) in vec2 VertexTexCoord;
 out vec3 Position;
 out vec3 Normal;
 out vec3 Color;
-
+out vec2 TexCoord;
 
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
@@ -28,6 +28,8 @@ void main()
     Position = vec3(ModifiedPosition);
 
     Color = VertexColor;
+
+    TexCoord = vec2(VertexTexCoord[0], 1 - VertexTexCoord[1]);
 
     gl_Position = ProjectionMatrix * ModifiedPosition;
 }

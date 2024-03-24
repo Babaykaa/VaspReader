@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QHBoxLayout,
     QLabel, QLineEdit, QMainWindow, QMenu,
     QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
-import QT_GUI.Resource_rc
+import Gui.Resource_rc
 
 class Ui_VRPoscar(object):
     def setupUi(self, VRPoscar):

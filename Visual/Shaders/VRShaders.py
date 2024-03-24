@@ -68,7 +68,7 @@ class VRShaders:
 
     def load_shader_info(self, file):
         """Reads shader file and save it in string variable."""
-        path = f'{self.directory}\\{file}'
+        path = f'{self.directory}\\{file}' if self.directory else file
         try:
             f = open(path, 'r', encoding="utf-8", errors='ignore')
         except:
@@ -139,7 +139,7 @@ class VRShaders:
             name = ''.join([chr(int(el)) for el in name][:-2])
             type_name = ''
             for file in self.shader_files:
-                with open(f'{self.directory}\\{file}', 'r') as f:
+                with open(f'{self.directory}\\{file}' if self.directory else file, 'r') as f:
                     while True:
                         line = f.readline()
                         if not line:
