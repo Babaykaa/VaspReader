@@ -2,13 +2,13 @@ import os
 import traceback
 import numpy as np
 import pandas as pd
-from VaspReaderGUI import VRGUI
-from VaspReaderGUI import processing_GUI
-from VaspReaderGUI import egg_window
-from VaspReaderPrint import VRPrint
-from VaspReaderGraphics import VRGraphsProcessing
-from VaspReaderOszicar import VROszicarProcessing
-from VaspReaderOszicar import preview_columns_form
+from OLD_GUI import VRGUI
+from OLD_GUI import processing_GUI
+from OLD_GUI import egg_window
+from OLD_Print import VRPrint
+from OLD_Graphics import VRGraphsProcessing
+from OLD_Oszicar import VROszicarProcessing
+from OLD_Oszicar import preview_columns_form
 import PySimpleGUI as sg
 from PIL import Image, ImageTk, ImageSequence
 

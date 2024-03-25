@@ -1,8 +1,8 @@
 import numpy as np
-from VaspReaderGUI import VRGUI
-from VaspReaderGUI import file_choose_window
-from VaspReaderGUI import chgcar_window
-from VaspReaderPrint import VRPrint
+from OLD_GUI import VRGUI
+from OLD_GUI import file_choose_window
+from OLD_GUI import chgcar_window
+from OLD_Print import VRPrint
 import PySimpleGUI as sg
 import os
 import math

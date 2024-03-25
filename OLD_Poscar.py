@@ -2,11 +2,11 @@ import os
 import numpy as np
 from collections import Counter
 import PySimpleGUI as sg
-from VaspReaderPrint import VRPrint
-from VaspReaderGUI import VRGUI
-from VaspReaderGUI import poscar_mode_GUI
-from VaspReaderGUI import file_choose_window
-from VaspReaderMD import VRMD
+from OLD_Print import VRPrint
+from OLD_GUI import VRGUI
+from OLD_GUI import poscar_mode_GUI
+from OLD_GUI import file_choose_window
+from OLD_MD import VRMD
 
 
 class VRPoscarForm(VRGUI, VRPrint):

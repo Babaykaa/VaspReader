@@ -5,9 +5,9 @@ import subprocess
 import threading
 import time
 import PySimpleGUI as sg
-from VaspReaderGUI import VRGUI
-from VaspReaderGUI import redactor_window
-from VaspReaderPrint import VRPrint
+from OLD_GUI import VRGUI
+from OLD_GUI import redactor_window
+from OLD_Print import VRPrint
 
 
 class VRRedactor(VRGUI, VRPrint):

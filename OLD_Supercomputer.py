@@ -8,13 +8,13 @@ import threading
 import traceback
 from PIL import Image, ImageTk
 import PySimpleGUI as sg
-from VaspReaderGUI import VRGUI
-from VaspReaderPrint import VRPrint
-from VaspReaderGUI import console_window
-from VaspReaderGUI import user_authentication
-from VaspReaderGUI import file_hosting
-from VaspReaderGUI import ask_to_delete_file
-from VaspReaderRedactor import VRRedactor
+from OLD_GUI import VRGUI
+from OLD_Print import VRPrint
+from OLD_GUI import console_window
+from OLD_GUI import user_authentication
+from OLD_GUI import file_hosting
+from OLD_GUI import ask_to_delete_file
+from OLD_Redactor import VRRedactor
 import paramiko
 import sys
 

@@ -701,6 +701,10 @@ class VROpenGL:
                 self.select_atom(True)
             if keypress[pygame.K_d]:
                 self.select_atom(False)
+
+            if keypress[pygame.K_p]:
+                self.__visual_window.processing_start()
+
             # Движение модели мышкой
             for _ in pygame.mouse.get_pressed():
                 if pygame.mouse.get_pressed()[0] == 1:

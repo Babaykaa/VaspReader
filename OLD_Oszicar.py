@@ -1,7 +1,7 @@
-from VaspReaderPrint import VRPrint
-from VaspReaderGUI import VRGUI
-from VaspReaderGUI import oszicar_mode_GUI
-from VaspReaderGraphics import VRGraphsProcessing
+from OLD_Print import VRPrint
+from OLD_GUI import VRGUI
+from OLD_GUI import oszicar_mode_GUI
+from OLD_Graphics import VRGraphsProcessing
 import os
 import traceback
 import PySimpleGUI as sg
