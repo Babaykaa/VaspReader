@@ -90,29 +90,27 @@ class VRMD:
     @sendDataToLogger
     def __init__(self, directory, logger):
         self.__logger = logger
-        self.different_calculations = False
         self._parser_parameters = {'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP'}
         self.XMLLIST = []
-        vaspnum, self.breaker, self.no_vaspruns = 0, False, False
+        vaspnum, self.breaker = 0, False
         try:
             for vaspfile in os.listdir(directory):
                 if vaspfile.endswith('.xml'):
                     vaspnum += 1
                     self._parser_parameters[vaspfile] = {'ATOMNAMES': [], 'ATOMNUMBER': 0, 'POMASS': [], 'POSITIONS': [], 'POTIM': 0., 'TYPE': []}
                     self.XMLLIST.append(vaspfile)
-        except AttributeError:
-            pass
+        except AttributeError as err:
+            self.__logger.addMessage('Exception occurred when watching for vaspruns in directory.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Directory reading', detailed_description=err)
         self.XMLLIST.sort()
         self._parser_parameters['XMLLIST'] = self.XMLLIST
         if vaspnum == 0:
             self.breaker = True
-            self.__logger
+            self.__logger.addMessage('There are no Vasprun files in the directory.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='No vaspruns')
         elif vaspnum != 0:
             for v_ind in range(len(self.XMLLIST)):
                 POTIM_read, BASIS_read = True, True
                 first_read_check, first_cord_read = True, True
-                vaspdir = directory + '\\' + self.XMLLIST[v_ind]
-                with open(vaspdir, 'r') as VASP:
+                with open(directory + '\\' + self.XMLLIST[v_ind], 'r') as VASP:
                     while True:
                         line = VASP.readline()
                         if not line:
@@ -143,8 +141,9 @@ class VRMD:
                                         first_cord_read = False
                                     if array != self._parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'][-1]:
                                         self._parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'].append(array)
-                            except:
+                            except Exception as err:
                                 self.breaker = True
+                                self.__logger.addMessage('There are mistakes with reading positions.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Damaged vaspruns', detailed_description=err)
                         if BASIS_read and '<varray name="basis" >' in line:
                             basis_str = [VASP.readline() for _ in range(3)]
                             basis = [list(map(float, basis_str[index].split()[1:4])) for index in range(len(basis_str))]
@@ -184,8 +183,9 @@ class VRMD:
                     self._parser_parameters = atoms_info_filling(self._parser_parameters)
                     self._parser_parameters['ID'] = [self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1) for ind in range(self._parser_parameters['ATOMNUMBER'])]
                     self._parser_parameters['ID-TO-NUM'] = {self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1): ind for ind in range(self._parser_parameters['ATOMNUMBER'])}
-                except KeyError:
+                except KeyError as err:
                     self.breaker = True
+                    self.__logger.addMessage('There are mistakes with reading positions and/or basis.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Damaged vaspruns', detailed_description=err)
 
     def get_logger(self):
         return self.__logger
@@ -212,8 +212,8 @@ class VRMD:
                         if dictionary[XML[file]]['REMOVED'][index]:
                             dictionary[XML[file + 1]]['REMOVED'].insert(index, True)
                 if sum(differ) != dictionary[XML[0]]['ATOMNUMBER'] - dictionary[XML[file + 1]]['ATOMNUMBER']:
-                    self.different_calculations = True
                     self.breaker = True
+                    self.__logger.addMessage('Vasprun files present different calculations.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Different calculations')
 
     @ staticmethod
     def position_array_form(dictionary):
@@ -230,6 +230,7 @@ class VRMD:
 class QEMD:
     __atomic_units_distance_constant = 1.889725988579
 
+    @sendDataToLogger
     def __init__(self, directory, logger):
         self.__logger = logger
         self.directory = directory
@@ -256,14 +257,17 @@ class QEMD:
     def __call__(self, *args, **kwargs):
         return self._parser_parameters
 
+    @sendDataToLogger
     def cartesian_to_direct(self):
         self._parser_parameters['DIRECT'] = np.array([np.dot(self._parser_parameters['POSITIONS'], np.linalg.inv(self._parser_parameters['BASIS']))])[0]
         self._parser_parameters['DIRECT'] = self._parser_parameters['DIRECT'] - 0.5
         self.direct_to_cartesian()
 
+    @sendDataToLogger
     def direct_to_cartesian(self):
         self._parser_parameters['POSITIONS'] = np.array([np.dot(self._parser_parameters['DIRECT'], self._parser_parameters['BASIS'])])[0]
 
+    @sendDataToLogger
     def check_for_QE_files(self, directory):
         files = os.listdir(directory)
         folders = []
@@ -287,6 +291,7 @@ class QEMD:
                     return True
             return False
 
+    @sendDataToLogger
     def read_coord_file(self):
         steps_counter = 0
         now_potim = None
@@ -321,6 +326,7 @@ class QEMD:
         self._parser_parameters['POSITIONS'] = np.array(self._parser_parameters['POSITIONS']) / self.__atomic_units_distance_constant
         self.cartesian_to_direct()
 
+    @sendDataToLogger
     def read_cell_file(self):
         with open(self.dir_to_read_files + '\\' + self.calculation_files['cel']) as cell:
             cell.readline()
@@ -332,6 +338,7 @@ class QEMD:
             # Создание вершин границы ячейки
             self._parser_parameters['BASIS_VERT'] = np.dot(np.asarray(cube_vert), self._parser_parameters['BASIS'])
 
+    @sendDataToLogger
     def read_input_file(self):
         mass_count = 0
         with open(self.directory + '\\' + self.input_file) as inp:
@@ -354,7 +361,3 @@ class QEMD:
                         if len(self._parser_parameters['ATOMNAMES']) > 1 and self._parser_parameters['ATOMNAMES'][-1] != self._parser_parameters['ATOMNAMES'][-2]:
                             mass_count += 1
                         self._parser_parameters['MASSES'].append(self._parser_parameters['POMASS'][mass_count])
-
-
-
-QEMD(r'C:\Users\AlexS\Documents\Science_work\QuantumEspresso\POSS_with_He')

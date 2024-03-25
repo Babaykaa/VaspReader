@@ -30,12 +30,12 @@ class VRPrintWindow(Ui_VRPrint, QMainWindow):
     def insert_logs(self, window, operation, operation_type, result='SUCCESS'):
         self.__logger.insert_logs(window, operation, operation_type, result)
 
-    def addMessage(self, message, from_window, operation=None, operation_type='program', result='SUCCESS'):
+    def addMessage(self, message, from_window, operation=None, operation_type='program', result='SUCCESS', cause=None, detailed_description=None):
         toLogger = message if operation is None else operation
         message = message.split('\n')
         for line in message:
             self.Logger.append(f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Times New Roman'; font-size:10pt; font-weight:696; color:#00e5e5; background-color:#000000\">{line}</span></p>\n")
-        self.__logger.insert_logs(from_window, toLogger, operation_type, result)
+        self.__logger.insert_logs(from_window, toLogger, operation_type, result, cause, detailed_description)
 
     def link_elements_with_functions(self):
         pass

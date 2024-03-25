@@ -162,7 +162,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
     @sendDataToLogger(operation_type='user')
     def delete_calculation(self):
         self.stop_step_changing()
-        self.__calculations.pop(self.calculation_folder)
+        self.__calculations.pop(self.calculation_folder, None)
         if self.__calculations:
             folder_to_delete = self.calculation_folder
             self.calculation_folder = list(self.__calculations.keys())[-1]
