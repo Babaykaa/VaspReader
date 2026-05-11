@@ -1,10 +1,20 @@
-import os
 import traceback
 import numpy as np
 import pandas as pd
-import logging
+from analysis import (
+    add_kinetic_energy_columns,
+    add_velocity_columns,
+    atom_labels,
+    center_of_mass,
+    coordinate_dataframe,
+    distance_series,
+    export_dataframe,
+    time_axis,
+    valence_angle,
+)
+from core.models import Calculation
 from gui.processing_dev import Ui_VRProcessing, QMainWindow
-from vasp.oszicar import VROszicarProcessing, VRPdModel
+from vasp.oszicar import VRPdModel
 from graph.graph import VRGraph
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtWidgets import QFileDialog, QAbstractItemView
@@ -32,7 +42,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
          visualWindowObject: The visual window object.
          printWindowObject: The print window object.
          openGlWindowObject: The OpenGL window object.
-         calculation: A dictionary containing calculation data.
+         calculation: Unified Calculation object.
          name: The name of the processing instance.
          deleteAfterLeave: A boolean indicating whether to delete the instance after leaving.
         
@@ -42,7 +52,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
          self.__parent: The visual window object.
          self.__printWindow: The print window object.
          self.__openGl: The OpenGL window object.
-         self.__calculation: A dictionary containing calculation data.
+         self.__calculation: Unified Calculation object.
          self._deleteAfterLeave: A boolean indicating whether to delete the instance after leaving.
          self._name: The name of the processing instance.
          self._selected_atoms: A list of selected atom names from the calculation data.
@@ -79,39 +89,50 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.setupUi(self)
         if location is not None:
             self.move(location[0], location[1])
+        if not isinstance(calculation, Calculation):
+            raise TypeError("VRProcessing expects core.models.Calculation.")
+        if calculation.trajectory is None:
+            raise ValueError("Calculation does not contain a trajectory.")
         self.__calculation = calculation
+        self.__trajectory = calculation.trajectory
         self._deleteAfterLeave = deleteAfterLeave
         self._name = name
-        self._selected_atoms = self.__calculation['ATOMNAMES']
+        self._selected_atom_ids = self._resolve_selected_atom_ids()
 
         self.__graph = None
         self._selected_columns = []
-        self._masses = self.selectedDataForm('MASSES')
-        self._selectedNames = self.selectedDataForm('ID')
+        self.columnsNames = atom_labels(self.__trajectory, self._selected_atom_ids)
+        self._label_to_atom_id = dict(zip(self.columnsNames, self._selected_atom_ids, strict=True))
+        self._masses = [
+            self.__trajectory.atom_record(atom_id).mass
+            for atom_id in self._selected_atom_ids
+        ]
+        self._selectedNames = self.columnsNames.copy()
 
-        if self._selectedNames:
-            self.columnsNames = self.removeSubscriptInNames(self._selectedNames)
+        if self._selected_atom_ids:
             self.coordColumns = [name + self.coordProjection[j] for name in self.columnsNames for j in range(3)]
             self.directColumns = [name + self.directProjection[j] for name in self.columnsNames for j in range(3)]
             self.baseDf = self.formBasePandasDf()
             self.vColumns, self.eColumns = self.velocitiesAndEnergiesCalc()
             self.distanceCols, self.angleCols, self.weightmassCols, self.sumCols, self.differenceCols, self.divideCols = [], [], [], [], [], []
-            self.baseDf.drop(self.baseDf.index[-1], inplace=True)
             self.mainDf = pd.DataFrame(self.baseDf)
             for v in self.vColumns:
-                del self.mainDf[v]
+                if v in self.mainDf:
+                    del self.mainDf[v]
             for d in self.directColumns:
-                del self.mainDf[d]
+                if d in self.mainDf:
+                    del self.mainDf[d]
             self.coordinatesDelete()
             self.refreshLists()
             self.oszicarCheckboxUnlock()
         else:
-            self.mainDf = pd.DataFrame()
-            timeArr = np.arange(0, float(self.__calculation['POTIM'][0]) * self.__calculation['STEPS_LIST'][0], float(self.__calculation['POTIM'][0]))
-            for index, steps in enumerate(self.__calculation['STEPS_LIST'][1:], start=1):
-                addTimeArr = np.arange(timeArr[-1] + float(self.__calculation['POTIM'][index]), timeArr[-1] + float(self.__calculation['POTIM'][index]) * steps, float(self.__calculation['POTIM'][index]))
-                timeArr = np.concatenate([timeArr, addTimeArr])
-            self.mainDf.insert(0, 'Time, fs', timeArr[:self.__calculation['STEPS']])
+            self.coordColumns = []
+            self.directColumns = []
+            self.vColumns = []
+            self.eColumns = []
+            self.distanceCols, self.angleCols, self.weightmassCols, self.sumCols, self.differenceCols, self.divideCols = [], [], [], [], [], []
+            self.baseDf = pd.DataFrame({"Time, fs": time_axis(self.__trajectory)})
+            self.mainDf = pd.DataFrame(self.baseDf)
         self._model = VRPdModel(self.mainDf)
         self.ViewTable.setModel(self._model)
         self._selectionModel = QItemSelectionModel(self._model)
@@ -120,7 +141,13 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.__parent.hide()
         self.__openGl.hide()
 
-    def addMessage(self, message):
+    def _resolve_selected_atom_ids(self):
+        selected = self.__calculation.properties.get("selected_atom_ids")
+        if selected is None:
+            return [record.atom_id for record in self.__trajectory.atom_registry]
+        return [int(atom_id) for atom_id in selected]
+
+    def addMessage(self, message, *args, **kwargs):
         """
         Adds a message to the print window.
         
@@ -247,7 +274,11 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         Returns:
          list: A list of selected data values.
         """
-        return [self.__calculation[dict_name][i] for i in range(self.__calculation['ATOMNUMBER']) if 'Sel' in self._selected_atoms[i]]
+        if dict_name == "MASSES":
+            return self._masses.copy()
+        if dict_name == "ID":
+            return self._selectedNames.copy()
+        return []
 
     @staticmethod
     def removeSubscriptInNames(names):
@@ -285,31 +316,17 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             columnsNames: A list of names for the coordinate components.
             coordProjection: A list of coordinate projection values.
         """
-        data = []
-        selectedColumnsNums = [num for num, column in enumerate(self._selected_atoms) if 'Sel' in column]
-        for step in range(self.__calculation['STEPS']):
-            temp, counter = [], 0
-            for atom_num in selectedColumnsNums:
-                if step > 0:
-                    temp.append(self.atomAwayProcessing(self.__calculation['DIRECT'][step][atom_num], data[step - 1][counter]))
-                else:
-                    temp.append(self.__calculation['DIRECT'][step][atom_num])
-                counter += 1
-            data.append(temp.copy())
-        data = np.asarray(data)
-        data = data.reshape((-1, 3 * len(self._selectedNames)))
-        baseDf = pd.DataFrame(data, columns=self.directColumns)
+        baseDf = coordinate_dataframe(
+            self.__trajectory,
+            self._selected_atom_ids,
+            include_direct=True,
+            include_cartesian=True,
+            unwrap_direct=True,
+        )
         if self._deleteAfterLeave:
-            baseDf.mask(baseDf >= 1, inplace=True)
-            baseDf.mask(baseDf <= 0, inplace=True)
-        timeArr = np.arange(0, float(self.__calculation['POTIM'][0]) * self.__calculation['STEPS_LIST'][0], float(self.__calculation['POTIM'][0]))
-        for index, _ in enumerate(self.__calculation['STEPS_LIST'][1:], start=1):
-            addTimeArr = np.arange(timeArr[-1] + float(self.__calculation['POTIM'][index]), timeArr[-1] + float(self.__calculation['POTIM'][index]) * (self.__calculation['STEPS_LIST'][index] - self.__calculation['STEPS_LIST'][index - 1] + 1), float(self.__calculation['POTIM'][index]))
-            timeArr = np.concatenate([timeArr, addTimeArr])
-        baseDf.insert(0, 'Time, fs', timeArr[:self.__calculation['STEPS']])
-        for name in self.columnsNames:
-            for num, proj in enumerate(self.coordProjection):
-               baseDf[f'{name}{proj}'] = self.__calculation['BASIS'][0][num] * baseDf[f'{name}_dir_1'] + self.__calculation['BASIS'][1][num] * baseDf[f'{name}_dir_2'] + self.__calculation['BASIS'][2][num] * baseDf[f'{name}_dir_3']
+            for column in self.directColumns:
+                if column in baseDf:
+                    baseDf[column] = baseDf[column].mask((baseDf[column] >= 1) | (baseDf[column] <= 0))
         return baseDf
 
     @staticmethod
@@ -350,15 +367,24 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 - vColumns: The list of velocity column names.
                 - eColumns: The list of energy column names.
         """
+        self.baseDf = add_velocity_columns(
+            self.baseDf,
+            self.__trajectory,
+            self._selected_atom_ids,
+            prefix="V",
+        )
         vColumns = ['V_' + column for column in self.columnsNames]
-        eColumns = ['E_' + column for column in self.columnsNames]
-        for num, column in enumerate(vColumns):
-            self.baseDf[column] = (self.baseDf[self.columnsNames[num] + '_x'].diff() ** 2 + self.baseDf[self.columnsNames[num] + '_y'].diff() ** 2 + self.baseDf[self.columnsNames[num] + '_z'].diff() ** 2) ** (1 / 2) * 1000
-            self.divineOnPOTIM(column)
-        for num, column in enumerate(eColumns):
-            self.baseDf[column] = (self.baseDf[vColumns[num]]) ** 2 * self._masses[num] / self.calc_const
-        self.baseDf.drop(self.baseDf.index[0], inplace=True)
-        self.baseDf.reset_index(drop=True, inplace=True)
+        eColumns = []
+        try:
+            self.baseDf = add_kinetic_energy_columns(
+                self.baseDf,
+                self.__trajectory,
+                self._selected_atom_ids,
+                prefix="E",
+            )
+            eColumns = ['E_' + column for column in self.columnsNames]
+        except ValueError as err:
+            self.addMessage(str(err))
         return vColumns, eColumns
 
     def coordinatesDelete(self):
@@ -376,7 +402,8 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             None
         """
         for coord in self.coordColumns:
-            del self.mainDf[coord]
+            if coord in self.mainDf:
+                del self.mainDf[coord]
 
     def directCurveChoose(self, first, second):
         """
@@ -395,10 +422,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
          float: The weighted sum of the differences, representing the calculated
          value.
         """
-        periodical_coefficients = []
-        for proj in ['_dir_1', '_dir_2', '_dir_3']:
-            periodical_coefficients.append(round(self.baseDf[second + proj][0] - self.baseDf[first + proj][0]))
-        return np.dot(np.asarray(periodical_coefficients), self.__calculation['BASIS'])
+        return np.zeros(3, dtype=np.float64)
 
     def divineOnPOTIM(self, column, isCOM=False):
         """
@@ -415,17 +439,11 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         Returns:
             None
         """
-        prev_index = 0
-        for index, POTIM in enumerate(self.__calculation['POTIM']):
-            if isCOM:
-                if index != len(self.__calculation['POTIM']) - 1:
-                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] / POTIM
-                    prev_index = self.__calculation['STEPS_LIST'][index] - 1
-                else:
-                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
-            else:
-                self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
-                prev_index = self.__calculation['STEPS_LIST'][index]
+        if column not in self.baseDf:
+            return None
+        dt = np.concatenate([[np.nan], np.diff(time_axis(self.__trajectory))])
+        dt[dt == 0] = np.nan
+        self.baseDf[column] = self.baseDf[column] / dt
 
     def removeColumns(self, addedColsElement, removeElement):
         """
@@ -589,8 +607,14 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Column has already been added!', result='FAILED', cause='Column has already been added')
             self.DCListClear()
         else:
-            coefficients = self.directCurveChoose(first, second)
-            self.baseDf[f'{first}--{second}'] = ((self.baseDf[second + '_x'] - self.baseDf[first + '_x'] - coefficients[0]) ** 2 + (self.baseDf[second + '_y'] - self.baseDf[first + '_y'] - coefficients[1]) ** 2 + (self.baseDf[second + '_z'] - self.baseDf[first + '_z'] - coefficients[2]) ** 2) ** (1 / 2)
+            first_id = self._label_to_atom_id[first]
+            second_id = self._label_to_atom_id[second]
+            self.baseDf[f'{first}--{second}'] = distance_series(
+                self.__trajectory,
+                first_id,
+                second_id,
+                use_pbc=True,
+            )
             self.mainDf[f'{first}--{second}'] = self.baseDf[f'{first}--{second}']
 
             self.distanceCols.append(f'{first}--{second}')
@@ -628,34 +652,30 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             weightmasses = atomsList
         columnName = 'cm_' + '_'.join(weightmasses)
         if f'E{columnName}' not in self.eColumns:
-            weightMassesDict = dict()
-            for name in self._selectedNames:
-                rname = ''.join(name.split('_'))
-                if rname in weightmasses:
-                    weightMassesDict[rname] = self.__calculation['MASSES'][self.__calculation['ID-TO-NUM'][name]]
-            summaryMass = sum([weightMassesDict[name] for name in weightmasses])
-            directCols = ['_dir_1', '_dir_2', '_dir_3']
+            atom_ids = [self._label_to_atom_id[name] for name in weightmasses]
+            try:
+                cm_values = center_of_mass(self.__trajectory, atom_ids)
+            except ValueError as err:
+                self.addMessage(str(err))
+                self.DCListClear()
+                return
+            masses = np.asarray([self.__trajectory.atom_record(atom_id).mass for atom_id in atom_ids], dtype=np.float64)
+            summaryMass = float(np.sum(masses))
             for index, proj in enumerate(['_x', '_y', '_z']):
-                self.baseDf[f"{columnName}{directCols[index]}"] = np.zeros(self.__calculation['STEPS'] - 2)
-                self.baseDf[f"{columnName}{proj}"] = np.zeros(self.__calculation['STEPS'] - 2)
-                for atom in weightmasses:
-                    self.baseDf[f"{columnName}{proj}"] += self.baseDf[f"{atom}{proj}"] * weightMassesDict[atom] / summaryMass
-                    self.baseDf[f"{columnName}{directCols[index]}"] += self.baseDf[f"{atom}{directCols[index]}"] * weightMassesDict[atom] / summaryMass
+                self.baseDf[f"{columnName}{proj}"] = cm_values[:, index]
             self.vColumns.append(f'V{columnName}')
             self.eColumns.append(f'E{columnName}')
-            self.baseDf[self.vColumns[-1]] = np.sqrt(self.baseDf[f'{columnName}_x'].diff() ** 2 + self.baseDf[f'{columnName}_y'].diff() ** 2 + self.baseDf[f'{columnName}_z'].diff() ** 2) * 1000
-            self.divineOnPOTIM(self.vColumns[-1], True)
+            times = time_axis(self.__trajectory)
+            dt = np.diff(times)
+            dt[dt == 0] = np.nan
+            speeds = np.linalg.norm(np.diff(cm_values, axis=0), axis=1) / dt * 1000.0
+            self.baseDf[self.vColumns[-1]] = np.concatenate([[np.nan], speeds])
             self.baseDf[self.eColumns[-1]] = (self.baseDf[self.vColumns[-1]]) ** 2 * summaryMass / self.calc_const
             if not self.ADel_coords_of_sel_atoms.isChecked():
-                self.mainDf.insert(len(self.columnsNames) * 3 + 1, columnName + '_dir_1', self.baseDf[columnName + '_dir_1'])
-                self.mainDf.insert(len(self.columnsNames) * 3 + 2, columnName + '_dir_2', self.baseDf[columnName + '_dir_2'])
-                self.mainDf.insert(len(self.columnsNames) * 3 + 3, columnName + '_dir_3', self.baseDf[columnName + '_dir_3'])
-                self.mainDf.insert(len(self.columnsNames) * 3 + 4, columnName + '_x', self.baseDf[columnName + '_x'])
-                self.mainDf.insert(len(self.columnsNames) * 3 + 5, columnName + '_y', self.baseDf[columnName + '_y'])
-                self.mainDf.insert(len(self.columnsNames) * 3 + 6, columnName + '_z', self.baseDf[columnName + '_z'])
+                for proj in ['_x', '_y', '_z']:
+                    self.mainDf.insert(len(self.mainDf.columns), columnName + proj, self.baseDf[columnName + proj])
             if not self.ADel_energy_of_sel_atoms.isChecked():
                 self.mainDf.insert(len(self.mainDf.columns), self.eColumns[-1], self.baseDf[self.eColumns[-1]])
-            self.columnsNames.append(columnName)
             self.refreshLists()
             self.DCListClear()
             self.weightmassCols.append(columnName)
@@ -978,13 +998,17 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         """
         atoms = [item.text() for item in self.AngleList.selectedItems()]
         if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.angleCols:
-            self.baseDf[f'{atoms[0]}--{atoms[2]}'] = sum([(self.baseDf[f'{atoms[0]}{proj}'] - self.baseDf[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-            self.baseDf[f'{atoms[0]}--{atoms[1]}'] = sum([(self.baseDf[f'{atoms[0]}{proj}'] - self.baseDf[f'{atoms[1]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-            self.baseDf[f'{atoms[1]}--{atoms[2]}'] = sum([(self.baseDf[f'{atoms[1]}{proj}'] - self.baseDf[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-
-            self.baseDf[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'] = np.round(np.degrees(np.arccos((self.baseDf[f'{atoms[0]}--{atoms[1]}'] + self.baseDf[f'{atoms[1]}--{atoms[2]}'] - self.baseDf[f'{atoms[0]}--{atoms[2]}']) / (2 * self.baseDf[f'{atoms[0]}--{atoms[1]}'] ** 0.5 * self.baseDf[f'{atoms[1]}--{atoms[2]}'] ** 0.5))), 2)
-
-            self.baseDf.drop(columns=[f'{atoms[0]}--{atoms[2]}', f'{atoms[0]}--{atoms[1]}', f'{atoms[1]}--{atoms[2]}'], inplace=True)
+            atom_ids = [self._label_to_atom_id[atom] for atom in atoms]
+            self.baseDf[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'] = np.round(
+                valence_angle(
+                    self.__trajectory,
+                    atom_ids[0],
+                    atom_ids[1],
+                    atom_ids[2],
+                    use_pbc=True,
+                ),
+                2,
+            )
 
             self.mainDf.insert(len(self.mainDf.columns), f'{atoms[0]}-{atoms[1]}-{atoms[2]}', self.baseDf[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'])
             self.angleCols.append(f'{atoms[0]}-{atoms[1]}-{atoms[2]}')
@@ -1242,14 +1266,15 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         if state:
             for name in self.columnsNames:
                 for proj in ['_x', '_y', '_z']:
-                    self.mainDf.drop(columns=f'{name}{proj}', inplace=True)
+                    self.mainDf.drop(columns=f'{name}{proj}', inplace=True, errors="ignore")
             self.refreshLists()
             self._model.refreshTable(self.mainDf)
             self.addMessage('Columns with coordinates of atoms have been removed.')
         else:
             for name in reversed(self.columnsNames):
                 for proj in reversed(['_x', '_y', '_z']):
-                    self.mainDf.insert(1, name + proj, self.baseDf[name + proj])
+                    if name + proj not in self.mainDf:
+                        self.mainDf.insert(1, name + proj, self.baseDf[name + proj])
             self.refreshLists()
             self._model.refreshTable(self.mainDf)
             self.addMessage('Columns with coordinates of atoms have been added.')
@@ -1272,12 +1297,13 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
            None
         """
         if state:
-            self.mainDf.drop(columns=self.eColumns, inplace=True)
+            self.mainDf.drop(columns=self.eColumns, inplace=True, errors="ignore")
             self._model.refreshTable(self.mainDf)
             self.addMessage('Columns with energy have been removed.')
         else:
             for column in self.eColumns:
-                self.mainDf.insert(len(self.mainDf.columns), column, self.baseDf[column])
+                if column not in self.mainDf and column in self.baseDf:
+                    self.mainDf.insert(len(self.mainDf.columns), column, self.baseDf[column])
             self._model.refreshTable(self.mainDf)
             self.addMessage('Columns with energy have been added.')
 
@@ -1349,11 +1375,9 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         Returns:
             None
         """
-        files = os.listdir(self.__calculation['DIRECTORY'])
-        for file in files:
-            if 'OSZICAR' in file:
-                self.AInclude_OSZICAR.setEnabled(True)
-                break
+        directory = self.__calculation.source if self.__calculation.source.is_dir() else self.__calculation.source.parent
+        if (directory / "OSZICAR").exists():
+            self.AInclude_OSZICAR.setEnabled(True)
 
     def oszicarAction(self, state):
         """
@@ -1371,12 +1395,22 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             None
         """
         if state:
-            oszicarDataframe = VROszicarProcessing(self.__calculation['DIRECTORY'], self.getLogger(), self.__calculation['STEPS_LIST'], self.__calculation['POTIM']).oszicarDf
-            self.mainDf = pd.concat([self.mainDf, oszicarDataframe[oszicarDataframe.columns[1:]]], axis=1)
-            self.addMessage('OSZICAR dataframe has been added.')
-            self._model.refreshTable(self.mainDf)
+            try:
+                from parsers.vasp import Parser as VaspParser
+
+                directory = self.__calculation.source if self.__calculation.source.is_dir() else self.__calculation.source.parent
+                oszicar_calculation = VaspParser(directory / "OSZICAR").parse()
+                oszicarDataframe = pd.DataFrame(oszicar_calculation.properties.get("ionic_steps", []))
+                if oszicarDataframe.empty:
+                    self.addMessage('OSZICAR does not contain ionic-step data.')
+                    return
+                self.mainDf = pd.concat([self.mainDf, oszicarDataframe], axis=1)
+                self.addMessage('OSZICAR dataframe has been added.')
+                self._model.refreshTable(self.mainDf)
+            except Exception:
+                self.addMessage('Caught exception: ' + traceback.format_exc())
         else:
-            self.mainDf.drop(columns=['T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'], inplace=True)
+            self.mainDf.drop(columns=['ionic_step', 'T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'], inplace=True, errors="ignore")
             self.addMessage('OSZICAR dataframe has been removed.')
             self._model.refreshTable(self.mainDf)
 
@@ -1394,33 +1428,15 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             None
         """
         tableDir = QFileDialog.getSaveFileName(None, caption='Save Table', filter="Excel (*.xlsx *.xls);;Csv (*.csv);;HTML (*.html)", selectedFilter="Excel (*.xlsx *.xls)")[0]
-        if tableDir.endswith('.xlsx'):
-            try:
-                writer = pd.ExcelWriter(tableDir)
-                self.mainDf.to_excel(writer, sheet_name='my_analysis', index=False)
-                # Auto-adjust columns' width
-                for column in self.mainDf:
-                    column_width = max(self.mainDf[column].astype(str).map(len).max(), len(column))
-                    col_idx = self.mainDf.columns.get_loc(column)
-                    writer.sheets['my_analysis'].set_column(col_idx, col_idx, column_width)
-                writer.close()
-                self.addMessage(f"File {tableDir.split('/')[-1]} was generated successful.")
-            except PermissionError:
-                self.addMessage('Close Excel table before writing.') # title='OpenXslError')
-            except Exception as err:
-                self.addMessage('Caught exception: ' + traceback.format_exc())
-        elif tableDir.endswith('.csv'):
-            try:
-                self.mainDf.to_csv(tableDir, index=False)
-                self.addMessage(f"File {tableDir.split('/')[-1]} was generated successful.")
-            except Exception as err:
-                self.addMessage('Caught exception: ' + traceback.format_exc())
-        elif tableDir.endswith('.html'):
-            try:
-                self.mainDf.to_html(tableDir, index=False, na_rep='')
-                self.addMessage(f"File {tableDir.split('/')[-1]} was generated successful.")
-            except Exception as err:
-                self.addMessage('Caught exception: ' + traceback.format_exc())
+        if not tableDir:
+            return
+        try:
+            output = export_dataframe(self.mainDf, tableDir)
+            self.addMessage(f"File {output.name} was generated successful.")
+        except PermissionError:
+            self.addMessage('Close Excel table before writing.')
+        except Exception:
+            self.addMessage('Caught exception: ' + traceback.format_exc())
 
     def graphWindow(self):
         """

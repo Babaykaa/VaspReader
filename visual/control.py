@@ -340,8 +340,8 @@ class ControlWindow(Ui_Control, QMainWindow):
         Returns:
             None
         """
-        self.__visual_window._step = self.__calculations[self.calculation_folder]['STEPS'] - 1
-        self.StepSlider.setSliderPosition(self.__calculations[self.calculation_folder]['STEPS'] - 1)
+        self.__visual_window._step = self._calculation_step_count(self.calculation_folder) - 1
+        self.StepSlider.setSliderPosition(self._calculation_step_count(self.calculation_folder) - 1)
         self.StepLabel.setText(f'Step:\t{self.__visual_window._step}\tfrom\t{self.StepSlider.maximum()}')
         logger.info(f"Step changed to last step")
 
@@ -603,21 +603,32 @@ class ControlWindow(Ui_Control, QMainWindow):
         self.stop_step_changing()
         for calc_id in self.__calculations:
             for calc in self.__calculations[calc_id].get('calculations', []):
-                if os.path.join(calc.directory, calc.name) == file_path:
+                if str(calc.source) == file_path:
                     logger.info(f"Calculation {file_path} already added")
                     return
 
         parser = VASPparser(file_path)
-        if self.__is_threading_mode:
-            self.__parser_objs.append(parser)
-            self.__parser_threads.append(Thread(target=parser.read, args=(), daemon=True))
-            self.__parser_threads[-1].start()
-        else:
-            self.__parser_objs.append(parser)
-            self.__parser_processes.append(Process(target=parser.read, args=(), daemon=True))
-            self.__parser_processes[-1].start()
+        self.__parser_objs.append(parser)
+        self.__parser_threads.append(Thread(target=self._parse_in_thread, args=(parser,), daemon=True))
+        self.__parser_threads[-1].start()
         self.block_parser_mode_changing()
-        logger.info(f"Calculation {file_path} parsing in " + "threading" if self.__is_threading_mode else "multiprocessing" + " mode")
+        logger.info(f"Calculation {file_path} parsing in threading mode")
+
+    @staticmethod
+    def _parse_in_thread(parser):
+        parser.calculation = parser.parse()
+
+    @staticmethod
+    def _normalize_calculation_key(key):
+        if isinstance(key, str) and key.isdigit():
+            return int(key)
+        return key
+
+    def _calculation_step_count(self, key):
+        entry = self.__calculations[self._normalize_calculation_key(key)]
+        if isinstance(entry, dict) and entry.get('calculations'):
+            return entry['calculations'][0].step_count
+        return entry['STEPS']
 
     def check_parsers(self):
         """
@@ -642,7 +653,7 @@ class ControlWindow(Ui_Control, QMainWindow):
             None
         """
         while True:
-            if self.__is_threading_mode and self.__parser_threads:
+            if self.__parser_threads:
                 for num, thread in enumerate(self.__parser_threads.copy()):
                     if not thread.is_alive():
                         with self.__threads_locker:
@@ -675,32 +686,40 @@ class ControlWindow(Ui_Control, QMainWindow):
         Returns:
             None
         """
-        if parser.get_calculation().errors.exist:
-            self.get_print_window().add_message(parser.get_calculation().errors.message)
-            logger.error(f"Error in parsing {parser.get_calculation().directory}: {parser.get_calculation().errors.message}")
+        calculation = getattr(parser, "calculation", None)
+        if calculation is None:
+            calculation = parser.parse()
+        if calculation.errors.exist:
+            self.get_print_window().add_message(calculation.errors.message)
+            logger.error(f"Error in parsing {calculation.directory}: {calculation.errors.message}")
         else:
             id = -1
             for calc_id in range(self.__calculation_id):
                 if calc_id not in self.__calculations:
                     id = calc_id
                     self.__calculations[id] = {'visible': True, 'calculations': []}
-                    self.__calculations[id]['calculations'] = [parser.get_calculation()]
+                    self.__calculations[id]['calculations'] = [calculation]
                     break
             else:
                 self.__calculation_id += 1
                 id = self.__calculation_id
                 self.__calculations[id] = {'visible': True, 'calculations': []}
-                self.__calculations[id]['calculations'] = [parser.get_calculation()]
+                self.__calculations[id]['calculations'] = [calculation]
             
-            self.TreeModel.append_data([([id, 'V', parser.get_calculation().directory, parser.get_calculation().calculation_type], 
-                                         [(['', '', parser.get_calculation().name, ''], None)])], self.TreeModel.root_item)
+            calculation_type = calculation.properties.get("file_type", calculation.engine)
+            self.TreeModel.append_data([([id, 'V', calculation.directory, calculation_type], 
+                                         [(['', '', calculation.name, ''], None)])], self.TreeModel.root_item)
             self.TreeView.expandAll()
+            if str(id) not in [self.AddedCalculations.itemText(i) for i in range(self.AddedCalculations.count())]:
+                self.AddedCalculations.addItem(str(id))
+            self.calculation_folder = id
             self.get_print_window().add_message(f'File {self.__calculations[id]["calculations"][-1].name} appended.\n')
-            self.StepSlider.setMaximum(self.__calculations[id]['calculations'][-1].positions.shape[0] - 1)
+            if calculation.trajectory is not None:
+                self.StepSlider.setMaximum(calculation.trajectory.step_count - 1)
             self.StepSlider.setValue(0)
             self.__visual_window._step = 0
             self.StepLabel.setText(f'Step:\t{self.__visual_window._step}\tfrom\t{self.StepSlider.maximum()}')
-            logger.info(f"Calculation {parser.get_calculation().name} parsed")
+            logger.info(f"Calculation {calculation.name} parsed")
 
     def stop_all_threads_or_processes(self):
         """
@@ -764,7 +783,7 @@ class ControlWindow(Ui_Control, QMainWindow):
             folder_to_delete = self.calculation_folder
             self.calculation_folder = list(self.__calculations.keys())[-1]
             self.__visual_window.load_calculation_info(self.__calculations[self.calculation_folder])
-            self.StepSlider.setMaximum(self.__calculations[self.calculation_folder]['STEPS'] - 1)
+            self.StepSlider.setMaximum(self._calculation_step_count(self.calculation_folder) - 1)
             self.get_print_window().add_message(f'Changed to {self.calculation_folder}.\n')
             self.AddedCalculations.setCurrentText(self.calculation_folder)
             index = [self.AddedCalculations.itemText(i) for i in range(self.AddedCalculations.count())].index(folder_to_delete)
@@ -807,8 +826,9 @@ class ControlWindow(Ui_Control, QMainWindow):
         new_calculation_folder = self.AddedCalculations.currentText()
         if new_calculation_folder != self.calculation_folder:
             self.calculation_folder = new_calculation_folder
-            self.__visual_window.load_calculation_info(self.__calculations[self.calculation_folder])
-            self.StepSlider.setMaximum(self.__calculations[self.calculation_folder]['STEPS'] - 1)
+            calculation_key = self._normalize_calculation_key(self.calculation_folder)
+            self.__visual_window.load_calculation_info(self.__calculations[calculation_key])
+            self.StepSlider.setMaximum(self._calculation_step_count(calculation_key) - 1)
             self.StepSlider.setValue(0)
             self.__visual_window._step = 0
             self.StepLabel.setText(f'Step:\t{self.__visual_window._step}\tfrom\t{self.StepSlider.maximum()}')
@@ -835,10 +855,12 @@ class ControlWindow(Ui_Control, QMainWindow):
           None
         """
         self.calculation_folder = self.AddedCalculations.currentText() if self.AddedCalculations.count() else self.calculation_folder
-        if self.__calculations.get(self.calculation_folder, None) is not None:
+        calculation_key = self._normalize_calculation_key(self.calculation_folder)
+        if self.__calculations.get(calculation_key, None) is not None:
             self.stop_all_threads_or_processes()
-            self.__processing_window = Processing(self.__settings, self, self.__print_window,
-                                                   self.__visual_window, self.__calculations[self.calculation_folder], self.calculation_folder,
+            calculation = self.__calculations[calculation_key]['calculations'][0]
+            self.__processing_window = VRProcessing(None, self.__settings, self, self.__print_window,
+                                                   self.__visual_window, calculation, str(calculation_key),
                                                    self.ADelete_coordinates_after_leave_cell.isChecked())
             self.__processing_window.show()
 

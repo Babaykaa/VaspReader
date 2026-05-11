@@ -11,20 +11,30 @@ authors = [
 description = "ProChem is a program for reading and analyzing quantum chemistry calculations."
 requires-python = ">=3.12"
 dependencies = [
-    "numba>=0.61.0",
     "numpy>=2.2.5",
     "pandas>=2.2.3",
+]
+
+[project.optional-dependencies]
+qt = [
+    "numba>=0.61.0",
     "pillow>=11.2.1",
     "matplotlib>=3.10.1",
     "PyOpenGL>=3.1.8",
     "PySide6>=6.9.2",
 ]
+jupyter = [
+    "ipywidgets>=8.1",
+    "plotly>=6.0",
+]
+web = [
+    "fastapi>=0.115",
+    "uvicorn>=0.34",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.11",
+]
 
 [tool.setuptools]
-packages = ["gui", "logs", "vasp", "graph", "lammps", "visual", "parsers", "settings", "quantum_espresso"]
-
-# [project.optional-dependencies]
-# dev = [
-#    "pytest",
-#    "mypy",
-#]
+packages = ["analysis", "core", "gui", "logs", "vasp", "graph", "lammps", "visual", "parsers", "settings", "quantum_espresso"]
