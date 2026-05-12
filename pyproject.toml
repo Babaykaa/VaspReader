@@ -3,17 +3,20 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ProChem"
+name = "prochem"
 version = "1.0.0"
 authors = [
-  { name="Alexander Solovykh", email="solovykh.aa19@physics.msu.ru" },
+  { name = "Alexander Solovykh", email = "solovykh.aa19@physics.msu.ru" },
 ]
-description = "ProChem is a program for reading and analyzing quantum chemistry calculations."
+description = "ProChem is a library and application for reading, analyzing and visualizing atomistic simulation results."
 requires-python = ">=3.12"
 dependencies = [
     "numpy>=2.2.5",
     "pandas>=2.2.3",
 ]
+
+[project.scripts]
+prochem = "prochem.adapters.qt.app:main"
 
 [project.optional-dependencies]
 qt = [
@@ -36,5 +39,10 @@ dev = [
     "ruff>=0.11",
 ]
 
-[tool.setuptools]
-packages = ["analysis", "core", "gui", "logs", "vasp", "graph", "lammps", "visual", "parsers", "settings", "quantum_espresso"]
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"prochem.adapters.qt.generated" = ["style_sheets/*.css"]
+"prochem.adapters.qt.opengl.shaders" = ["*.glsl"]
+

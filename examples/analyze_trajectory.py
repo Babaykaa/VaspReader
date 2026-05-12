@@ -15,17 +15,18 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
-from analysis import (  # noqa: E402
+from prochem.analysis import (  # noqa: E402
     add_distance_columns,
     add_kinetic_energy_columns,
     add_velocity_columns,
     coordinate_dataframe,
     export_dataframe,
 )
-from parsers import parse  # noqa: E402
+from prochem.io import parse  # noqa: E402
 
 
 DEFAULT_SOURCE = r"B:\Science\Calculations\VASP\ALE\C12F26\Ar\C\30eV"

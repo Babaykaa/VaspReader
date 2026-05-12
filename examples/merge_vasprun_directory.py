@@ -16,11 +16,12 @@ import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
-from core import TrajectoryMergePolicy  # noqa: E402
-from parsers.vasp import discover_vasprun_files, parse_vasprun_sequence  # noqa: E402
+from prochem.core import TrajectoryMergePolicy  # noqa: E402
+from prochem.io.vasp import discover_vasprun_files, parse_vasprun_sequence  # noqa: E402
 
 
 DEFAULT_DIRECTORY = r"B:\Science\Calculations\VASP\ALE\C12F26\Ar\C\30eV"
