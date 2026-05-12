@@ -1,15 +1,7 @@
-"""Jupyter widget adapter entry points."""
+"""Jupyter widget adapter namespace.
 
-from __future__ import annotations
+Concrete widgets are intentionally not exposed until an implementation exists.
+"""
 
-from prochem.core.models import Calculation
-
-
-def trajectory_widget(calculation: Calculation):
-    """Return a widget for a calculation trajectory.
-
-    The concrete ipywidgets UI will be implemented after the core rendering DTOs
-    are stabilized.
-    """
-    raise NotImplementedError("Jupyter widgets adapter is not implemented yet.")
+__all__: list[str] = []
 

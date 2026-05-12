@@ -1,10 +1,6 @@
-"""Plotly adapter entry points."""
+"""Plotly adapter namespace.
 
-from __future__ import annotations
+Concrete plotting functions are intentionally not exposed until implemented.
+"""
 
-from prochem.rendering.scene import SceneData
-
-
-def scene_figure(scene: SceneData):
-    raise NotImplementedError("Plotly scene adapter is not implemented yet.")
-
+__all__: list[str] = []

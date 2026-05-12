@@ -12,7 +12,7 @@ from typing import Iterable, Literal, Optional, Sequence
 
 import numpy as np
 
-from prochem.core.models import AtomRecord, Calculation, Structure, Trajectory
+from prochem.core.models import Atom, Calculation, Structure, Trajectory
 
 MergeStatus = Literal[
     "first",
@@ -30,8 +30,9 @@ class TrajectoryMergePolicy:
     cartesian_tolerance: float = 1e-3
     drop_exact_overlap: bool = True
     keep_topology_change_frame: bool = True
-    strict: bool = False
     allow_deletions: bool = True
+    allow_mismatch_fallback: bool = True
+    boundary_search_frames: int = 6
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +48,7 @@ class MergeEvent:
     next_atom_count: int
     dropped_next_frames: int = 0
     deleted_atom_ids: tuple[int, ...] = ()
+    matched_next_frame: int = 0
     max_delta: Optional[float] = None
     message: str = ""
 
@@ -100,10 +102,10 @@ class TrajectoryAssembler:
             source_files.append(calculation.source)
             next_trajectory = calculation.trajectory
             previous_frame = frames[-1]
-            next_first = next_trajectory.frame(0)
-            decision = self._decide_boundary(previous_frame, next_first)
+            decision = self._decide_boundary(previous_frame, next_trajectory)
+            next_first = next_trajectory.frame(decision.matched_next_frame)
 
-            if decision.status == "mismatch" and self.policy.strict:
+            if decision.status == "mismatch" and not self.policy.allow_mismatch_fallback:
                 raise ValueError(decision.message)
 
             if decision.status == "mismatch":
@@ -125,6 +127,7 @@ class TrajectoryAssembler:
                     next_atom_count=next_first.atom_count,
                     dropped_next_frames=decision.dropped_next_frames,
                     deleted_atom_ids=tuple(decision.deleted_atom_ids),
+                    matched_next_frame=decision.matched_next_frame,
                     max_delta=decision.max_delta,
                     message=decision.message,
                 )
@@ -170,43 +173,49 @@ class TrajectoryAssembler:
         )
         return calculation, report
 
-    def _decide_boundary(self, previous: Structure, next_first: Structure) -> "_BoundaryDecision":
-        if _same_species(previous.species, next_first.species):
-            max_delta = _frame_max_delta(previous, next_first)
-            if max_delta is not None and max_delta <= self._active_tolerance(previous, next_first):
-                return _BoundaryDecision(
-                    status="exact_overlap",
-                    next_to_previous_atom_ids={
-                        int(atom_id): int(previous.atom_ids[index])
-                        for index, atom_id in enumerate(next_first.atom_ids)
-                    },
-                    dropped_next_frames=1 if self.policy.drop_exact_overlap else 0,
-                    max_delta=max_delta,
-                    message="Boundary frames are identical within tolerance.",
-                )
+    def _decide_boundary(self, previous: Structure, next_trajectory: Trajectory) -> "_BoundaryDecision":
+        search_count = max(1, min(self.policy.boundary_search_frames, next_trajectory.step_count))
+        for next_frame_index in range(search_count):
+            next_frame = next_trajectory.frame(next_frame_index)
+            if _same_species(previous.species, next_frame.species):
+                max_delta = _frame_max_delta(previous, next_frame)
+                if max_delta is not None and max_delta <= self._active_tolerance(previous, next_frame):
+                    dropped = next_frame_index + 1 if self.policy.drop_exact_overlap else next_frame_index
+                    return _BoundaryDecision(
+                        status="exact_overlap",
+                        next_to_previous_atom_ids={
+                            int(atom_id): int(previous.atom_ids[index])
+                            for index, atom_id in enumerate(next_frame.atom_ids)
+                        },
+                        dropped_next_frames=dropped,
+                        matched_next_frame=next_frame_index,
+                        max_delta=max_delta,
+                        message="Boundary frames are identical within tolerance.",
+                    )
 
-        if self.policy.allow_deletions and next_first.atom_count <= previous.atom_count:
-            match = _ordered_subset_match(
-                previous,
-                next_first,
-                tolerance=self._active_tolerance(previous, next_first),
-            )
-            if match is not None:
-                mapping, deleted_atom_ids, max_delta = match
-                dropped = 0 if self.policy.keep_topology_change_frame else 1
-                return _BoundaryDecision(
-                    status="deletion_overlap",
-                    next_to_previous_atom_ids=mapping,
-                    dropped_next_frames=dropped,
-                    deleted_atom_ids=tuple(sorted(deleted_atom_ids)),
-                    max_delta=max_delta,
-                    message="Next segment matches a subset of the previous segment.",
+            if self.policy.allow_deletions and next_frame.atom_count <= previous.atom_count:
+                match = _ordered_subset_match(
+                    previous,
+                    next_frame,
+                    tolerance=self._active_tolerance(previous, next_frame),
                 )
+                if match is not None:
+                    mapping, deleted_atom_ids, max_delta = match
+                    dropped = next_frame_index if self.policy.keep_topology_change_frame else next_frame_index + 1
+                    return _BoundaryDecision(
+                        status="deletion_overlap",
+                        next_to_previous_atom_ids=mapping,
+                        dropped_next_frames=dropped,
+                        matched_next_frame=next_frame_index,
+                        deleted_atom_ids=tuple(sorted(deleted_atom_ids)),
+                        max_delta=max_delta,
+                        message="Next segment matches a subset of the previous segment.",
+                    )
 
         return _BoundaryDecision(
             status="mismatch",
             next_to_previous_atom_ids={},
-            message="Boundary frames could not be matched.",
+            message=f"Boundary frames could not be matched in the first {search_count} next frames.",
         )
 
     def _active_tolerance(self, previous: Structure, next_first: Structure) -> float:
@@ -221,6 +230,7 @@ class _BoundaryDecision:
     next_to_previous_atom_ids: dict[int, int]
     dropped_next_frames: int = 0
     deleted_atom_ids: tuple[int, ...] = ()
+    matched_next_frame: int = 0
     max_delta: Optional[float] = None
     message: str = ""
 
@@ -233,11 +243,11 @@ def merge_calculations(
     return TrajectoryAssembler(policy or TrajectoryMergePolicy()).merge_calculations(calculations)
 
 
-def _registry_from_trajectory(trajectory: Trajectory) -> list[AtomRecord]:
+def _registry_from_trajectory(trajectory: Trajectory) -> list[Atom]:
     return [replace(record) for record in trajectory.atom_registry]
 
 
-def _register_new_atoms(frame: Structure, registry: list[AtomRecord]) -> tuple[dict[int, int], list[AtomRecord]]:
+def _register_new_atoms(frame: Structure, registry: list[Atom]) -> tuple[dict[int, int], list[Atom]]:
     next_id = max((record.atom_id for record in registry), default=-1) + 1
     mapping = {}
     for local_index, atom_id in enumerate(frame.atom_ids):
@@ -246,7 +256,7 @@ def _register_new_atoms(frame: Structure, registry: list[AtomRecord]) -> tuple[d
         mapping[int(atom_id)] = new_id
         mass = None if frame.masses is None else float(frame.masses[local_index])
         registry.append(
-            AtomRecord(
+            Atom(
                 atom_id=new_id,
                 species=str(frame.species[local_index]),
                 initial_index=len(registry),

@@ -1,6 +1,3 @@
-"""LAMMPS parsers."""
+"""LAMMPS parser namespace."""
 
-from prochem.io.lammps.dump import Parser
-
-__all__ = ["Parser"]
-
+__all__: list[str] = []

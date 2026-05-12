@@ -31,12 +31,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Merge vasprun XML restart segments.")
     parser.add_argument("directory", nargs="?", default=DEFAULT_DIRECTORY)
     parser.add_argument("--recursive", action="store_true")
-    parser.add_argument("--strict", action="store_true")
+    parser.add_argument("--no-fallback", action="store_true")
+    parser.add_argument("--boundary-search-frames", type=int, default=6)
     parser.add_argument("--drop-topology-frame", action="store_true")
     args = parser.parse_args()
 
     policy = TrajectoryMergePolicy(
-        strict=args.strict,
+        allow_mismatch_fallback=not args.no_fallback,
+        boundary_search_frames=args.boundary_search_frames,
         keep_topology_change_frame=not args.drop_topology_frame,
     )
     files = discover_vasprun_files(args.directory, recursive=args.recursive)
@@ -57,7 +59,8 @@ def main() -> None:
     for event in report.events:
         print(
             f"  {event.status:16s} next={event.next_source.name} "
-            f"drop={event.dropped_next_frames} deleted={event.deleted_atom_ids} "
+            f"matched={event.matched_next_frame} drop={event.dropped_next_frames} "
+            f"deleted={event.deleted_atom_ids} "
             f"max_delta={event.max_delta}"
         )
 

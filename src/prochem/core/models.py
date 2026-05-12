@@ -38,7 +38,7 @@ class Cell:
 
 
 @dataclass(frozen=True, slots=True)
-class AtomRecord:
+class Atom:
     """Stable atom identity across a trajectory, including deletion/restart cases."""
 
     atom_id: int
@@ -46,9 +46,6 @@ class AtomRecord:
     initial_index: int
     mass: Optional[float] = None
     properties: dict[str, Any] = field(default_factory=dict)
-
-
-Atom = AtomRecord
 
 
 @dataclass(slots=True)
@@ -102,7 +99,7 @@ class Trajectory:
     """Atomic trajectory represented as an ordered collection of structures."""
 
     frames: tuple[Structure, ...] | list[Structure]
-    atom_registry: Optional[tuple[AtomRecord, ...] | list[AtomRecord]] = None
+    atom_registry: Optional[tuple[Atom, ...] | list[Atom]] = None
     timestep_fs: Optional[float] = None
     properties: dict[str, Any] = field(default_factory=dict)
 
@@ -229,7 +226,7 @@ class Trajectory:
         """Return one trajectory frame."""
         return self.frames[index]
 
-    def atom_record(self, atom_id: int) -> AtomRecord:
+    def atom_record(self, atom_id: int) -> Atom:
         """Return atom metadata by stable atom id."""
         for record in self.atom_registry:
             if record.atom_id == atom_id:
@@ -344,8 +341,8 @@ def _as_step_atom_vectors(values: ArrayLike, name: str) -> ArrayLike:
     return array
 
 
-def _build_atom_registry(frames: Sequence[Structure]) -> tuple[AtomRecord, ...]:
-    records: dict[int, AtomRecord] = {}
+def _build_atom_registry(frames: Sequence[Structure]) -> tuple[Atom, ...]:
+    records: dict[int, Atom] = {}
     for frame in frames:
         for local_index, atom_id in enumerate(frame.atom_ids):
             atom_id = int(atom_id)
@@ -354,7 +351,7 @@ def _build_atom_registry(frames: Sequence[Structure]) -> tuple[AtomRecord, ...]:
             mass = None
             if frame.masses is not None:
                 mass = float(frame.masses[local_index])
-            records[atom_id] = AtomRecord(
+            records[atom_id] = Atom(
                 atom_id=atom_id,
                 species=str(frame.species[local_index]),
                 initial_index=local_index,
