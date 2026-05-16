@@ -5,9 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Sequence
 
-import numpy as np
-
-from prochem.core.models import Calculation, Trajectory
+from prochem.core.models import Calculation, Structure, StructureDataset
 from prochem.io.vasp.parser import Parser
 
 DEFAULT_STRUCTURE_FILENAMES = ("CONTCAR", "POSCAR")
@@ -42,14 +40,14 @@ def discover_structure_files(
     return sorted(selected, key=lambda path: str(path.relative_to(root)))
 
 
-def parse_structure_dataset(
+def parse_structure_calculations(
     directory: str | Path,
     *,
     recursive: bool = True,
     filenames: Sequence[str] = DEFAULT_STRUCTURE_FILENAMES,
 ) -> list[Calculation]:
-    """Parse independent VASP structures from a directory tree."""
-    calculations = []
+    """Parse independent VASP structures as calculations from a directory tree."""
+    calculations: list[Calculation] = []
     for path in discover_structure_files(directory, recursive=recursive, filenames=filenames):
         calculation = Parser(path).parse()
         if calculation.errors.exist:
@@ -58,65 +56,66 @@ def parse_structure_dataset(
     return calculations
 
 
-def dataset_to_trajectory(
-    calculations: Sequence[Calculation],
+def parse_structure_dataset(
+    directory: str | Path,
     *,
-    strict_topology: bool = True,
-) -> Calculation:
-    """Convert independent single-structure calculations into one trajectory.
+    recursive: bool = True,
+    filenames: Sequence[str] = DEFAULT_STRUCTURE_FILENAMES,
+) -> StructureDataset:
+    """Parse independent VASP structures from a directory tree."""
+    return calculations_to_dataset(
+        parse_structure_calculations(directory, recursive=recursive, filenames=filenames)
+    )
 
-    No mismatch fallback is used here. In strict mode every configuration must
-    have the same atom count and species order.
-    """
+
+def calculations_to_dataset(
+    calculations: Sequence[Calculation],
+) -> StructureDataset:
+    """Convert parsed single-structure calculations into a StructureDataset."""
     prepared = [calculation for calculation in calculations if calculation.trajectory is not None]
     if not prepared:
         raise ValueError("At least one parsed structure is required.")
 
-    first = prepared[0].trajectory.frame(0)
-    frames = []
-    for index, calculation in enumerate(prepared):
+    structures: list[Structure] = []
+    sources = []
+    for calculation in prepared:
         frame = calculation.trajectory.frame(-1)
-        if strict_topology and (
-            frame.atom_count != first.atom_count or not np.array_equal(frame.species, first.species)
-        ):
-            raise ValueError(
-                f"Dataset topology mismatch at {calculation.source}: "
-                "atom count or species order differs from the first configuration."
-            )
         properties = dict(frame.properties)
         properties["source"] = calculation.source
         properties["source_step"] = calculation.trajectory.step_count - 1
-        frame = frame.__class__(
-            species=frame.species,
-            positions=frame.positions,
-            atom_ids=first.atom_ids if strict_topology else frame.atom_ids,
-            cell=frame.cell,
-            direct_positions=frame.direct_positions,
-            masses=frame.masses,
-            velocities=frame.velocities,
-            forces=frame.forces,
-            stress=frame.stress,
-            time_fs=float(index),
-            properties=properties,
+        structures.append(
+            Structure(
+                species=frame.species,
+                positions=frame.positions,
+                atom_ids=frame.atom_ids,
+                cell=frame.cell,
+                direct_positions=frame.direct_positions,
+                masses=frame.masses,
+                velocities=frame.velocities,
+                forces=frame.forces,
+                stress=frame.stress,
+                time_fs=None,
+                properties=properties,
+            )
         )
-        frames.append(frame)
+        sources.append(calculation.source)
 
-    trajectory = Trajectory(
-        frames=frames,
-        atom_registry=prepared[0].trajectory.atom_registry if strict_topology else None,
-        properties={
-            "dataset": True,
-            "source_files": tuple(calculation.source for calculation in prepared),
-            "strict_topology": strict_topology,
-        },
+    return StructureDataset(
+        structures=structures,
+        sources=sources,
+        properties={"source_files": tuple(sources), "engine": prepared[0].engine},
     )
+
+
+def dataset_to_calculation(dataset: StructureDataset, *, source: str | Path, engine: str = "vasp") -> Calculation:
+    """Wrap a StructureDataset in a Calculation object."""
     return Calculation(
-        source=Path(prepared[0].source).parent,
-        engine=prepared[0].engine,
-        trajectory=trajectory,
+        source=source,
+        engine=engine,
+        dataset=dataset,
         properties={
             "dataset": True,
-            "source_files": tuple(calculation.source for calculation in prepared),
+            "source_files": dataset.source_files,
         },
     )
 
@@ -128,7 +127,17 @@ def parse_structure_dataset_as_trajectory(
     filenames: Sequence[str] = DEFAULT_STRUCTURE_FILENAMES,
     strict_topology: bool = True,
 ) -> Calculation:
-    """Parse a VASP structure dataset and pack it into one trajectory."""
-    calculations = parse_structure_dataset(directory, recursive=recursive, filenames=filenames)
-    return dataset_to_trajectory(calculations, strict_topology=strict_topology)
-
+    """Parse a VASP structure dataset and explicitly pack it into one trajectory."""
+    dataset = parse_structure_dataset(directory, recursive=recursive, filenames=filenames)
+    trajectory = dataset.to_trajectory(strict_topology=strict_topology)
+    return Calculation(
+        source=directory,
+        engine="vasp",
+        trajectory=trajectory,
+        dataset=dataset,
+        properties={
+            "dataset": True,
+            "source_files": dataset.source_files,
+            "strict_topology": strict_topology,
+        },
+    )

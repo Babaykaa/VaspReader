@@ -281,12 +281,134 @@ class Trajectory:
 
 
 @dataclass(slots=True)
+class StructureDataset:
+    """Independent structures for MLIP datasets and configuration collections.
+
+    A dataset is not a trajectory: configurations do not imply physical time,
+    may come from unrelated folders, and may have different composition or atom
+    ordering. Per-configuration forces and stress/virial labels are stored on
+    each Structure; scalar labels such as energies are stored as arrays here.
+    """
+
+    structures: tuple[Structure, ...] | list[Structure]
+    sources: tuple[Path | None, ...] | list[Path | str | None] = field(default_factory=tuple)
+    energies: Optional[ArrayLike] = None
+    properties: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self.structures = tuple(self.structures)
+        if not self.structures:
+            raise ValueError("StructureDataset must contain at least one structure.")
+
+        if self.sources:
+            self.sources = tuple(None if source is None else Path(source) for source in self.sources)
+            if len(self.sources) != self.structure_count:
+                raise ValueError("Number of dataset sources does not match number of structures.")
+        else:
+            self.sources = tuple(None for _ in self.structures)
+
+        if self.energies is not None:
+            self.energies = np.asarray(self.energies, dtype=np.float64)
+            if self.energies.shape != (self.structure_count,):
+                raise ValueError(
+                    "Dataset energies must have shape "
+                    f"({self.structure_count},), got {self.energies.shape}."
+                )
+
+    @property
+    def structure_count(self) -> int:
+        """Number of independent configurations."""
+        return len(self.structures)
+
+    @property
+    def atom_counts(self) -> ArrayLike:
+        """Atom count for every configuration."""
+        return np.asarray([structure.atom_count for structure in self.structures], dtype=np.int64)
+
+    @property
+    def source_files(self) -> tuple[Path, ...]:
+        """Known source files, omitting configurations without source metadata."""
+        return tuple(source for source in self.sources if source is not None)
+
+    @property
+    def has_uniform_topology(self) -> bool:
+        """Whether all configurations share atom count and species order."""
+        first = self.structures[0]
+        return all(
+            structure.atom_count == first.atom_count
+            and np.array_equal(structure.species, first.species)
+            for structure in self.structures[1:]
+        )
+
+    def structure(self, index: int) -> Structure:
+        """Return one independent structure."""
+        return self.structures[index]
+
+    def source(self, index: int) -> Path | None:
+        """Return source path for one structure when available."""
+        return self.sources[index]
+
+    def to_trajectory(self, *, strict_topology: bool = True) -> Trajectory:
+        """Pack dataset structures into a trajectory-like container explicitly.
+
+        This is intended for visualization workflows that need a frame slider.
+        With strict_topology=True, all configurations must have identical atom
+        count and species order. With strict_topology=False, atom ids are made
+        unique per configuration to avoid accidental false identity across
+        unrelated structures.
+        """
+        if strict_topology and not self.has_uniform_topology:
+            raise ValueError("Dataset cannot be converted to a strict trajectory: topology differs.")
+
+        frames = []
+        first = self.structures[0]
+        next_atom_id = 0
+        for index, structure in enumerate(self.structures):
+            properties = dict(structure.properties)
+            if self.sources[index] is not None:
+                properties["source"] = self.sources[index]
+            properties["dataset_index"] = index
+
+            if strict_topology:
+                atom_ids = first.atom_ids
+            else:
+                atom_ids = np.arange(next_atom_id, next_atom_id + structure.atom_count, dtype=np.int64)
+                next_atom_id += structure.atom_count
+
+            frames.append(
+                Structure(
+                    species=structure.species,
+                    positions=structure.positions,
+                    atom_ids=atom_ids,
+                    cell=structure.cell,
+                    direct_positions=structure.direct_positions,
+                    masses=structure.masses,
+                    velocities=structure.velocities,
+                    forces=structure.forces,
+                    stress=structure.stress,
+                    time_fs=float(index),
+                    properties=properties,
+                )
+            )
+        return Trajectory(
+            frames=frames,
+            atom_registry=None if not strict_topology else _build_atom_registry(frames),
+            properties={
+                "dataset": True,
+                "source_files": self.source_files,
+                "strict_topology": strict_topology,
+            },
+        )
+
+
+@dataclass(slots=True)
 class Calculation:
     """Unified calculation object returned by parser backends."""
 
     source: Path | str
     engine: str
     trajectory: Optional[Trajectory] = None
+    dataset: Optional[StructureDataset] = None
     properties: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     errors: CalculationError = field(default_factory=CalculationError)
@@ -308,9 +430,11 @@ class Calculation:
     @property
     def structure(self) -> Optional[Structure]:
         """First structure frame, when available."""
-        if self.trajectory is None:
-            return None
-        return self.trajectory.frame(0)
+        if self.trajectory is not None:
+            return self.trajectory.frame(0)
+        if self.dataset is not None:
+            return self.dataset.structure(0)
+        return None
 
     @property
     def step_count(self) -> int:
@@ -318,9 +442,21 @@ class Calculation:
         return 0 if self.trajectory is None else self.trajectory.step_count
 
     @property
+    def structure_count(self) -> int:
+        """Number of structures/configurations represented by this calculation."""
+        if self.dataset is not None:
+            return self.dataset.structure_count
+        return self.step_count
+
+    @property
     def atom_count(self) -> int:
         """Number of atoms."""
-        return 0 if self.trajectory is None else self.trajectory.atom_count
+        if self.trajectory is not None:
+            return self.trajectory.atom_count
+        if self.dataset is not None:
+            counts = self.dataset.atom_counts
+            return int(counts[0]) if np.all(counts == counts[0]) else int(counts.max())
+        return 0
 
 
 def _as_atom_vectors(values: ArrayLike, name: str) -> ArrayLike:

@@ -6,23 +6,12 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional, Sequence
+from typing import Optional, Sequence
 
 import numpy as np
-import pandas as pd
 
 from prochem.core.models import Trajectory
 from prochem.core.units import KINETIC_ENERGY_FACTOR
-
-
-def atom_labels(trajectory: Trajectory, atom_ids: Optional[Iterable[int]] = None) -> list[str]:
-    """Return stable labels like C_1 for atom ids."""
-    selected = list(atom_ids) if atom_ids is not None else [record.atom_id for record in trajectory.atom_registry]
-    labels = []
-    for atom_id in selected:
-        record = trajectory.atom_record(int(atom_id))
-        labels.append(f"{record.species}_{record.atom_id + 1}")
-    return labels
 
 
 def time_axis(trajectory: Trajectory) -> np.ndarray:
@@ -44,38 +33,6 @@ def unwrap_direct_positions(direct_positions: np.ndarray) -> np.ndarray:
         shift[~np.isfinite(delta)] = 0
         unwrapped[step] = unwrapped[step - 1] + delta - shift
     return unwrapped
-
-
-def coordinate_dataframe(
-    trajectory: Trajectory,
-    atom_ids: Optional[Sequence[int]] = None,
-    *,
-    include_direct: bool = True,
-    include_cartesian: bool = True,
-    unwrap_direct: bool = True,
-) -> pd.DataFrame:
-    """Build a coordinate table suitable for GUI, notebooks or export."""
-    selected = list(atom_ids) if atom_ids is not None else [record.atom_id for record in trajectory.atom_registry]
-    id_to_column = {record.atom_id: index for index, record in enumerate(trajectory.atom_registry)}
-    labels = atom_labels(trajectory, selected)
-    data: dict[str, np.ndarray] = {"Time, fs": time_axis(trajectory)}
-
-    direct = trajectory.direct_positions_array()
-    if unwrap_direct and direct is not None:
-        direct = unwrap_direct_positions(direct)
-    positions = trajectory.positions_array()
-
-    for atom_id, label in zip(selected, labels, strict=True):
-        column = id_to_column[int(atom_id)]
-        if include_direct and direct is not None:
-            data[f"{label}_dir_1"] = direct[:, column, 0]
-            data[f"{label}_dir_2"] = direct[:, column, 1]
-            data[f"{label}_dir_3"] = direct[:, column, 2]
-        if include_cartesian:
-            data[f"{label}_x"] = positions[:, column, 0]
-            data[f"{label}_y"] = positions[:, column, 1]
-            data[f"{label}_z"] = positions[:, column, 2]
-    return pd.DataFrame(data)
 
 
 def velocities(
@@ -122,33 +79,3 @@ def kinetic_energy(
     else:
         masses_array = np.asarray(masses, dtype=np.float64)
     return speeds**2 * masses_array[np.newaxis, :] / KINETIC_ENERGY_FACTOR
-
-
-def add_velocity_columns(
-    dataframe: pd.DataFrame,
-    trajectory: Trajectory,
-    atom_ids: Sequence[int],
-    *,
-    prefix: str = "V",
-) -> pd.DataFrame:
-    """Return a copy of dataframe with per-atom speed columns."""
-    result = dataframe.copy()
-    speed = velocities(trajectory, atom_ids)
-    for column, label in enumerate(atom_labels(trajectory, atom_ids)):
-        result[f"{prefix}_{label}"] = speed[:, column]
-    return result
-
-
-def add_kinetic_energy_columns(
-    dataframe: pd.DataFrame,
-    trajectory: Trajectory,
-    atom_ids: Sequence[int],
-    *,
-    prefix: str = "E",
-) -> pd.DataFrame:
-    """Return a copy of dataframe with per-atom kinetic-energy columns."""
-    result = dataframe.copy()
-    energy = kinetic_energy(trajectory, atom_ids)
-    for column, label in enumerate(atom_labels(trajectory, atom_ids)):
-        result[f"{prefix}_{label}"] = energy[:, column]
-    return result

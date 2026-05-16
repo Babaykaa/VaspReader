@@ -7,8 +7,10 @@ from prochem.io.vasp.parser import (
     parse_vasprun_sequence,
 )
 from prochem.io.vasp.dataset import (
-    dataset_to_trajectory,
+    calculations_to_dataset,
+    dataset_to_calculation,
     discover_structure_files,
+    parse_structure_calculations,
     parse_structure_dataset,
     parse_structure_dataset_as_trajectory,
 )
@@ -16,9 +18,11 @@ from prochem.io.vasp.dataset import (
 __all__ = [
     "Parser",
     "VASPfileType",
-    "dataset_to_trajectory",
+    "calculations_to_dataset",
+    "dataset_to_calculation",
     "discover_structure_files",
     "discover_vasprun_files",
+    "parse_structure_calculations",
     "parse_structure_dataset",
     "parse_structure_dataset_as_trajectory",
     "parse_vasprun_sequence",

@@ -62,6 +62,8 @@ class MergeReport:
     total_frames: int
     total_atoms: int
     deleted_atom_ids: tuple[int, ...] = ()
+    segment_timestep_fs: tuple[Optional[float], ...] = ()
+    warnings: tuple[str, ...] = ()
 
     @property
     def has_mismatches(self) -> bool:
@@ -97,6 +99,9 @@ class TrajectoryAssembler:
             )
         ]
         deleted_atom_ids: set[int] = set()
+        segment_timestep_fs = [calculation.trajectory.timestep_fs for calculation in prepared]
+        merged_timestep_fs = _merged_timestep(segment_timestep_fs)
+        warnings = _merge_warnings(segment_timestep_fs)
 
         for calculation in prepared[1:]:
             source_files.append(calculation.source)
@@ -133,7 +138,7 @@ class TrajectoryAssembler:
                 )
             )
 
-            time_offset = _time_offset(previous_frame, next_first, next_trajectory.timestep_fs)
+            time_offset = _time_offset(previous_frame, next_first)
             for local_step, frame in enumerate(next_trajectory.frames[start_index:], start=start_index):
                 frames.append(
                     _copy_frame_with_ids(
@@ -148,10 +153,11 @@ class TrajectoryAssembler:
         trajectory = Trajectory(
             frames=frames,
             atom_registry=tuple(registry),
-            timestep_fs=prepared[0].trajectory.timestep_fs,
+            timestep_fs=merged_timestep_fs,
             properties={
                 "merged": True,
                 "source_files": tuple(source_files),
+                "segment_timestep_fs": tuple(segment_timestep_fs),
                 "policy": self.policy,
             },
         )
@@ -162,7 +168,9 @@ class TrajectoryAssembler:
             properties={
                 "merged": True,
                 "source_files": tuple(source_files),
+                "segment_timestep_fs": tuple(segment_timestep_fs),
             },
+            warnings=warnings,
         )
         report = MergeReport(
             events=tuple(events),
@@ -170,6 +178,8 @@ class TrajectoryAssembler:
             total_frames=trajectory.step_count,
             total_atoms=trajectory.atom_count,
             deleted_atom_ids=tuple(sorted(deleted_atom_ids)),
+            segment_timestep_fs=tuple(segment_timestep_fs),
+            warnings=tuple(warnings),
         )
         return calculation, report
 
@@ -358,9 +368,30 @@ def _pbc_delta(left: np.ndarray, right: np.ndarray) -> np.ndarray:
     return delta - np.round(delta)
 
 
-def _time_offset(previous: Structure, next_first: Structure, timestep_fs: Optional[float]) -> Optional[float]:
+def _time_offset(previous: Structure, next_first: Structure) -> Optional[float]:
     if previous.time_fs is None or next_first.time_fs is None:
         return None
-    if timestep_fs is None:
-        return previous.time_fs - next_first.time_fs
     return previous.time_fs - next_first.time_fs
+
+
+def _merged_timestep(timesteps: Sequence[Optional[float]]) -> Optional[float]:
+    known = [float(value) for value in timesteps if value is not None]
+    if not known:
+        return None
+    first = known[0]
+    if all(np.isclose(value, first, rtol=0.0, atol=1e-12) for value in known[1:]):
+        return first
+    return None
+
+
+def _merge_warnings(timesteps: Sequence[Optional[float]]) -> list[str]:
+    warnings = []
+    known = [float(value) for value in timesteps if value is not None]
+    if len(known) != len(timesteps):
+        warnings.append("Some trajectory segments do not define timestep_fs.")
+    if known and _merged_timestep(timesteps) is None:
+        warnings.append(
+            "Merged trajectory contains segments with different timestep_fs; "
+            "trajectory.timestep_fs is set to None and per-frame time_fs should be used."
+        )
+    return warnings
