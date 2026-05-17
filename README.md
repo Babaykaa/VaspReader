@@ -41,15 +41,9 @@ Install from a local checkout. Run commands from the repository root.
 
 ### Base Library
 
-PowerShell:
+PowerShell/bash/zsh:
 
-```powershell
-python -m pip install -e .
-```
-
-Bash/zsh:
-
-```bash
+```powershell/bash
 python -m pip install -e .
 ```
 
@@ -76,15 +70,9 @@ The `dev` extra installs `pytest` and `ruff`.
 
 With `uv`, an equivalent one-off test run is:
 
-PowerShell:
+PowerShell/bash/zsh:
 
-```powershell
-uv run --with pytest python -m pytest
-```
-
-Bash/zsh:
-
-```bash
+```powershell/bash
 uv run --with pytest python -m pytest
 ```
 
@@ -243,7 +231,7 @@ print(len(frame.atoms), len(frame.bonds), frame.cell is not None)
 
 Runnable scripts live in `examples/`:
 
-```powershell
+```powershell/bash
 python examples/parse_vasp_file.py path\to\vasprun.xml
 python examples/merge_vasprun_directory.py path\to\restart_directory
 python examples/analyze_trajectory.py path\to\calculation --export table.csv
@@ -258,7 +246,7 @@ results, `SceneData` and Jupyter/Plotly rendering.
 The test suite uses small synthetic fixtures and does not require real
 production calculations:
 
-```powershell
+```powershell/bash
 python -m pytest
 ```
 
