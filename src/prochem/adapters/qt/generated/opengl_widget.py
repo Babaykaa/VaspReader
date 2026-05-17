@@ -154,6 +154,27 @@ class GLWidget(QOpenGLWidget):
             self.__scene.draw(self.__program, self.__trace_mouse)
             glUseProgram(0)
 
+    def set_scene_data(self, scene_data, frame_index=0):
+        """Loads SceneData into the OpenGL scene."""
+        if self.__scene is None:
+            return
+        self.__scene.set_scene_data(scene_data, frame_index=frame_index)
+        self.update()
+
+    def set_frame_index(self, frame_index):
+        """Switches the rendered SceneData frame."""
+        if self.__scene is None:
+            return
+        self.__scene.set_frame_index(frame_index)
+        self.update()
+
+    def clear_scene_data(self):
+        """Clears loaded SceneData from the OpenGL scene."""
+        if self.__scene is None:
+            return
+        self.__scene.clear()
+        self.update()
+
     def keyPressEvent(self, event):
         """
         Handles key press events to manipulate the 3D scene.

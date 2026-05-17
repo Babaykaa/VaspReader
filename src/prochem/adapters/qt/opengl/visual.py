@@ -9,6 +9,11 @@ from OpenGL.GL import *
 from PySide6.QtCore import QThread, QTimer, Qt
 from PySide6.QtGui import QOpenGLContext, QSurfaceFormat, QImage, QKeyEvent
 from prochem.adapters.qt.generated.visual import Ui_Visual, QMainWindow
+from prochem.adapters.qt.api import (
+    QtCalculationEntry,
+    calculation_entry,
+    scene_from_calculation,
+)
 OpenGL.ERROR_CHECKING = False
 logger = logging.getLogger(__name__)
 
@@ -28,6 +33,7 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self.closed = False
         self.__project_directory = self.__print_window.get_project_dir()
         self.__calculations = None
+        self.__active_entry = None
 
         self.setupUi(self, self.__settings, self.__project_directory)
         logger.info(f"VisualUI setuped")
@@ -102,6 +108,54 @@ class VisualWindow(Ui_Visual, QMainWindow):
          None.
         """
         self.__calculation = calculation
+        entry = self._resolve_entry(calculation)
+        self.__active_entry = entry
+        if entry is None:
+            return
+        if entry.scene is None:
+            try:
+                entry.scene = scene_from_calculation(entry.calculation, options=entry.scene_options)
+            except ValueError:
+                self.without_calculation()
+                return
+        if hasattr(self, "openGLWidget"):
+            self.openGLWidget.set_scene_data(entry.scene, frame_index=0)
+
+    def set_frame_index(self, frame_index):
+        """Updates the rendered trajectory/dataset frame."""
+        self._step = int(frame_index)
+        if hasattr(self, "openGLWidget"):
+            self.openGLWidget.set_frame_index(self._step)
+
+    def without_calculation(self):
+        """Clears loaded calculation data from the visual widget."""
+        self.__calculation = None
+        self.__active_entry = None
+        if hasattr(self, "openGLWidget"):
+            self.openGLWidget.clear_scene_data()
+
+    @staticmethod
+    def _resolve_entry(value):
+        if value is None:
+            return None
+        if isinstance(value, QtCalculationEntry):
+            return value
+        if isinstance(value, dict):
+            if "calculation" in value:
+                return calculation_entry(value["calculation"], visible=value.get("visible", True))
+            calculations = value.get("calculations")
+            if calculations:
+                scene_options = value.get("scene_options")
+                entry = calculation_entry(
+                    calculations[0],
+                    visible=value.get("visible", True),
+                    scene_options=scene_options,
+                )
+                if value.get("scene") is not None:
+                    entry.scene = value["scene"]
+                return entry
+            return None
+        return calculation_entry(value)
 
     # def change_light(self, light_indx):
     #     self.__settings.set_scene_params(not self.__settings.get_scene_params('light', 'states', light_indx), 'states', light_indx)

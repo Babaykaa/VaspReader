@@ -27,6 +27,7 @@ UI/
 
 # Ignore log files
 logs/ProChem.log
+ProChem.log
 
 # Ignore source resource file
 Resource.qrc

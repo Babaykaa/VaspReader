@@ -4,12 +4,14 @@
 # ProChem Copyright (C) 2021-2025 A.A.Solovykh - https://github.com/asolovykh
 # See LICENSE.txt for details.
 
+from __future__ import annotations
+
 import os
 import json
 import numpy as np
 import logging
 import random
-from typing import Any, Self
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +54,7 @@ class Settings:
     _instance = None
     _initialized = False
 
-    def __new__(cls, *args, **kwargs) -> Self:
+    def __new__(cls, *args, **kwargs) -> Settings:
         """
         Creates and returns a singleton instance of the class.
         
@@ -442,7 +444,7 @@ class Settings:
         }
         logger.info(f"Default settings initialized")
 
-    def load_settings(self) -> Self:
+    def load_settings(self) -> Settings:
         """
         Loads settings from a JSON file.
         
@@ -704,7 +706,7 @@ class Settings:
         """
         Settings.__set_dict_value(self.__processing_params, value, *keys)
 
-    def save_settings(self) -> Self:
+    def save_settings(self) -> Settings:
         """
         Saves the current settings to a JSON file.
         
@@ -728,6 +730,9 @@ class Settings:
                      self.__control_params, self.__processing_params] 
         for data in json_data:
             self.convert_values_to(data, list)
+        settings_directory = os.path.dirname(self.get_settings_filename())
+        if settings_directory:
+            os.makedirs(settings_directory, exist_ok=True)
         with open(self.get_settings_filename(), 'w') as file:
             json.dump(json_data, file, indent=4)
         logger.info(f"Json data saved to {self.get_settings_filename()}")

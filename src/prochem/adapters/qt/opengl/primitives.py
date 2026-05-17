@@ -79,6 +79,7 @@ class Primitive:
     def draw(self, uniform_variables) -> None:
         """Draws primitive."""
         glUniformMatrix4fv(uniform_variables[('Translation', 'mat4')], 1, GL_TRUE, self.__transformation_matrix)
+        glUniform1i(uniform_variables[('isTextureExist', 'int')], 0)
         
         glBindVertexArray(self.__vao_buffer.vao)
         self.__vao_buffer.get_indexes().bind()

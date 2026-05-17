@@ -134,6 +134,23 @@ prochem
 The `qt` extra installs PySide6, PyOpenGL, matplotlib, numba and Pillow. The
 `prochem` console script points to `prochem.adapters.qt.app:main`.
 
+The Qt adapter uses the same core models and `SceneData` contract as the
+notebook/web layers. `value_to_draw_buffer()` converts atoms to sphere batches
+and bonds/cell edges to OpenGL line-segment batches:
+
+```python
+from prochem.adapters.qt import QtSceneOptions, parse_calculation, value_to_draw_buffer
+
+calculation = parse_calculation("vasprun.xml")
+draw_buffer = value_to_draw_buffer(
+    calculation,
+    options=QtSceneOptions(
+        atom_colors={"Si": "#d9b36c", "O": "#e74c3c"},
+        bond_max_lengths={"Si-O": 2.1},
+    ),
+)
+```
+
 ### Web Adapter
 
 PowerShell:
