@@ -14,7 +14,7 @@ from prochem.core.models import Trajectory
 
 def atom_labels(trajectory: Trajectory, atom_ids: Optional[Iterable[int]] = None) -> list[str]:
     """Return stable labels like C_1 for atom ids."""
-    selected = list(atom_ids) if atom_ids is not None else [record.atom_id for record in trajectory.atom_registry]
+    selected = list(atom_ids) if atom_ids is not None else list(trajectory.atom_ids)
     labels = []
     for atom_id in selected:
         record = trajectory.atom_record(int(atom_id))
@@ -31,8 +31,8 @@ def coordinate_dataframe(
     unwrap_direct: bool = True,
 ) -> pd.DataFrame:
     """Build a coordinate table suitable for GUI, notebooks or export."""
-    selected = list(atom_ids) if atom_ids is not None else [record.atom_id for record in trajectory.atom_registry]
-    id_to_column = {record.atom_id: index for index, record in enumerate(trajectory.atom_registry)}
+    selected = list(atom_ids) if atom_ids is not None else list(trajectory.atom_ids)
+    columns = trajectory.atom_columns(selected)
     labels = atom_labels(trajectory, selected)
     data: dict[str, np.ndarray] = {"Time, fs": time_axis(trajectory)}
 
@@ -41,8 +41,7 @@ def coordinate_dataframe(
         direct = unwrap_direct_positions(direct)
     positions = trajectory.positions_array()
 
-    for atom_id, label in zip(selected, labels, strict=True):
-        column = id_to_column[int(atom_id)]
+    for column, label in zip(columns, labels, strict=True):
         if include_direct and direct is not None:
             data[f"{label}_dir_1"] = direct[:, column, 0]
             data[f"{label}_dir_2"] = direct[:, column, 1]

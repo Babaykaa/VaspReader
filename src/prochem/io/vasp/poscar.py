@@ -9,6 +9,7 @@ import numpy as np
 from prochem.core.models import Calculation, Cell, Trajectory
 from prochem.io.vasp.common import (
     VASPfileType,
+    error_calculation,
     numbers_from_line,
     read_nonempty_lines,
     species_from_symbols_counts,
@@ -22,7 +23,7 @@ def read_poscar(source: Path, file_type: VASPfileType, engine: str = "vasp") -> 
     try:
         parsed = parse_poscar_lines(lines)
     except ValueError as error:
-        return _error_calculation(source, engine, str(error))
+        return error_calculation(source, engine, str(error))
     trajectory = Trajectory.from_arrays(
         species=parsed["species"],
         positions=parsed["positions"],
@@ -49,7 +50,7 @@ def read_xdatcar(source: Path, file_type: VASPfileType, engine: str = "vasp") ->
     try:
         header = parse_xdatcar_header(lines)
     except ValueError as error:
-        return _error_calculation(source, engine, str(error))
+        return error_calculation(source, engine, str(error))
 
     frames = []
     configuration_indices = []
@@ -75,7 +76,7 @@ def read_xdatcar(source: Path, file_type: VASPfileType, engine: str = "vasp") ->
         cursor += atom_count
 
     if not frames:
-        return _error_calculation(source, engine, "No XDATCAR trajectory frames were found.")
+        return error_calculation(source, engine, "No XDATCAR trajectory frames were found.")
 
     direct_positions = np.asarray(frames, dtype=np.float64)
     positions = direct_positions @ header["cell"]
@@ -106,11 +107,11 @@ def read_chgcar(source: Path, file_type: VASPfileType, engine: str = "vasp") -> 
     try:
         parsed = parse_poscar_lines(lines)
     except ValueError as error:
-        return _error_calculation(source, engine, str(error))
+        return error_calculation(source, engine, str(error))
 
     cursor = parsed["positions_end"]
     if cursor >= len(lines):
-        return _error_calculation(source, engine, "No charge-density grid was found.")
+        return error_calculation(source, engine, "No charge-density grid was found.")
     grid = np.asarray(list(map(int, lines[cursor].split()[:3])), dtype=np.int64)
     cursor += 1
     value_count = int(np.prod(grid))
@@ -119,7 +120,7 @@ def read_chgcar(source: Path, file_type: VASPfileType, engine: str = "vasp") -> 
         values.extend(numbers_from_line(lines[cursor]))
         cursor += 1
     if len(values) < value_count:
-        return _error_calculation(source, engine, "Charge-density block ended before the grid was complete.")
+        return error_calculation(source, engine, "Charge-density block ended before the grid was complete.")
 
     density = np.asarray(values[:value_count], dtype=np.float64).reshape(tuple(grid), order="F")
     trajectory = Trajectory.from_arrays(
@@ -256,14 +257,4 @@ def parse_xdatcar_header(lines: list[str]) -> dict:
         "species": species_from_symbols_counts(symbols, counts),
         "positions_start": cursor,
     }
-
-
-def _error_calculation(source: Path, engine: str, message: str) -> Calculation:
-    from prochem.core.models import CalculationError
-
-    return Calculation(
-        source=source,
-        engine=engine,
-        errors=CalculationError(exist=True, message=message),
-    )
 

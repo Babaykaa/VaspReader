@@ -1400,7 +1400,8 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
 
                 directory = self.__calculation.source if self.__calculation.source.is_dir() else self.__calculation.source.parent
                 oszicar_calculation = VaspParser(directory / "OSZICAR").parse()
-                oszicarDataframe = pd.DataFrame(oszicar_calculation.properties.get("ionic_steps", []))
+                ionic_steps = oszicar_calculation.ionic_steps
+                oszicarDataframe = ionic_steps.to_dataframe() if ionic_steps is not None else pd.DataFrame()
                 if oszicarDataframe.empty:
                     self.addMessage('OSZICAR does not contain ionic-step data.')
                     return

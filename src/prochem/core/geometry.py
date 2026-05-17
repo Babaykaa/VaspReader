@@ -96,8 +96,7 @@ def center_of_mass(
         masses_array = np.asarray(masses, dtype=np.float64)
 
     positions = trajectory.positions_array()
-    id_to_column = {record.atom_id: index for index, record in enumerate(trajectory.atom_registry)}
-    columns = [id_to_column[atom_id] for atom_id in selected]
+    columns = trajectory.atom_columns(selected)
     selected_positions = positions[:, columns, :]
     valid = np.isfinite(selected_positions).all(axis=2)
     weighted = selected_positions * masses_array[np.newaxis, :, np.newaxis]
@@ -116,4 +115,3 @@ def _local_indices(frame: Structure, atom_ids: Sequence[int]) -> list[int] | Non
             return None
         indices.append(id_to_local[int(atom_id)])
     return indices
-

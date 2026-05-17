@@ -8,6 +8,8 @@ from pathlib import Path
 
 import numpy as np
 
+from prochem.core.models import Calculation, CalculationError
+
 
 class VASPfileType(Enum):
     XML = "vasprun.xml"
@@ -62,3 +64,11 @@ def tokens_are_ints(tokens: list[str]) -> bool:
 def float_from_fortran(value: str) -> float:
     return float(value.replace("D", "E").replace("d", "e").rstrip(","))
 
+
+def error_calculation(source: Path, engine: str, message: str) -> Calculation:
+    """Return a parser result carrying a VASP parsing error."""
+    return Calculation(
+        source=source,
+        engine=engine,
+        errors=CalculationError(exist=True, message=message),
+    )

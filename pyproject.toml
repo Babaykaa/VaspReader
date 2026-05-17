@@ -9,10 +9,10 @@ authors = [
   { name = "Alexander Solovykh", email = "solovykh.aa19@physics.msu.ru" },
 ]
 description = "ProChem is a library and application for reading, analyzing and visualizing atomistic simulation results."
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
-    "numpy>=2.2.5",
-    "pandas>=2.2.3",
+    "numpy>=1.23.5",
+    "pandas>=2.0.3",
 ]
 
 [project.scripts]
@@ -32,6 +32,7 @@ jupyter = [
 ]
 web = [
     "fastapi>=0.115",
+    "pydantic>=2.0",
     "uvicorn>=0.34",
 ]
 dev = [
@@ -45,4 +46,3 @@ where = ["src"]
 [tool.setuptools.package-data]
 "prochem.adapters.qt.generated" = ["style_sheets/*.css"]
 "prochem.adapters.qt.opengl.shaders" = ["*.glsl"]
-

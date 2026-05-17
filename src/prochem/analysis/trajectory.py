@@ -46,9 +46,8 @@ def velocities(
     The result has shape (steps, atoms). The first row is NaN because no previous
     frame exists.
     """
-    selected = list(atom_ids) if atom_ids is not None else [record.atom_id for record in trajectory.atom_registry]
-    id_to_column = {record.atom_id: index for index, record in enumerate(trajectory.atom_registry)}
-    columns = [id_to_column[int(atom_id)] for atom_id in selected]
+    selected = list(atom_ids) if atom_ids is not None else list(trajectory.atom_ids)
+    columns = trajectory.atom_columns(selected)
     positions = trajectory.positions_array()[:, columns, :]
     times = time_axis(trajectory)
     delta = np.diff(positions, axis=0)
@@ -67,7 +66,7 @@ def kinetic_energy(
     masses: Optional[Sequence[float]] = None,
 ) -> np.ndarray:
     """Return per-atom kinetic energy using the legacy ProChem factor."""
-    selected = list(atom_ids) if atom_ids is not None else [record.atom_id for record in trajectory.atom_registry]
+    selected = list(atom_ids) if atom_ids is not None else list(trajectory.atom_ids)
     speeds = velocities(trajectory, selected)
     if masses is None:
         mass_values = []

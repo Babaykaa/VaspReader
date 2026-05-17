@@ -7,9 +7,9 @@ from pathlib import Path
 
 import numpy as np
 
-from prochem.core.models import Calculation, Cell, CalculationError, Trajectory
+from prochem.core.models import Calculation, Cell, Trajectory
 from prochem.core.trajectory import MergeReport, TrajectoryMergePolicy, merge_calculations
-from prochem.io.vasp.common import TAG_VALUE_RE, VASPfileType, numbers_from_line
+from prochem.io.vasp.common import TAG_VALUE_RE, VASPfileType, error_calculation, numbers_from_line
 
 
 def read_vasprun(source: Path, file_type: VASPfileType = VASPfileType.XML, engine: str = "vasp") -> Calculation:
@@ -66,16 +66,16 @@ def read_vasprun(source: Path, file_type: VASPfileType = VASPfileType.XML, engin
                 force_frames.append(read_vasp_varray(xml, atom_count))
 
     if not species:
-        return _error_calculation(source, engine, "No atom information was found in vasprun.xml.")
+        return error_calculation(source, engine, "No atom information was found in vasprun.xml.")
     if not position_frames:
-        return _error_calculation(source, engine, "No trajectory positions were found in vasprun.xml.")
+        return error_calculation(source, engine, "No trajectory positions were found in vasprun.xml.")
 
     cell_vectors = np.asarray(
         cell_frames[0] if cell_frames else initial_cell,
         dtype=np.float64,
     )
     if cell_vectors.shape != (3, 3):
-        return _error_calculation(source, engine, "No valid cell basis was found in vasprun.xml.")
+        return error_calculation(source, engine, "No valid cell basis was found in vasprun.xml.")
 
     direct_positions = np.asarray(position_frames, dtype=np.float64)
     cells = (
@@ -188,12 +188,4 @@ def parse_vasprun_sequence(
 def vasprun_sort_key(path: Path) -> tuple:
     numbers = [int(value) for value in re.findall(r"\d+", path.name)]
     return (0 if numbers else 1, numbers, path.stat().st_mtime, str(path))
-
-
-def _error_calculation(source: Path, engine: str, message: str) -> Calculation:
-    return Calculation(
-        source=source,
-        engine=engine,
-        errors=CalculationError(exist=True, message=message),
-    )
 

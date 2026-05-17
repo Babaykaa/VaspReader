@@ -42,6 +42,16 @@ def main() -> None:
     print(f"steps: {calculation.step_count}")
     print(f"registry atoms: {calculation.atom_count}")
     print(f"property keys: {sorted(calculation.properties.keys())}")
+    if calculation.ionic_steps is not None:
+        print(f"ionic steps: {len(calculation.ionic_steps)}")
+    if calculation.electronic_steps is not None:
+        print(f"electronic steps: {len(calculation.electronic_steps)}")
+    if calculation.density_of_states is not None:
+        dos = calculation.density_of_states
+        print(f"DOS: nedos={dos.nedos} efermi={dos.fermi_energy}")
+    if calculation.band_structure is not None:
+        bands = calculation.band_structure
+        print(f"bands: kpoints={bands.kpoint_count} bands={bands.band_count}")
     if calculation.trajectory is not None:
         trajectory = calculation.trajectory
         print(f"dense positions: {trajectory.positions_array().shape}")

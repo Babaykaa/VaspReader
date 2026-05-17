@@ -12,6 +12,8 @@ from typing import Any, Iterable, Optional, Sequence
 
 import numpy as np
 
+from prochem.core.results import BandStructure, DensityOfStates, ElectronicSteps, IonicSteps
+
 ArrayLike = np.ndarray
 
 
@@ -189,6 +191,11 @@ class Trajectory:
         return np.asarray([record.species for record in self.atom_registry], dtype=str)
 
     @property
+    def atom_ids(self) -> tuple[int, ...]:
+        """Stable atom ids in registry order."""
+        return tuple(record.atom_id for record in self.atom_registry)
+
+    @property
     def masses(self) -> Optional[ArrayLike]:
         """Atomic masses when present."""
         masses = [record.mass for record in self.atom_registry]
@@ -232,6 +239,12 @@ class Trajectory:
             if record.atom_id == atom_id:
                 return record
         raise KeyError(atom_id)
+
+    def atom_columns(self, atom_ids: Optional[Sequence[int]] = None) -> list[int]:
+        """Return dense-array column indices for selected stable atom ids."""
+        selected = self.atom_ids if atom_ids is None else tuple(int(atom_id) for atom_id in atom_ids)
+        id_to_column = self._id_to_column()
+        return [id_to_column[atom_id] for atom_id in selected]
 
     def presence_mask(self) -> ArrayLike:
         """Boolean array with shape (steps, registry_atoms)."""
@@ -457,6 +470,30 @@ class Calculation:
             counts = self.dataset.atom_counts
             return int(counts[0]) if np.all(counts == counts[0]) else int(counts.max())
         return 0
+
+    @property
+    def electronic_steps(self) -> ElectronicSteps | None:
+        """Electronic self-consistency history, when parsed."""
+        value = self.properties.get("electronic_steps")
+        return value if isinstance(value, ElectronicSteps) else None
+
+    @property
+    def ionic_steps(self) -> IonicSteps | None:
+        """Ionic optimization or MD history, when parsed."""
+        value = self.properties.get("ionic_steps")
+        return value if isinstance(value, IonicSteps) else None
+
+    @property
+    def density_of_states(self) -> DensityOfStates | None:
+        """Density of states result, when parsed."""
+        value = self.properties.get("density_of_states", self.properties.get("dos"))
+        return value if isinstance(value, DensityOfStates) else None
+
+    @property
+    def band_structure(self) -> BandStructure | None:
+        """Band structure result, when parsed."""
+        value = self.properties.get("band_structure")
+        return value if isinstance(value, BandStructure) else None
 
 
 def _as_atom_vectors(values: ArrayLike, name: str) -> ArrayLike:

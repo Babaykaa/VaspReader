@@ -45,4 +45,4 @@ class PrimitiveSet:
     bonds: tuple[BondPrimitive, ...] = field(default_factory=tuple)
     cell: CellPrimitive | None = None
     axes: AxesPrimitive | None = None
-
+    metadata: dict[str, object] = field(default_factory=dict)

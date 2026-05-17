@@ -6,8 +6,13 @@ from pathlib import Path
 
 import numpy as np
 
-from prochem.core.models import Calculation, CalculationError, Trajectory
-from prochem.io.vasp.common import VASPfileType, numbers_from_line, species_from_symbols_counts
+from prochem.core.models import Calculation, Trajectory
+from prochem.io.vasp.common import (
+    VASPfileType,
+    error_calculation,
+    numbers_from_line,
+    species_from_symbols_counts,
+)
 
 
 def read_outcar(source: Path, file_type: VASPfileType = VASPfileType.OUTCAR, engine: str = "vasp") -> Calculation:
@@ -58,7 +63,7 @@ def read_outcar(source: Path, file_type: VASPfileType = VASPfileType.OUTCAR, eng
                         cells.append(current_cell)
 
     if not positions:
-        return _error_calculation(source, engine, "No POSITION/TOTAL-FORCE blocks were found in OUTCAR.")
+        return error_calculation(source, engine, "No POSITION/TOTAL-FORCE blocks were found in OUTCAR.")
     atom_count = len(positions[0])
     if not counts:
         counts = [atom_count]
@@ -68,7 +73,7 @@ def read_outcar(source: Path, file_type: VASPfileType = VASPfileType.OUTCAR, eng
     if species.shape[0] != atom_count:
         species = np.asarray([f"X{index + 1}" for index in range(atom_count)], dtype=str)
     if not cells:
-        return _error_calculation(source, engine, "No lattice vectors were found in OUTCAR.")
+        return error_calculation(source, engine, "No lattice vectors were found in OUTCAR.")
 
     positions_array = np.asarray(positions, dtype=np.float64)
     forces_array = np.asarray(forces, dtype=np.float64)
@@ -90,12 +95,3 @@ def read_outcar(source: Path, file_type: VASPfileType = VASPfileType.OUTCAR, eng
         trajectory=trajectory,
         properties={"file_type": file_type.value, "symbols": symbols, "counts": counts},
     )
-
-
-def _error_calculation(source: Path, engine: str, message: str) -> Calculation:
-    return Calculation(
-        source=source,
-        engine=engine,
-        errors=CalculationError(exist=True, message=message),
-    )
-
