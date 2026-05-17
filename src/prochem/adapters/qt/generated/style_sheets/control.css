@@ -1,8 +1,13 @@
 QWidget#MainWidget{
     background-image: url(:/icons/control/background.png);
     background-position: right bottom;
+    color: rgb(20, 20, 20);
+}
+QWidget, QLabel, QTreeView, QHeaderView::section, QMenuBar, QMenu, QComboBox, QLineEdit, QSlider {
+    color: rgb(20, 20, 20);
 }
 QLineEdit{
+    background-color: rgb(255, 255, 255);
     border-radius: 8px;
     border: 2px solid rgb(109, 20, 20);
     padding: 3px 3px;
@@ -40,6 +45,7 @@ QPushButton:pressed {
     border: 3px solid #000000
 }
 QComboBox {
+    background-color: rgb(255, 255, 255);
     border-radius: 8px;
     border: 2px solid rgb(109, 20, 20);
     padding: 3px 3px;
@@ -127,10 +133,40 @@ QSlider::handle:horizontal{
 
 QMenu{
     background-color: rgb(240, 240, 240);
+    color: rgb(20, 20, 20);
     border: 2px solid rgb(109, 20, 20);
     border-radius: 4px;
+}
+QMenu::item {
+    color: rgb(20, 20, 20);
+    background-color: transparent;
 }
 
 QMenu::item:selected {
     background-color: rgb(0, 200, 200);
+    color: rgb(0, 0, 0);
+}
+QMenuBar {
+    background-color: rgb(245, 245, 245);
+    color: rgb(20, 20, 20);
+}
+QMenuBar::item {
+    color: rgb(20, 20, 20);
+    background-color: transparent;
+}
+QMenuBar::item:selected {
+    background-color: rgb(220, 235, 235);
+    color: rgb(0, 0, 0);
+}
+QTreeView {
+    background-color: rgba(255, 255, 255, 230);
+    alternate-background-color: rgb(245, 245, 245);
+    color: rgb(20, 20, 20);
+    selection-background-color: rgb(0, 160, 180);
+    selection-color: rgb(0, 0, 0);
+}
+QHeaderView::section {
+    background-color: rgb(240, 240, 240);
+    color: rgb(20, 20, 20);
+    border: 1px solid rgb(140, 140, 140);
 }

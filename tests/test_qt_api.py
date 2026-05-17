@@ -63,7 +63,8 @@ def test_qt_api_builds_calculation_entry_from_current_core_model() -> None:
     assert calculation_step_count(calculation) == 2
     assert entry.as_legacy_dict()["calculations"] == [calculation]
     assert entry.scene is not None
-    assert entry.scene.frame_count == 2
+    assert entry.scene.frame_count == 1
+    assert entry.scene.frame(0).metadata["frame_index"] == 0
 
 
 def test_qt_api_can_select_single_frame_for_draw_buffer() -> None:

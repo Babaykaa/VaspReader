@@ -14,6 +14,7 @@ from prochem.adapters.qt.api import (
     calculation_entry,
     scene_from_calculation,
 )
+from prochem.adapters.qt.windowing import move_to_saved_or_default
 OpenGL.ERROR_CHECKING = False
 logger = logging.getLogger(__name__)
 
@@ -38,10 +39,8 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self.setupUi(self, self.__settings, self.__project_directory)
         logger.info(f"VisualUI setuped")
 
-        self.__location = self.__settings.get_new_window_location('visual')
-        if self.__location is not None:
-            self.move(self.__location[0], self.__location[1])
-            logger.info(f"Visual window positioned")
+        move_to_saved_or_default(self, self.__settings, 'visual', default_offset=(40, 380))
+        logger.info(f"Visual window positioned")
         #self.rotation_matrix = np.array([[-1.0, 0.0, 0.0, 0.0],
         #                                 [0.0, 0.0, 1.0, 0],
         #                                 [0.0, -1.0, 0.0, 0.0],
@@ -112,20 +111,12 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self.__active_entry = entry
         if entry is None:
             return
-        if entry.scene is None:
-            try:
-                entry.scene = scene_from_calculation(entry.calculation, options=entry.scene_options)
-            except ValueError:
-                self.without_calculation()
-                return
-        if hasattr(self, "openGLWidget"):
-            self.openGLWidget.set_scene_data(entry.scene, frame_index=0)
+        self._render_entry_frame(0)
 
     def set_frame_index(self, frame_index):
         """Updates the rendered trajectory/dataset frame."""
         self._step = int(frame_index)
-        if hasattr(self, "openGLWidget"):
-            self.openGLWidget.set_frame_index(self._step)
+        self._render_entry_frame(self._step)
 
     def without_calculation(self):
         """Clears loaded calculation data from the visual widget."""
@@ -133,6 +124,21 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self.__active_entry = None
         if hasattr(self, "openGLWidget"):
             self.openGLWidget.clear_scene_data()
+
+    def _render_entry_frame(self, frame_index):
+        if self.__active_entry is None or not hasattr(self, "openGLWidget"):
+            return
+        try:
+            scene = scene_from_calculation(
+                self.__active_entry.calculation,
+                options=self.__active_entry.scene_options,
+                frame_index=int(frame_index),
+            )
+        except ValueError:
+            self.without_calculation()
+            return
+        self.__active_entry.scene = scene
+        self.openGLWidget.set_scene_data(scene, frame_index=0)
 
     @staticmethod
     def _resolve_entry(value):

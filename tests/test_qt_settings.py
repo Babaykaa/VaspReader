@@ -15,6 +15,9 @@ def test_qt_settings_creates_settings_directory_on_first_save(tmp_path) -> None:
     assert settings_file.exists()
     data = json.loads(settings_file.read_text())
     assert len(data) == 4
+    assert data[0]["print"] == [40, 40]
+    assert data[0]["control"] == [520, 40]
+    assert data[0]["visual"] == [40, 380]
     assert settings.get_settings_filename() == str(settings_file)
 
     Settings._instance = None

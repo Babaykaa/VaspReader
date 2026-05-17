@@ -3,6 +3,7 @@ import logging
 from prochem.adapters.qt.opengl.control import ControlWindow
 from prochem.adapters.qt.opengl.visual import VisualWindow
 from prochem.adapters.qt.generated.print import Ui_Print, QMainWindow
+from prochem.adapters.qt.windowing import move_to_saved_or_default
 logger = logging.getLogger(__name__)
 
 
@@ -38,10 +39,8 @@ class PrintWindow(Ui_Print, QMainWindow):
         self.setupUi(self)
         logger.info(f"PrintUI setuped")
         
-        self.__location = self.__settings.get_new_window_location('print')
-        if self.__location is not None:
-            self.move(self.__location[0], self.__location[1])
-            logger.info(f"Print window positioned")
+        move_to_saved_or_default(self, self.__settings, 'print', default_offset=(40, 40))
+        logger.info(f"Print window positioned")
         self.awake_control_window()
         self.awake_visual_window()
         self.show()

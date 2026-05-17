@@ -69,6 +69,8 @@ class GLWidget(QOpenGLWidget):
         self.__project_directory = project_directory
         self.__program = None
         self.__scene = None
+        self.__pending_scene_data = None
+        self.__pending_frame_index = 0
 
         self.__mouse_x_pos, self.__mouse_y_pos = 0, 0
         self.__trace_mouse = False
@@ -107,10 +109,14 @@ class GLWidget(QOpenGLWidget):
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_TEXTURE_2D)
         glLineWidth(3.0)
-        self.__settings.set_scene_params(self.width() / self.height(), 'view', 'perspective', 'aspect')
+        background = self.__settings.get_scene_params('background', 'color')
+        glClearColor(*background)
+        self.__settings.set_scene_params(self.width() / max(self.height(), 1), 'view', 'perspective', 'aspect')
         self.__program = Shaders(os.path.join(self.__project_directory, 'visual', 'shaders'), [r'vertex.glsl', r'fragment.glsl'], ['VERTEX', 'FRAGMENT'])
         self.__scene = Scene(self.__settings)
         self.__scene.load_texture(":/icons/logo/PROCHEM-logo.png")
+        if self.__pending_scene_data is not None:
+            self.__scene.set_scene_data(self.__pending_scene_data, frame_index=self.__pending_frame_index)
         # self.__scene.set_draw_buffer({'Sphere': {((0.2, 0, 0.5), 1.0): [[0, 0, 0], [1, 1, 1], [2, 2, 2]]}})
         self.__timer.start(16)
 
@@ -130,7 +136,7 @@ class GLWidget(QOpenGLWidget):
          None
         """
         glViewport(0, 0, w, h)
-        self.__settings.set_scene_params(w / h, 'view', 'perspective', 'aspect')
+        self.__settings.set_scene_params(w / max(h, 1), 'view', 'perspective', 'aspect')
         if self.__scene is not None:
             self.__scene.update_camera()
 
@@ -149,13 +155,19 @@ class GLWidget(QOpenGLWidget):
          - __scene: The scene to be rendered.
          - __trace_mouse: A boolean indicating whether to trace the mouse.
         """
-        if self.__program:
+        if self.__program and self.__scene is not None:
             glUseProgram(self.__program.program)
             self.__scene.draw(self.__program, self.__trace_mouse)
             glUseProgram(0)
+        else:
+            background = self.__settings.get_scene_params('background', 'color')
+            glClearColor(*background)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     def set_scene_data(self, scene_data, frame_index=0):
         """Loads SceneData into the OpenGL scene."""
+        self.__pending_scene_data = scene_data
+        self.__pending_frame_index = int(frame_index)
         if self.__scene is None:
             return
         self.__scene.set_scene_data(scene_data, frame_index=frame_index)
@@ -163,6 +175,7 @@ class GLWidget(QOpenGLWidget):
 
     def set_frame_index(self, frame_index):
         """Switches the rendered SceneData frame."""
+        self.__pending_frame_index = int(frame_index)
         if self.__scene is None:
             return
         self.__scene.set_frame_index(frame_index)
@@ -170,6 +183,8 @@ class GLWidget(QOpenGLWidget):
 
     def clear_scene_data(self):
         """Clears loaded SceneData from the OpenGL scene."""
+        self.__pending_scene_data = None
+        self.__pending_frame_index = 0
         if self.__scene is None:
             return
         self.__scene.clear()
@@ -186,6 +201,11 @@ class GLWidget(QOpenGLWidget):
         This method responds to specific key presses to rotate, scale, and move
         the 3D scene. It also propagates the event to the parent widget.
         """
+        if self.__scene is None:
+            parent = self.parent()
+            if parent is not None:
+                parent.keyPressEvent(event)
+            return
         key = event.key()
         match key:
             case Qt.Key_Up:
@@ -218,7 +238,9 @@ class GLWidget(QOpenGLWidget):
                 self.__scene.move_z(0.1)
             case Qt.Key_M:
                 self.__scene.move_z(-0.1)
-        self.parent().keyPressEvent(event)
+        parent = self.parent()
+        if parent is not None:
+            parent.keyPressEvent(event)
 
     def mouseMoveEvent(self, event):
         """
@@ -243,7 +265,7 @@ class GLWidget(QOpenGLWidget):
           __mouse_y_pos: The current y-coordinate of the mouse.
           __scene: The 3D scene object being rotated.
         """
-        if self.__trace_mouse:
+        if self.__trace_mouse and self.__scene is not None:
             self.__mouse_dx = event.x() - self.__mouse_x_pos
             self.__mouse_dy = event.y() - self.__mouse_y_pos
            
@@ -270,7 +292,7 @@ class GLWidget(QOpenGLWidget):
         """
         self.__mouse_x_pos = event.x()
         self.__mouse_y_pos = event.y()
-        self.__trace_mouse = True
+        self.__trace_mouse = self.__scene is not None
 
     def mouseReleaseEvent(self, event):
         """

@@ -6,7 +6,6 @@
 
 import os
 import codecs
-import time
 import logging
 from multiprocessing import Process, Lock as MLock, cpu_count, Manager
 from threading import Thread, Lock as TLock
@@ -15,9 +14,11 @@ from prochem.adapters.qt.api import (
     calculation_step_count,
     parse_calculation,
 )
+from prochem.adapters.qt.windowing import move_to_saved_or_default
 from prochem.adapters.qt.windows.vasp_processing import VRProcessing
 from prochem.adapters.qt.windows.oszicar import VROszicar
 from prochem.adapters.qt.generated.control import Ui_Control, QMainWindow
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QColorDialog, QFileDialog
 
@@ -67,7 +68,7 @@ class ControlWindow(Ui_Control, QMainWindow):
             self.__processing_window: A reference to the processing window. Initialized to None.
             self.__oszicar_window: A reference to the OSZICAR window. Initialized to None.
             self._window_closed: A boolean flag indicating whether the window is closed. Initialized to False.
-            self.__parser_check_thread: A thread to periodically check the status of parsers.
+            self.__parser_timer: A GUI-thread timer that checks completed parser jobs.
         
         Returns:
             None
@@ -82,10 +83,8 @@ class ControlWindow(Ui_Control, QMainWindow):
         self.link_elements_with_functions()
         logger.info(f"ControlUI elements linked with functions")
         
-        self.__location = self.__settings.get_new_window_location('control')
-        if self.__location is not None:
-            self.move(self.__location[0], self.__location[1])
-            logger.info(f"Control window positioned")
+        move_to_saved_or_default(self, self.__settings, 'control', default_offset=(520, 40))
+        logger.info(f"Control window positioned")
 
         self.__calculation_id = 1
         self.__calculations = dict()
@@ -104,8 +103,9 @@ class ControlWindow(Ui_Control, QMainWindow):
         self.__oszicar_window = None
         
         self._window_closed = False
-        self.__parser_check_thread = Thread(target=self.check_parsers, daemon=True)
-        self.__parser_check_thread.start()
+        self.__parser_timer = QTimer(self)
+        self.__parser_timer.timeout.connect(self.check_parsers)
+        self.__parser_timer.start(200)
         self.show()
         logger.info(f"Control window initialized")
 
@@ -148,6 +148,7 @@ class ControlWindow(Ui_Control, QMainWindow):
         self.ALoad_Calculation.triggered.connect(self.load_calculation_files)
         self.ABackground.triggered.connect(self.background_color_change)
         self.TreeViewAddCalculation.triggered.connect(self.load_calculation_files)
+        self.TreeViewDeleteCalculation.triggered.connect(self.delete_calculation)
         self.AAbout_the_program.triggered.connect(self.about_the_program)
         self.AAbout_window.triggered.connect(self.about_the_window)
         self.ALatest_update.triggered.connect(self.lattest_update)
@@ -471,7 +472,7 @@ class ControlWindow(Ui_Control, QMainWindow):
         """
         self.AKeyboard.setChecked(checked)
         self.AMouse_keyboard.setChecked(not checked)
-        self.__settings.set_visual_params(checked, 'only_keyboard_selection')
+        self.__settings.set_control_params(checked, 'only_keyboard_selection')
         logger.info(f"Keyboard selection set to {checked}")
 
     def mouse_and_keyboard_select(self, checked, *args):
@@ -493,7 +494,7 @@ class ControlWindow(Ui_Control, QMainWindow):
         """
         self.AKeyboard.setChecked(not checked)
         self.AMouse_keyboard.setChecked(checked)
-        self.__settings.set_visual_params(not checked, 'only_keyboard_selection')
+        self.__settings.set_control_params(not checked, 'only_keyboard_selection')
         self.get_print_window().add_message('Changed to mouse+keyboard mode.' if checked else 'Changed to keyboard mode.')
         logger.info(f"Mouse+keyboard mode set to {checked}")
 
@@ -514,7 +515,7 @@ class ControlWindow(Ui_Control, QMainWindow):
         """
         self.APerspective.setChecked(checked)
         self.AOrthographic.setChecked(not checked)
-        self.__settings.set_visual_params(checked, 'view', 'perspective')
+        self.__settings.set_scene_params(checked, 'view', 'is_perspective')
         logger.info(f"Perspective mode set to {checked}")
 
     def orthographic_chosen(self, checked, *args):
@@ -535,7 +536,7 @@ class ControlWindow(Ui_Control, QMainWindow):
         """
         self.APerspective.setChecked(not checked)
         self.AOrthographic.setChecked(checked)
-        self.__settings.set_visual_params(not checked, 'view', 'perspective')
+        self.__settings.set_scene_params(not checked, 'view', 'is_perspective')
         self.get_print_window().add_message('Changed to orthographic view' if checked else 'Changed to perspective view')
         logger.info(f"Orthographic mode set to {checked}")
 
@@ -590,7 +591,7 @@ class ControlWindow(Ui_Control, QMainWindow):
          Returns:
           None
         """
-        self.__settings.set_visual_params(self.SpeedSlider.sliderPosition(), 'slider_speed')
+        self.__settings.set_control_params(self.SpeedSlider.sliderPosition(), 'slider_speed')
 
     def add_calculation(self, file_path: str):
         """
@@ -613,7 +614,7 @@ class ControlWindow(Ui_Control, QMainWindow):
                     logger.info(f"Calculation {file_path} already added")
                     return
 
-        job = {"source": file_path, "calculation": None}
+        job = {"source": file_path, "calculation": None, "error": None}
         self.__parser_objs.append(job)
         self.__parser_threads.append(Thread(target=self._parse_in_thread, args=(job,), daemon=True))
         self.__parser_threads[-1].start()
@@ -622,7 +623,10 @@ class ControlWindow(Ui_Control, QMainWindow):
 
     @staticmethod
     def _parse_in_thread(job):
-        job["calculation"] = parse_calculation(job["source"])
+        try:
+            job["calculation"] = parse_calculation(job["source"])
+        except Exception as exc:
+            job["error"] = exc
 
     @staticmethod
     def _normalize_calculation_key(key):
@@ -658,24 +662,32 @@ class ControlWindow(Ui_Control, QMainWindow):
         Returns:
             None
         """
-        while True:
-            if self.__parser_threads:
-                for num, thread in enumerate(self.__parser_threads.copy()):
-                    if not thread.is_alive():
-                        with self.__threads_locker:
-                            self.process_add_action(self.__parser_objs.pop(num))
-                            self.__parser_threads.pop(num)
-                if not self.__parser_threads:
-                    self.enable_parser_mode_changing()
-            elif not self.__is_threading_mode and self.__parser_processes:
-                for num, process in enumerate(self.__parser_processes.copy()):
-                    if not process.is_alive():
-                        with self.__processes_locker:
-                            self.process_add_action(dict(self.__parser_objs.pop(num)))
-                            self.__parser_processes.pop(num)
-                if not self.__parser_processes:
-                    self.enable_parser_mode_changing()
-            time.sleep(0.2)
+        if self.__parser_threads:
+            completed = [
+                num
+                for num, thread in enumerate(self.__parser_threads)
+                if not thread.is_alive()
+            ]
+            for num in reversed(completed):
+                with self.__threads_locker:
+                    parser = self.__parser_objs.pop(num)
+                    self.__parser_threads.pop(num)
+                self.process_add_action(parser)
+            if not self.__parser_threads:
+                self.enable_parser_mode_changing()
+        elif not self.__is_threading_mode and self.__parser_processes:
+            completed = [
+                num
+                for num, process in enumerate(self.__parser_processes)
+                if not process.is_alive()
+            ]
+            for num in reversed(completed):
+                with self.__processes_locker:
+                    parser = dict(self.__parser_objs.pop(num))
+                    self.__parser_processes.pop(num)
+                self.process_add_action(parser)
+            if not self.__parser_processes:
+                self.enable_parser_mode_changing()
 
     def process_add_action(self, parser):
         """
@@ -692,14 +704,37 @@ class ControlWindow(Ui_Control, QMainWindow):
         Returns:
             None
         """
+        if isinstance(parser, dict) and parser.get("error") is not None:
+            error = parser["error"]
+            message = f"Error while parsing {parser.get('source')}: {error}"
+            self.get_print_window().add_message(message)
+            logger.error(message, exc_info=(type(error), error, error.__traceback__))
+            return
         if isinstance(parser, dict):
             calculation = parser.get("calculation")
             if calculation is None and parser.get("source") is not None:
-                calculation = parse_calculation(parser["source"])
+                try:
+                    calculation = parse_calculation(parser["source"])
+                except Exception as exc:
+                    message = f"Error while parsing {parser.get('source')}: {exc}"
+                    self.get_print_window().add_message(message)
+                    logger.error(message, exc_info=(type(exc), exc, exc.__traceback__))
+                    return
         else:
             calculation = getattr(parser, "calculation", None)
             if calculation is None:
-                calculation = parser.parse()
+                try:
+                    calculation = parser.parse()
+                except Exception as exc:
+                    message = f"Error while parsing calculation: {exc}"
+                    self.get_print_window().add_message(message)
+                    logger.error(message, exc_info=(type(exc), exc, exc.__traceback__))
+                    return
+        if calculation is None:
+            message = "Parser finished without a calculation result."
+            self.get_print_window().add_message(message)
+            logger.error(message)
+            return
         if calculation.errors.exist:
             self.get_print_window().add_message(calculation.errors.message)
             logger.error(f"Error in parsing {calculation.directory}: {calculation.errors.message}")
@@ -719,8 +754,9 @@ class ControlWindow(Ui_Control, QMainWindow):
             self.TreeModel.append_data([([id, 'V', calculation.directory, calculation_type], 
                                          [(['', '', calculation.name, ''], None)])], self.TreeModel.root_item)
             self.TreeView.expandAll()
-            if str(id) not in [self.AddedCalculations.itemText(i) for i in range(self.AddedCalculations.count())]:
-                self.AddedCalculations.addItem(str(id))
+            selector = getattr(self, "AddedCalculations", None)
+            if selector is not None and str(id) not in [selector.itemText(i) for i in range(selector.count())]:
+                selector.addItem(str(id))
             self.calculation_folder = id
             self.get_print_window().add_message(f'File {self.__calculations[id]["calculations"][-1].name} appended.\n')
             self.__visual_window.load_calculation_info(self.__calculations[id])

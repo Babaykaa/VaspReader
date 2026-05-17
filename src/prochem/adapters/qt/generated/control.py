@@ -562,7 +562,9 @@ class Ui_Control(object):
         self.TreeViewDeleteCalculation.setFont(font)
         self.TreeViewContextMenu.addAction(self.TreeViewDeleteCalculation) 
 
-        self.TreeView.customContextMenuRequested.connect(self.TreeViewContextMenu.exec)
+        self.TreeView.customContextMenuRequested.connect(
+            lambda position: self.TreeViewContextMenu.exec(self.TreeView.mapToGlobal(position))
+        )
 
         self.TopWidget.addWidget(self.TreeView)
 

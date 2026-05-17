@@ -126,9 +126,9 @@ class Settings:
             atom representation, including colors and scales.
         """
         self.__new_window_location = {
-            "print": None,
-            "control": None,
-            "visual": None,
+            "print": np.array([40, 40]),
+            "control": np.array([520, 40]),
+            "visual": np.array([40, 380]),
             "processing": None,
             "graph": None,
             "file_sharing": None,

@@ -133,7 +133,8 @@ def calculation_entry(
 ) -> QtCalculationEntry:
     options = QtSceneOptions() if scene_options is None else scene_options
     try:
-        scene = scene_from_calculation(calculation, options=options)
+        frame_index = None if options.frame_indices is not None else 0
+        scene = scene_from_calculation(calculation, options=options, frame_index=frame_index)
     except ValueError:
         scene = None
     return QtCalculationEntry(
