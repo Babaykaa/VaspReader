@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Mapping, Sequence
 
 from prochem.core.models import Calculation, Structure, StructureDataset, Trajectory
 from prochem.rendering import SceneData, to_scene_data
@@ -47,8 +47,9 @@ def scene_figure(
 
 def structure_figure(structure: Structure, **kwargs):
     """Return a Plotly 3D figure for one Structure."""
-    scene = to_scene_data(structure)
-    return scene_figure(scene, **kwargs)
+    scene_kwargs, figure_kwargs = _split_scene_kwargs(kwargs)
+    scene = to_scene_data(structure, **scene_kwargs)
+    return scene_figure(scene, **figure_kwargs)
 
 
 def trajectory_figure(
@@ -58,8 +59,9 @@ def trajectory_figure(
     **kwargs,
 ):
     """Return a Plotly 3D figure for one trajectory frame."""
-    scene = to_scene_data(trajectory, frame_indices=[frame_index])
-    return scene_figure(scene, frame_index=0, **kwargs)
+    scene_kwargs, figure_kwargs = _split_scene_kwargs(kwargs)
+    scene = to_scene_data(trajectory, frame_indices=[frame_index], **scene_kwargs)
+    return scene_figure(scene, frame_index=0, **figure_kwargs)
 
 
 def calculation_figure(
@@ -69,8 +71,9 @@ def calculation_figure(
     **kwargs,
 ):
     """Return a Plotly 3D figure for a parsed calculation frame."""
-    scene = to_scene_data(calculation, frame_indices=[frame_index])
-    return scene_figure(scene, frame_index=0, **kwargs)
+    scene_kwargs, figure_kwargs = _split_scene_kwargs(kwargs)
+    scene = to_scene_data(calculation, frame_indices=[frame_index], **scene_kwargs)
+    return scene_figure(scene, frame_index=0, **figure_kwargs)
 
 
 def scene_animation(
@@ -81,10 +84,26 @@ def scene_animation(
     show_cell: bool = True,
     show_axes: bool = True,
     title: str | None = None,
+    atom_colors: Mapping[str, Sequence[float] | str] | None = None,
+    atom_radius_scales: Mapping[str, float] | None = None,
+    bond_max_lengths: Mapping[tuple[str, str] | str, float] | None = None,
+    include_periodic_images: bool = True,
+    periodic_image_depth: int = 1,
 ):
     """Return a Plotly figure with a frame slider for SceneData-like inputs."""
     go = _graph_objects()
-    scene = value if isinstance(value, SceneData) else to_scene_data(value)
+    scene = (
+        value
+        if isinstance(value, SceneData)
+        else to_scene_data(
+            value,
+            atom_colors=atom_colors,
+            atom_radius_scales=atom_radius_scales,
+            bond_max_lengths=bond_max_lengths,
+            include_periodic_images=include_periodic_images,
+            periodic_image_depth=periodic_image_depth,
+        )
+    )
     if scene.frame_count == 0:
         raise ValueError("SceneData must contain at least one frame.")
 
@@ -164,14 +183,37 @@ def _atoms_trace(go, frame: PrimitiveSet, *, atom_size_scale: float):
     )
 
 
+def _split_scene_kwargs(kwargs: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    scene_keys = {
+        "include_bonds",
+        "include_cell",
+        "include_axes",
+        "atom_radius_scale",
+        "atom_radius_scales",
+        "atom_colors",
+        "bond_radius",
+        "bond_scale",
+        "bond_max_lengths",
+        "max_atoms_for_bonds",
+        "include_periodic_images",
+        "periodic_image_depth",
+    }
+    scene_kwargs = {key: kwargs.pop(key) for key in tuple(kwargs) if key in scene_keys}
+    return scene_kwargs, kwargs
+
+
 def _bonds_trace(go, frame: PrimitiveSet):
-    positions = {atom.atom_id: atom.position for atom in frame.atoms}
+    positions = {
+        atom.atom_id: atom.position
+        for atom in frame.atoms
+        if atom.image_of_atom_id is None
+    }
     x: list[float | None] = []
     y: list[float | None] = []
     z: list[float | None] = []
     for bond in frame.bonds:
-        first = positions.get(bond.first_atom_id)
-        second = positions.get(bond.second_atom_id)
+        first = bond.start if bond.start is not None else positions.get(bond.first_atom_id)
+        second = bond.end if bond.end is not None else positions.get(bond.second_atom_id)
         if first is None or second is None:
             continue
         x.extend([first[0], second[0], None])

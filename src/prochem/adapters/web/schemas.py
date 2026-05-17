@@ -29,6 +29,8 @@ class AtomPrimitiveSchema(WebSchema):
     position: Vec3Schema
     radius: float
     color: ColorSchema
+    image_of_atom_id: int | None = None
+    image_shift: tuple[int, int, int] | None = None
 
 
 class BondPrimitiveSchema(WebSchema):
@@ -36,6 +38,9 @@ class BondPrimitiveSchema(WebSchema):
     second_atom_id: int
     radius: float = 0.08
     color: ColorSchema = (0.7, 0.7, 0.7, 1.0)
+    start: Vec3Schema | None = None
+    end: Vec3Schema | None = None
+    image_shift: tuple[int, int, int] | None = None
 
 
 class CellPrimitiveSchema(WebSchema):
@@ -79,9 +84,14 @@ class SceneOptionsSchema(WebSchema):
     include_cell: bool = True
     include_axes: bool = True
     atom_radius_scale: float = Field(default=0.35, gt=0.0)
+    atom_radius_scales: dict[str, float] | None = None
+    atom_colors: dict[str, ColorSchema | tuple[float, float, float] | str] | None = None
     bond_radius: float = Field(default=0.08, gt=0.0)
     bond_scale: float = Field(default=1.25, gt=0.0)
+    bond_max_lengths: dict[str, float] | None = None
     max_atoms_for_bonds: int = Field(default=500, ge=0)
+    include_periodic_images: bool = True
+    periodic_image_depth: int = Field(default=1, ge=0)
 
     def to_scene_kwargs(self) -> dict[str, Any]:
         """Return keyword arguments accepted by rendering.scene helpers."""

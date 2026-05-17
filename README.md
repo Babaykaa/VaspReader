@@ -102,7 +102,14 @@ from prochem.rendering import to_scene_data
 from prochem.adapters.jupyter import scene_figure, scene_animation
 
 calculation = parse("vasprun.xml")
-scene = to_scene_data(calculation, frame_indices=[0, calculation.step_count - 1])
+scene = to_scene_data(
+    calculation,
+    frame_indices=[0, calculation.step_count - 1],
+    atom_colors={"Si": "#d9b36c", "O": "#e74c3c"},
+    atom_radius_scales={"H": 0.65, "Si": 1.15},
+    bond_max_lengths={"Si-O": 2.1, ("O", "H"): 1.2},
+    periodic_image_depth=1,
+)
 
 fig = scene_figure(scene, frame_index=0)
 fig.show()
@@ -226,6 +233,25 @@ frame = scene.frame(0)
 
 print(len(frame.atoms), len(frame.bonds), frame.cell is not None)
 ```
+
+Rendering customization is applied before a backend sees the data:
+
+```python
+scene = to_scene_data(
+    calculation,
+    atom_colors={"C": "#444444", "H": (1.0, 1.0, 1.0, 1.0)},
+    atom_radius_scales={"H": 0.7, "O": 1.2},
+    bond_max_lengths={"C-H": 1.25, "C-O": 1.55},
+    include_periodic_images=True,
+    periodic_image_depth=1,
+)
+```
+
+For periodic systems, inferred bonds use minimum-image endpoints. When a
+connected component crosses the cell boundary, `SceneData` adds the required
+image atoms and image bonds in neighboring cells, so Plotly can draw the local
+molecular fragment instead of a line through the whole cell. The default
+`periodic_image_depth=1` keeps this bounded to adjacent periodic images.
 
 ## Examples
 

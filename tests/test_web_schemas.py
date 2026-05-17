@@ -37,6 +37,10 @@ def test_scene_options_schema_returns_rendering_kwargs() -> None:
     options = SceneOptionsSchema(
         frame_indices=[0, 2],
         include_bonds=False,
+        atom_colors={"O": "#ff0000"},
+        atom_radius_scales={"H": 0.7},
+        bond_max_lengths={"O-H": 1.2},
+        periodic_image_depth=2,
         max_atoms_for_bonds=0,
     )
 
@@ -44,6 +48,10 @@ def test_scene_options_schema_returns_rendering_kwargs() -> None:
 
     assert kwargs["frame_indices"] == (0, 2)
     assert kwargs["include_bonds"] is False
+    assert kwargs["atom_colors"] == {"O": "#ff0000"}
+    assert kwargs["atom_radius_scales"] == {"H": 0.7}
+    assert kwargs["bond_max_lengths"] == {"O-H": 1.2}
+    assert kwargs["periodic_image_depth"] == 2
     assert kwargs["max_atoms_for_bonds"] == 0
 
 

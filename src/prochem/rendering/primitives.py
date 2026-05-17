@@ -16,6 +16,8 @@ class AtomPrimitive:
     position: Vec3
     radius: float
     color: Color
+    image_of_atom_id: int | None = None
+    image_shift: tuple[int, int, int] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +26,9 @@ class BondPrimitive:
     second_atom_id: int
     radius: float = 0.08
     color: Color = (0.7, 0.7, 0.7, 1.0)
+    start: Vec3 | None = None
+    end: Vec3 | None = None
+    image_shift: tuple[int, int, int] | None = None
 
 
 @dataclass(frozen=True, slots=True)
