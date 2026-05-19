@@ -13,7 +13,7 @@ from prochem.rendering.scene import (
     scene_from_calculation,
     scene_from_dataset,
     scene_from_structure,
-    scene_from_trajectory,
+    scene_from_structures,
     to_scene_data,
 )
 
@@ -28,6 +28,6 @@ __all__ = [
     "scene_from_calculation",
     "scene_from_dataset",
     "scene_from_structure",
-    "scene_from_trajectory",
+    "scene_from_structures",
     "to_scene_data",
 ]

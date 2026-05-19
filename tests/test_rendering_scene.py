@@ -3,12 +3,12 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from prochem.core import Calculation, Cell, Structure, Trajectory
+from prochem.core import Calculation, Cell, Structure, Structures
 from prochem.rendering import (
     SceneData,
     scene_from_calculation,
     scene_from_structure,
-    scene_from_trajectory,
+    scene_from_structures,
     to_scene_data,
 )
 
@@ -34,16 +34,16 @@ def test_scene_from_structure_contains_atoms_bond_cell_and_axes() -> None:
     assert frame.atoms[0].color == (1.0, 1.0, 1.0, 1.0)
 
 
-def test_scene_from_trajectory_selects_frames_and_metadata() -> None:
-    trajectory = Trajectory.from_arrays(
+def test_scene_from_structures_selects_frames_and_metadata() -> None:
+    structures = Structures.from_arrays(
         species=np.array(["O"]),
         positions=np.array([[[0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0]]]),
         time_fs=np.array([0.0, 2.0]),
     )
 
-    scene = scene_from_trajectory(trajectory, frame_indices=[1])
+    scene = scene_from_structures(structures, frame_indices=[1])
 
-    assert scene.metadata["kind"] == "trajectory"
+    assert scene.metadata["kind"] == "structures"
     assert scene.metadata["frame_indices"] == (1,)
     assert scene.frame_count == 1
     assert scene.frame(0).metadata["frame_index"] == 1
@@ -52,11 +52,11 @@ def test_scene_from_trajectory_selects_frames_and_metadata() -> None:
 
 
 def test_scene_from_calculation_and_dispatcher() -> None:
-    trajectory = Trajectory.from_arrays(
+    structures = Structures.from_arrays(
         species=np.array(["C"]),
         positions=np.array([[[0.0, 0.0, 0.0]]]),
     )
-    calculation = Calculation(source="vasprun.xml", engine="vasp", trajectory=trajectory)
+    calculation = Calculation(source="vasprun.xml", engine="vasp", structures=structures)
 
     scene = scene_from_calculation(calculation)
     dispatched = to_scene_data(calculation)
@@ -160,3 +160,65 @@ def test_scene_from_structure_extends_periodic_connected_component() -> None:
     assert image_positions[1] == pytest.approx((-0.1, 5.0, 5.0))
     assert image_positions[2] == pytest.approx((-0.8, 5.0, 5.0))
     assert shifted_bond
+
+
+def test_scene_from_structure_clips_periodic_component_by_cell_distance() -> None:
+    structure = Structure(
+        species=np.array(["H", "H", "H"]),
+        positions=np.array(
+            [
+                [0.1, 5.0, 5.0],
+                [9.9, 5.0, 5.0],
+                [7.5, 5.0, 5.0],
+            ]
+        ),
+        cell=Cell(np.eye(3) * 10.0),
+    )
+
+    scene = scene_from_structure(
+        structure,
+        bond_max_lengths={("H", "H"): 2.5},
+        periodic_image_cutoff=2.0,
+    )
+    frame = scene.frame(0)
+    image_atoms = [atom for atom in frame.atoms if atom.image_of_atom_id is not None]
+    image_positions = [atom.position for atom in image_atoms]
+    far_bond = [
+        bond
+        for bond in frame.bonds
+        if bond.start == pytest.approx((-0.1, 5.0, 5.0))
+        and bond.end == pytest.approx((-2.5, 5.0, 5.0))
+    ]
+
+    assert any(position == pytest.approx((-0.1, 5.0, 5.0)) for position in image_positions)
+    assert not any(position == pytest.approx((-2.5, 5.0, 5.0)) for position in image_positions)
+    assert not far_bond
+
+
+def test_scene_from_structure_periodic_component_cutoff_fraction() -> None:
+    structure = Structure(
+        species=np.array(["H", "H", "H"]),
+        positions=np.array(
+            [
+                [0.1, 5.0, 5.0],
+                [9.9, 5.0, 5.0],
+                [7.5, 5.0, 5.0],
+            ]
+        ),
+        cell=Cell(np.eye(3) * 10.0),
+    )
+
+    scene = scene_from_structure(
+        structure,
+        bond_max_lengths={("H", "H"): 2.5},
+        periodic_image_cutoff=None,
+        periodic_image_cutoff_fraction=0.3,
+    )
+    frame = scene.frame(0)
+    image_positions = [
+        atom.position
+        for atom in frame.atoms
+        if atom.image_of_atom_id is not None and atom.image_shift == (-1, 0, 0)
+    ]
+
+    assert any(position == pytest.approx((-2.5, 5.0, 5.0)) for position in image_positions)

@@ -72,7 +72,7 @@ class Scene:
         self.__draw_buffer = scene_to_draw_buffer(scene_data, frame_index=frame_index)
 
     def set_frame_index(self, frame_index):
-        """Switches the active SceneData frame when a trajectory slider changes."""
+        """Switches the active SceneData frame when a structures slider changes."""
         if self.__scene_data is not None:
             frame_index = max(0, min(int(frame_index), self.__scene_data.frame_count - 1))
             self.__draw_buffer = scene_to_draw_buffer(self.__scene_data, frame_index=frame_index)

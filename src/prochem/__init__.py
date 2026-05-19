@@ -12,7 +12,7 @@ from prochem.core import (
     ProjectedDensityOfStates,
     Structure,
     StructureDataset,
-    Trajectory,
+    Structures,
 )
 from prochem.rendering import SceneData, to_scene_data
 
@@ -29,6 +29,6 @@ __all__ = [
     "SceneData",
     "Structure",
     "StructureDataset",
-    "Trajectory",
+    "Structures",
     "to_scene_data",
 ]

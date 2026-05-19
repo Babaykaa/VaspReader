@@ -1,4 +1,4 @@
-"""Trajectory assembly utilities."""
+"""Structure-sequence assembly utilities."""
 
 # This file is part of ProChem.
 # ProChem Copyright (C) 2021-2026 A.A.Solovykh - https://github.com/asolovykh
@@ -6,13 +6,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Literal, Optional, Sequence
 
 import numpy as np
 
-from prochem.core.models import Atom, Calculation, Structure, Trajectory
+from prochem.core.models import Atom, Calculation, Structure, Structures
+from prochem.core.structures import Timestep
 
 MergeStatus = Literal[
     "first",
@@ -23,8 +24,8 @@ MergeStatus = Literal[
 
 
 @dataclass(frozen=True, slots=True)
-class TrajectoryMergePolicy:
-    """Policy for joining restarted trajectories."""
+class StructuresMergePolicy:
+    """Policy for joining restarted structure sequences."""
 
     direct_tolerance: float = 1e-4
     cartesian_tolerance: float = 1e-3
@@ -37,7 +38,7 @@ class TrajectoryMergePolicy:
 
 @dataclass(frozen=True, slots=True)
 class MergeEvent:
-    """One boundary decision made while merging trajectories."""
+    """One boundary decision made while merging structure sequences."""
 
     status: MergeStatus
     previous_source: Optional[Path]
@@ -55,14 +56,14 @@ class MergeEvent:
 
 @dataclass(frozen=True, slots=True)
 class MergeReport:
-    """Summary of a trajectory merge."""
+    """Summary of a structure-sequence merge."""
 
     events: tuple[MergeEvent, ...]
     source_files: tuple[Path, ...]
     total_frames: int
     total_atoms: int
     deleted_atom_ids: tuple[int, ...] = ()
-    segment_timestep_fs: tuple[Optional[float], ...] = ()
+    segment_timestep: tuple[Timestep, ...] = ()
     warnings: tuple[str, ...] = ()
 
     @property
@@ -72,19 +73,28 @@ class MergeReport:
 
 
 @dataclass(slots=True)
-class TrajectoryAssembler:
-    """Merge calculations produced by structure/trajectory parsers."""
+class StructuresAssembler:
+    """Merge calculations produced by structure-sequence parsers."""
 
-    policy: TrajectoryMergePolicy = field(default_factory=TrajectoryMergePolicy)
+    policy: StructuresMergePolicy = field(default_factory=StructuresMergePolicy)
 
     def merge_calculations(self, calculations: Sequence[Calculation]) -> tuple[Calculation, MergeReport]:
         """Merge calculations into one calculation and return a report."""
-        prepared = [calculation for calculation in calculations if calculation.trajectory is not None]
+        prepared = [calculation for calculation in calculations if calculation.structures is not None]
         if not prepared:
-            raise ValueError("At least one calculation with a trajectory is required.")
+            raise ValueError("At least one calculation with structures is required.")
 
-        registry = _registry_from_trajectory(prepared[0].trajectory)
-        frames = [_copy_frame_with_ids(frame, frame.atom_ids) for frame in prepared[0].trajectory.frames]
+        registry = _registry_from_structures(prepared[0].structures)
+        frames = [
+            _copy_frame_with_ids(
+                frame,
+                frame.atom_ids,
+                source=prepared[0].structures.sources[index],
+                source_step=index,
+            )
+            for index, frame in enumerate(prepared[0].structures.frames)
+        ]
+        frame_sources = list(prepared[0].structures.sources)
         source_files = [prepared[0].source]
         events = [
             MergeEvent(
@@ -95,20 +105,19 @@ class TrajectoryAssembler:
                 next_step_count=prepared[0].step_count,
                 previous_atom_count=0,
                 next_atom_count=prepared[0].atom_count,
-                message="Initial trajectory segment.",
+                message="Initial structures segment.",
             )
         ]
         deleted_atom_ids: set[int] = set()
-        segment_timestep_fs = [calculation.trajectory.timestep_fs for calculation in prepared]
-        merged_timestep_fs = _merged_timestep(segment_timestep_fs)
-        warnings = _merge_warnings(segment_timestep_fs)
+        segment_timestep: list[tuple[int, Timestep]] = [(0, prepared[0].structures.timestep)]
+        warnings = _merge_warnings([structures.timestep for structures in _structures(prepared)])
 
         for calculation in prepared[1:]:
             source_files.append(calculation.source)
-            next_trajectory = calculation.trajectory
+            next_structures = calculation.structures
             previous_frame = frames[-1]
-            decision = self._decide_boundary(previous_frame, next_trajectory)
-            next_first = next_trajectory.frame(decision.matched_next_frame)
+            decision = self._decide_boundary(previous_frame, next_structures)
+            next_first = next_structures.frame(decision.matched_next_frame)
 
             if decision.status == "mismatch" and not self.policy.allow_mismatch_fallback:
                 raise ValueError(decision.message)
@@ -127,7 +136,7 @@ class TrajectoryAssembler:
                     previous_source=source_files[-2],
                     next_source=calculation.source,
                     previous_step_count=len(frames),
-                    next_step_count=next_trajectory.step_count,
+                    next_step_count=next_structures.step_count,
                     previous_atom_count=previous_frame.atom_count,
                     next_atom_count=next_first.atom_count,
                     dropped_next_frames=decision.dropped_next_frames,
@@ -139,54 +148,57 @@ class TrajectoryAssembler:
             )
 
             time_offset = _time_offset(previous_frame, next_first)
-            for local_step, frame in enumerate(next_trajectory.frames[start_index:], start=start_index):
+            segment_start = len(frames)
+            segment_timestep.append((segment_start, next_structures.timestep))
+            for local_step, frame in enumerate(next_structures.frames[start_index:], start=start_index):
                 frames.append(
                     _copy_frame_with_ids(
                         frame,
                         [mapping[int(atom_id)] for atom_id in frame.atom_ids],
-                        source=calculation.source,
+                        source=next_structures.sources[local_step] or calculation.source,
                         source_step=local_step,
                         time_offset=time_offset,
                     )
                 )
+                frame_sources.append(next_structures.sources[local_step] or calculation.source)
 
-        trajectory = Trajectory(
+        structures = Structures(
             frames=frames,
-            atom_registry=tuple(registry),
-            timestep_fs=merged_timestep_fs,
+            timestep=_merged_timestep(segment_timestep),
+            sources=frame_sources,
             properties={
                 "merged": True,
                 "source_files": tuple(source_files),
-                "segment_timestep_fs": tuple(segment_timestep_fs),
+                "segment_timestep": tuple(value for _, value in segment_timestep),
                 "policy": self.policy,
             },
         )
         calculation = Calculation(
             source=source_files[-1].parent,
             engine=prepared[0].engine,
-            trajectory=trajectory,
+            structures=structures,
             properties={
                 "merged": True,
                 "source_files": tuple(source_files),
-                "segment_timestep_fs": tuple(segment_timestep_fs),
+                "segment_timestep": tuple(value for _, value in segment_timestep),
             },
             warnings=warnings,
         )
         report = MergeReport(
             events=tuple(events),
             source_files=tuple(source_files),
-            total_frames=trajectory.step_count,
-            total_atoms=trajectory.atom_count,
+            total_frames=structures.step_count,
+            total_atoms=structures.atom_count,
             deleted_atom_ids=tuple(sorted(deleted_atom_ids)),
-            segment_timestep_fs=tuple(segment_timestep_fs),
+            segment_timestep=tuple(value for _, value in segment_timestep),
             warnings=tuple(warnings),
         )
         return calculation, report
 
-    def _decide_boundary(self, previous: Structure, next_trajectory: Trajectory) -> "_BoundaryDecision":
-        search_count = max(1, min(self.policy.boundary_search_frames, next_trajectory.step_count))
+    def _decide_boundary(self, previous: Structure, next_structures: Structures) -> "_BoundaryDecision":
+        search_count = max(1, min(self.policy.boundary_search_frames, next_structures.step_count))
         for next_frame_index in range(search_count):
-            next_frame = next_trajectory.frame(next_frame_index)
+            next_frame = next_structures.frame(next_frame_index)
             if _same_species(previous.species, next_frame.species):
                 max_delta = _frame_max_delta(previous, next_frame)
                 if max_delta is not None and max_delta <= self._active_tolerance(previous, next_frame):
@@ -247,14 +259,18 @@ class _BoundaryDecision:
 
 def merge_calculations(
     calculations: Sequence[Calculation],
-    policy: Optional[TrajectoryMergePolicy] = None,
+    policy: Optional[StructuresMergePolicy] = None,
 ) -> tuple[Calculation, MergeReport]:
     """Merge calculations using the provided policy."""
-    return TrajectoryAssembler(policy or TrajectoryMergePolicy()).merge_calculations(calculations)
+    return StructuresAssembler(policy or StructuresMergePolicy()).merge_calculations(calculations)
 
 
-def _registry_from_trajectory(trajectory: Trajectory) -> list[Atom]:
-    return [replace(record) for record in trajectory.atom_registry]
+def _structures(calculations: Sequence[Calculation]) -> tuple[Structures, ...]:
+    return tuple(calculation.structures for calculation in calculations if calculation.structures is not None)
+
+
+def _registry_from_structures(structures: Structures) -> list[Atom]:
+    return [structures.atom_record(atom_id).copy() for atom_id in structures.atom_ids]
 
 
 def _register_new_atoms(frame: Structure, registry: list[Atom]) -> tuple[dict[int, int], list[Atom]]:
@@ -302,7 +318,13 @@ def _copy_frame_with_ids(
         masses=frame.masses,
         velocities=frame.velocities,
         forces=frame.forces,
+        atom_potential_energies=frame.atom_potential_energies_array(),
+        atom_kinetic_energies=frame.atom_kinetic_energies_array(),
+        atom_total_energies=frame.atom_total_energies_array(),
         stress=frame.stress,
+        potential_energy=frame.potential_energy,
+        kinetic_energy=frame.kinetic_energy,
+        total_energy=frame.total_energy,
         time_fs=time_fs,
         properties=properties,
     )
@@ -374,24 +396,30 @@ def _time_offset(previous: Structure, next_first: Structure) -> Optional[float]:
     return previous.time_fs - next_first.time_fs
 
 
-def _merged_timestep(timesteps: Sequence[Optional[float]]) -> Optional[float]:
-    known = [float(value) for value in timesteps if value is not None]
+def _merged_timestep(segments: Sequence[tuple[int, Timestep]]) -> Timestep:
+    known = [(start, value) for start, value in segments if value is not None]
     if not known:
         return None
-    first = known[0]
-    if all(np.isclose(value, first, rtol=0.0, atol=1e-12) for value in known[1:]):
+    if any(isinstance(value, dict) for _, value in known):
+        merged: dict[int, float] = {}
+        for start, value in known:
+            if isinstance(value, dict):
+                merged.update({start + int(step): float(step_value) for step, step_value in value.items()})
+            else:
+                merged[start] = float(value)
+        return dict(sorted(merged.items()))
+
+    first = float(known[0][1])
+    if all(np.isclose(float(value), first, rtol=0.0, atol=1e-12) for _, value in known[1:]):
         return first
-    return None
+    return {start: float(value) for start, value in known}
 
 
-def _merge_warnings(timesteps: Sequence[Optional[float]]) -> list[str]:
+def _merge_warnings(timesteps: Sequence[Timestep]) -> list[str]:
     warnings = []
-    known = [float(value) for value in timesteps if value is not None]
+    known = [value for value in timesteps if value is not None]
     if len(known) != len(timesteps):
-        warnings.append("Some trajectory segments do not define timestep_fs.")
-    if known and _merged_timestep(timesteps) is None:
-        warnings.append(
-            "Merged trajectory contains segments with different timestep_fs; "
-            "trajectory.timestep_fs is set to None and per-frame time_fs should be used."
-        )
+        warnings.append("Some structure segments do not define timestep.")
+    if len({repr(value) for value in known}) > 1:
+        warnings.append("Merged structures contain segments with different timestep values.")
     return warnings

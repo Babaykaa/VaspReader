@@ -92,6 +92,8 @@ class SceneOptionsSchema(WebSchema):
     max_atoms_for_bonds: int = Field(default=500, ge=0)
     include_periodic_images: bool = True
     periodic_image_depth: int = Field(default=1, ge=0)
+    periodic_image_cutoff: float | None = Field(default=2.0, ge=0.0)
+    periodic_image_cutoff_fraction: float | None = Field(default=None, ge=0.0)
 
     def to_scene_kwargs(self) -> dict[str, Any]:
         """Return keyword arguments accepted by rendering.scene helpers."""
@@ -105,7 +107,7 @@ class CalculationSummary(WebSchema):
     name: str
     engine: str
     source: str
-    kind: Literal["trajectory", "dataset", "structure", "empty"]
+    kind: Literal["structures", "dataset", "structure", "empty"]
     step_count: int
     structure_count: int
     atom_count: int
@@ -116,8 +118,8 @@ class CalculationSummary(WebSchema):
     @classmethod
     def from_calculation(cls, calculation: Calculation) -> "CalculationSummary":
         """Build a compact response object for parsed calculations."""
-        if calculation.trajectory is not None:
-            kind: Literal["trajectory", "dataset", "structure", "empty"] = "trajectory"
+        if calculation.structures is not None:
+            kind: Literal["structures", "dataset", "structure", "empty"] = "structures"
         elif calculation.dataset is not None:
             kind = "dataset"
         elif calculation.structure is not None:

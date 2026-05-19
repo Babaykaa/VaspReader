@@ -20,7 +20,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from prochem.core import TrajectoryMergePolicy  # noqa: E402
+from prochem.core import StructuresMergePolicy  # noqa: E402
 from prochem.io.vasp import discover_vasprun_files, parse_vasprun_sequence  # noqa: E402
 
 
@@ -36,7 +36,7 @@ def main() -> None:
     parser.add_argument("--drop-topology-frame", action="store_true")
     args = parser.parse_args()
 
-    policy = TrajectoryMergePolicy(
+    policy = StructuresMergePolicy(
         allow_mismatch_fallback=not args.no_fallback,
         boundary_search_frames=args.boundary_search_frames,
         keep_topology_change_frame=not args.drop_topology_frame,
@@ -51,9 +51,11 @@ def main() -> None:
         recursive=args.recursive,
         policy=policy,
     )
-    trajectory = calculation.trajectory
-    positions = trajectory.positions_array()
-    mask = trajectory.presence_mask()
+    structures = calculation.structures
+    if structures is None:
+        raise SystemExit("Merged calculation does not contain structures.")
+    positions = structures.positions_array()
+    mask = structures.presence_mask()
 
     print("\nmerge events:")
     for event in report.events:
@@ -64,7 +66,7 @@ def main() -> None:
             f"max_delta={event.max_delta}"
         )
 
-    print("\nmerged trajectory:")
+    print("\nmerged Structures:")
     print(f"  frames: {calculation.step_count}")
     print(f"  registry atoms: {calculation.atom_count}")
     print(f"  positions shape: {positions.shape}")

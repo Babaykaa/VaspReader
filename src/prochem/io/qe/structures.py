@@ -13,7 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
-from prochem.core.models import Calculation, Cell, Trajectory
+from prochem.core.models import Calculation, Cell, Structures
 from prochem.io.base import AbstractParser
 
 logger = logging.getLogger(__name__)
@@ -47,24 +47,25 @@ class Parser(AbstractParser):
 
             input_info = _read_input_file(files["input"])
             cell_vectors = _read_cell_file(files["cell"])
-            positions, time_fs, timestep_fs = _read_position_file(files["positions"])
+            positions, time_fs, timestep = _read_position_file(files["positions"])
             positions = positions / BOHR_PER_ANGSTROM
             direct_positions = positions @ np.linalg.inv(cell_vectors)
 
             species = input_info["species"]
             if species.shape[0] != positions.shape[1]:
                 return self._error_calculation(
-                    "QE input atom count does not match trajectory position count."
+                    "QE input atom count does not match structure-sequence position count."
                 )
 
-            trajectory = Trajectory.from_arrays(
+            structures = Structures.from_arrays(
                 species=species,
                 positions=positions,
                 direct_positions=direct_positions,
                 cell=Cell(cell_vectors),
                 time_fs=time_fs,
-                timestep_fs=timestep_fs,
+                timestep=timestep,
                 masses=input_info["masses"],
+                sources=tuple(files["positions"] for _ in range(positions.shape[0])),
                 properties={
                     "format": "qe-md",
                     "input_file": str(files["input"]),
@@ -75,7 +76,7 @@ class Parser(AbstractParser):
             return Calculation(
                 source=self.source,
                 engine=self.engine,
-                trajectory=trajectory,
+                structures=structures,
                 properties={"file_type": "qe-md"},
             )
         except Exception:
@@ -178,11 +179,11 @@ def _read_position_file(path: Path) -> tuple[np.ndarray, np.ndarray | None, floa
     positions = np.asarray(frames, dtype=np.float64)
     if times_au:
         time_fs = np.asarray(times_au[: positions.shape[0]], dtype=np.float64) * ATOMIC_TIME_TO_FS
-        timestep_fs = float(np.median(np.diff(time_fs))) if time_fs.size > 1 else None
+        timestep = float(np.median(np.diff(time_fs))) if time_fs.size > 1 else None
     else:
         time_fs = None
-        timestep_fs = None
-    return positions, time_fs, timestep_fs
+        timestep = None
+    return positions, time_fs, timestep
 
 
 def _float_from_fortran(value: str) -> float:

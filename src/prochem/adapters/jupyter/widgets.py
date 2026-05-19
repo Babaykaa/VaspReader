@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from prochem.core.models import Calculation, Structure, StructureDataset, Trajectory
+from prochem.core.models import Calculation, Structure, StructureDataset, Structures
 from prochem.rendering import SceneData, to_scene_data
 
 
-def trajectory_slider(
-    value: SceneData | Calculation | StructureDataset | Trajectory | Structure,
+def structures_slider(
+    value: SceneData | Calculation | StructureDataset | Structures | Structure,
     *,
     atom_size_scale: float = 28.0,
 ):
@@ -54,5 +54,5 @@ def _graph_objects():
     return go
 
 
-__all__ = ["trajectory_slider"]
+__all__ = ["structures_slider"]
 

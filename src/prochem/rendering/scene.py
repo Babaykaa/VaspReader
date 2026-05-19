@@ -7,7 +7,7 @@ from typing import Iterable, Mapping, Sequence
 
 import numpy as np
 
-from prochem.core.models import Calculation, Structure, StructureDataset, Trajectory
+from prochem.core.models import Calculation, Structure, StructureDataset, Structures
 from prochem.core.periodic_table import covalent_radius, element
 from prochem.rendering.primitives import (
     AtomPrimitive,
@@ -68,6 +68,8 @@ def scene_from_structure(
     max_atoms_for_bonds: int = 500,
     include_periodic_images: bool = True,
     periodic_image_depth: int = 1,
+    periodic_image_cutoff: float | None = 2.0,
+    periodic_image_cutoff_fraction: float | None = None,
     metadata: dict[str, object] | None = None,
 ) -> SceneData:
     """Convert one structure into backend-independent scene data."""
@@ -87,6 +89,8 @@ def scene_from_structure(
                 max_atoms_for_bonds=max_atoms_for_bonds,
                 include_periodic_images=include_periodic_images,
                 periodic_image_depth=periodic_image_depth,
+                periodic_image_cutoff=periodic_image_cutoff,
+                periodic_image_cutoff_fraction=periodic_image_cutoff_fraction,
             ),
         ),
         name=name,
@@ -98,8 +102,8 @@ def scene_from_structure(
     )
 
 
-def scene_from_trajectory(
-    trajectory: Trajectory,
+def scene_from_structures(
+    structures: Structures,
     *,
     frame_indices: Sequence[int] | None = None,
     name: str = "",
@@ -115,13 +119,15 @@ def scene_from_trajectory(
     max_atoms_for_bonds: int = 500,
     include_periodic_images: bool = True,
     periodic_image_depth: int = 1,
+    periodic_image_cutoff: float | None = 2.0,
+    periodic_image_cutoff_fraction: float | None = None,
     metadata: dict[str, object] | None = None,
 ) -> SceneData:
-    """Convert selected trajectory frames into scene data."""
-    indices = tuple(range(trajectory.step_count)) if frame_indices is None else tuple(frame_indices)
+    """Convert selected structure-sequence frames into scene data."""
+    indices = tuple(range(structures.step_count)) if frame_indices is None else tuple(frame_indices)
     frames = tuple(
         primitive_set_from_structure(
-            trajectory.frame(index),
+            structures.frame(index),
             include_bonds=include_bonds,
             include_cell=include_cell,
             include_axes=include_axes,
@@ -134,9 +140,11 @@ def scene_from_trajectory(
             max_atoms_for_bonds=max_atoms_for_bonds,
             include_periodic_images=include_periodic_images,
             periodic_image_depth=periodic_image_depth,
+            periodic_image_cutoff=periodic_image_cutoff,
+            periodic_image_cutoff_fraction=periodic_image_cutoff_fraction,
             metadata={
                 "frame_index": index,
-                "time_fs": trajectory.frame(index).time_fs,
+                "time_fs": structures.frame(index).time_fs,
             },
         )
         for index in indices
@@ -145,10 +153,10 @@ def scene_from_trajectory(
         frames=frames,
         name=name,
         metadata={
-            "kind": "trajectory",
+            "kind": "structures",
             "frame_indices": indices,
-            "step_count": trajectory.step_count,
-            "atom_count": trajectory.atom_count,
+            "step_count": structures.step_count,
+            "atom_count": structures.atom_count,
             **(metadata or {}),
         },
     )
@@ -171,6 +179,8 @@ def scene_from_dataset(
     max_atoms_for_bonds: int = 500,
     include_periodic_images: bool = True,
     periodic_image_depth: int = 1,
+    periodic_image_cutoff: float | None = 2.0,
+    periodic_image_cutoff_fraction: float | None = None,
     metadata: dict[str, object] | None = None,
 ) -> SceneData:
     """Convert independent dataset structures into scene frames."""
@@ -194,6 +204,8 @@ def scene_from_dataset(
             max_atoms_for_bonds=max_atoms_for_bonds,
             include_periodic_images=include_periodic_images,
             periodic_image_depth=periodic_image_depth,
+            periodic_image_cutoff=periodic_image_cutoff,
+            periodic_image_cutoff_fraction=periodic_image_cutoff_fraction,
             metadata={
                 "dataset_index": index,
                 "source": None if dataset.source(index) is None else str(dataset.source(index)),
@@ -230,6 +242,8 @@ def scene_from_calculation(
     max_atoms_for_bonds: int = 500,
     include_periodic_images: bool = True,
     periodic_image_depth: int = 1,
+    periodic_image_cutoff: float | None = 2.0,
+    periodic_image_cutoff_fraction: float | None = None,
 ) -> SceneData:
     """Convert a parsed calculation to scene data using its best structure container."""
     scene_name = calculation.name if name is None else name
@@ -251,11 +265,13 @@ def scene_from_calculation(
         "max_atoms_for_bonds": max_atoms_for_bonds,
         "include_periodic_images": include_periodic_images,
         "periodic_image_depth": periodic_image_depth,
+        "periodic_image_cutoff": periodic_image_cutoff,
+        "periodic_image_cutoff_fraction": periodic_image_cutoff_fraction,
         "metadata": metadata,
     }
-    if calculation.trajectory is not None:
-        return scene_from_trajectory(
-            calculation.trajectory,
+    if calculation.structures is not None:
+        return scene_from_structures(
+            calculation.structures,
             frame_indices=frame_indices,
             **kwargs,
         )
@@ -286,6 +302,8 @@ def primitive_set_from_structure(
     max_atoms_for_bonds: int = 500,
     include_periodic_images: bool = True,
     periodic_image_depth: int = 1,
+    periodic_image_cutoff: float | None = 2.0,
+    periodic_image_cutoff_fraction: float | None = None,
     metadata: dict[str, object] | None = None,
 ) -> PrimitiveSet:
     """Convert one Structure frame into atoms, optional bonds, cell and axes primitives."""
@@ -299,8 +317,9 @@ def primitive_set_from_structure(
                 str(structure.species[index]),
                 atom_radius_scale,
                 atom_radius_scales,
+                structure.atoms[index],
             ),
-            color=_atom_color(str(structure.species[index]), atom_colors),
+            color=_atom_color(str(structure.species[index]), atom_colors, structure.atoms[index]),
         )
         for index in local_indices
     )
@@ -318,6 +337,8 @@ def primitive_set_from_structure(
             atom_colors=atom_colors,
             include_periodic_images=include_periodic_images,
             periodic_image_depth=periodic_image_depth,
+            periodic_image_cutoff=periodic_image_cutoff,
+            periodic_image_cutoff_fraction=periodic_image_cutoff_fraction,
         )
     else:
         bonds = tuple()
@@ -330,13 +351,15 @@ def primitive_set_from_structure(
             "atom_count": len(atoms),
             "image_atom_count": len(image_atoms),
             "bonds_inferred": should_infer_bonds,
+            "periodic_image_cutoff": periodic_image_cutoff,
+            "periodic_image_cutoff_fraction": periodic_image_cutoff_fraction,
             **(metadata or {}),
         },
     )
 
 
 def to_scene_data(
-    value: Calculation | StructureDataset | Trajectory | Structure,
+    value: Calculation | StructureDataset | Structures | Structure,
     **kwargs,
 ) -> SceneData:
     """Dispatch helper for user code that already has a ProChem object."""
@@ -344,8 +367,8 @@ def to_scene_data(
         return scene_from_calculation(value, **kwargs)
     if isinstance(value, StructureDataset):
         return scene_from_dataset(value, **kwargs)
-    if isinstance(value, Trajectory):
-        return scene_from_trajectory(value, **kwargs)
+    if isinstance(value, Structures):
+        return scene_from_structures(value, **kwargs)
     if isinstance(value, Structure):
         return scene_from_structure(value, **kwargs)
     raise TypeError(f"Cannot convert {type(value).__name__} to SceneData.")
@@ -368,14 +391,26 @@ def _infer_bonds(
     atom_colors: Mapping[str, ColorInput] | None,
     include_periodic_images: bool,
     periodic_image_depth: int,
+    periodic_image_cutoff: float | None,
+    periodic_image_cutoff_fraction: float | None,
 ) -> tuple[tuple[BondPrimitive, ...], tuple[AtomPrimitive, ...]]:
     indices = tuple(local_indices)
     pair_limits = _normalize_bond_max_lengths(max_lengths)
     fractional = _fractional_positions(structure)
     edges = _bond_edges(structure, indices, scale, pair_limits, fractional)
+    cutoff = _periodic_image_cutoff_distance(
+        structure,
+        periodic_image_cutoff,
+        periodic_image_cutoff_fraction,
+    )
     bonds: list[BondPrimitive] = [
         _bond_primitive(structure, edge, (0, 0, 0), radius=radius)
         for edge in edges
+        if edge.image_shift == (0, 0, 0)
+        or (
+            include_periodic_images
+            and _image_within_cutoff(structure, edge.second, edge.image_shift, cutoff)
+        )
     ]
     image_atoms: dict[tuple[int, tuple[int, int, int]], AtomPrimitive] = {}
     image_bonds: set[tuple[int, int, tuple[int, int, int]]] = set()
@@ -385,6 +420,7 @@ def _infer_bonds(
             structure,
             edges,
             depth=periodic_image_depth,
+            cutoff=cutoff,
             atom_radius_scale=atom_radius_scale,
             atom_radius_scales=atom_radius_scales,
             atom_colors=atom_colors,
@@ -437,6 +473,7 @@ def _periodic_component_images(
     edges: tuple[_BondEdge, ...],
     *,
     depth: int,
+    cutoff: float | None,
     atom_radius_scale: float,
     atom_radius_scales: Mapping[str, float] | None,
     atom_colors: Mapping[str, ColorInput] | None,
@@ -456,6 +493,7 @@ def _periodic_component_images(
             edge.second,
             edge.image_shift,
             depth,
+            cutoff,
             image_atoms,
             queue,
             structure,
@@ -468,6 +506,7 @@ def _periodic_component_images(
             edge.first,
             reverse_shift,
             depth,
+            cutoff,
             image_atoms,
             queue,
             structure,
@@ -480,7 +519,12 @@ def _periodic_component_images(
         atom_index, atom_shift = queue.pop(0)
         for other_index, other_relative_shift in adjacency[atom_index]:
             other_shift = _add_shift(atom_shift, other_relative_shift)
-            if other_shift != (0, 0, 0) and max(abs(component) for component in other_shift) > depth:
+            if (
+                other_shift != (0, 0, 0)
+                and max(abs(component) for component in other_shift) > depth
+            ):
+                continue
+            if not _image_within_cutoff(structure, other_index, other_shift, cutoff):
                 continue
             first, second, first_shift = _canonical_bond_key(
                 atom_index,
@@ -497,6 +541,7 @@ def _periodic_component_images(
                 other_index,
                 other_shift,
                 depth,
+                cutoff,
                 image_atoms,
                 queue,
                 structure,
@@ -522,6 +567,7 @@ def _queue_image(
     atom_index: int,
     shift: tuple[int, int, int],
     depth: int,
+    cutoff: float | None,
     image_atoms: dict[tuple[int, tuple[int, int, int]], AtomPrimitive],
     queue: list[tuple[int, tuple[int, int, int]]],
     structure: Structure,
@@ -530,6 +576,8 @@ def _queue_image(
     atom_colors: Mapping[str, ColorInput] | None,
 ) -> None:
     if shift == (0, 0, 0) or max(abs(component) for component in shift) > depth:
+        return
+    if not _image_within_cutoff(structure, atom_index, shift, cutoff):
         return
     atom_id = int(structure.atom_ids[atom_index])
     key = (atom_id, shift)
@@ -540,8 +588,13 @@ def _queue_image(
         atom_id=atom_id,
         symbol=symbol,
         position=_vec3(_shifted_position(structure, atom_index, shift)),
-        radius=_atom_radius(symbol, atom_radius_scale, atom_radius_scales),
-        color=_atom_color(symbol, atom_colors),
+        radius=_atom_radius(
+            symbol,
+            atom_radius_scale,
+            atom_radius_scales,
+            structure.atoms[atom_index],
+        ),
+        color=_atom_color(symbol, atom_colors, structure.atoms[atom_index]),
         image_of_atom_id=atom_id,
         image_shift=shift,
     )
@@ -591,6 +644,47 @@ def _shifted_position(
     return position + np.asarray(shift, dtype=np.float64) @ structure.cell.vectors
 
 
+def _periodic_image_cutoff_distance(
+    structure: Structure,
+    cutoff: float | None,
+    cutoff_fraction: float | None,
+) -> float | None:
+    distances = []
+    if cutoff is not None:
+        distances.append(float(cutoff))
+    if cutoff_fraction is not None and structure.cell is not None:
+        lengths = np.linalg.norm(structure.cell.vectors, axis=1)
+        distances.append(float(cutoff_fraction) * float(np.min(lengths)))
+    if not distances:
+        return None
+    value = min(distances)
+    if value < 0.0:
+        raise ValueError("Periodic image cutoff must be non-negative.")
+    return value
+
+
+def _image_within_cutoff(
+    structure: Structure,
+    atom_index: int,
+    shift: tuple[int, int, int],
+    cutoff: float | None,
+) -> bool:
+    if cutoff is None or structure.cell is None or shift == (0, 0, 0):
+        return True
+    position = _shifted_position(structure, atom_index, shift)
+    distance = _distance_to_cell(structure, position)
+    return distance <= cutoff + 1.0e-12
+
+
+def _distance_to_cell(structure: Structure, position: np.ndarray) -> float:
+    if structure.cell is None:
+        return 0.0
+    fractional = np.asarray(position, dtype=np.float64) @ np.linalg.inv(structure.cell.vectors)
+    nearest_fractional = np.clip(fractional, 0.0, 1.0)
+    nearest_position = nearest_fractional @ structure.cell.vectors
+    return float(np.linalg.norm(position - nearest_position))
+
+
 def _add_shift(
     first: tuple[int, int, int],
     second: tuple[int, int, int],
@@ -616,14 +710,18 @@ def _atom_radius(
     symbol: str,
     scale: float,
     type_scales: Mapping[str, float] | None,
+    atom=None,
 ) -> float:
     symbol_scale = 1.0 if type_scales is None else float(type_scales.get(symbol, 1.0))
-    return (covalent_radius(symbol) or 0.75) * scale * symbol_scale
+    base = float(atom.size) if atom is not None else (covalent_radius(symbol) or 0.75)
+    return base * scale * symbol_scale
 
 
-def _atom_color(symbol: str, colors: Mapping[str, ColorInput] | None = None) -> Color:
+def _atom_color(symbol: str, colors: Mapping[str, ColorInput] | None = None, atom=None) -> Color:
     if colors is not None and symbol in colors:
         return _normalize_color(colors[symbol])
+    if atom is not None:
+        return _normalize_color(atom.color)
     item = element(symbol)
     rgb = (0.6, 0.6, 0.6) if item is None else item.color
     return (float(rgb[0]), float(rgb[1]), float(rgb[2]), 1.0)
@@ -743,6 +841,6 @@ __all__ = [
     "scene_from_calculation",
     "scene_from_dataset",
     "scene_from_structure",
-    "scene_from_trajectory",
+    "scene_from_structures",
     "to_scene_data",
 ]

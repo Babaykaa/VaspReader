@@ -1025,7 +1025,7 @@ model cell and axes.\n5. The position of the light can now be set by 8 edges of 
 option to change the background.\n7. In the latest version, an orthogonal view of the model with the mode of selecting \
 atoms has been added.\n8. NEW PERFECT FEATURE: The camera can be moved in all directions. You can find the binding \
 keys in the visual description of the window.\n9. The bonds calculation function now activates the bonds editing \
-window with 3 modes: all bonds, selected bonds and the drawing trajectory tab. A description of these options can be \
+window with 3 modes: all bonds, selected bonds and the drawing structures tab. A description of these options can be \
 found in the update history.\n10. Reworked windows OSZICAR, POSCAR. The new graphical interface for these windows \
 allows, for example, checking curves from an OSZICAR file or drawing POSCAR/CONTCAR files in the visual window.\n'''
         self.get_print_window.add_message(message)

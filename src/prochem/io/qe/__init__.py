@@ -1,6 +1,6 @@
 """Quantum ESPRESSO parsers."""
 
-from prochem.io.qe.trajectory import Parser
+from prochem.io.qe.structures import Parser
 
 __all__ = ["Parser"]
 

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import pytest
+import numpy as np
 
-from prochem.core import TrajectoryMergePolicy
+from prochem.core import StructuresMergePolicy
 from prochem.io.vasp import parse_vasprun_sequence
 
 
@@ -26,14 +27,21 @@ def test_parse_vasprun_sequence_drops_exact_restart_overlap(tmp_path) -> None:
 
     calculation, report = parse_vasprun_sequence(
         tmp_path,
-        policy=TrajectoryMergePolicy(boundary_search_frames=2, allow_mismatch_fallback=False),
+        policy=StructuresMergePolicy(boundary_search_frames=2, allow_mismatch_fallback=False),
     )
 
     assert report.events[1].status == "exact_overlap"
     assert report.events[1].dropped_next_frames == 1
-    assert calculation.trajectory.step_count == 3
-    assert calculation.trajectory.atom_count == 2
-    assert calculation.trajectory.frame(-1).properties["source_step"] == 1
+    assert calculation.structures.step_count == 3
+    assert calculation.structures.atom_count == 2
+    assert calculation.structures.frame(-1).properties["source_step"] == 1
+    assert calculation.structures.source(-1).name == "vasprun2.xml"
+    assert calculation.structures.structure_potential_energies_array().shape == (3,)
+    np.testing.assert_allclose(
+        calculation.structures.structure_total_energies_array(),
+        calculation.structures.structure_potential_energies_array()
+        + calculation.structures.structure_kinetic_energies_array(),
+    )
 
 
 def test_parse_vasprun_sequence_keeps_topology_change_frame_for_deletion(tmp_path) -> None:
@@ -56,21 +64,21 @@ def test_parse_vasprun_sequence_keeps_topology_change_frame_for_deletion(tmp_pat
 
     calculation, report = parse_vasprun_sequence(
         tmp_path,
-        policy=TrajectoryMergePolicy(
+        policy=StructuresMergePolicy(
             boundary_search_frames=1,
             allow_mismatch_fallback=False,
             keep_topology_change_frame=True,
         ),
     )
-    trajectory = calculation.trajectory
+    structures = calculation.structures
 
     assert report.events[1].status == "deletion_overlap"
     assert report.events[1].deleted_atom_ids == (1,)
     assert report.deleted_atom_ids == (1,)
-    assert trajectory.step_count == 4
-    assert trajectory.atom_count == 3
-    assert trajectory.frame(2).atom_ids.tolist() == [0, 2]
-    assert trajectory.presence_mask()[2].tolist() == [True, False, True]
+    assert structures.step_count == 4
+    assert structures.atom_count == 3
+    assert structures.frame(2).atom_ids.tolist() == [0, 2]
+    assert structures.presence_mask()[2].tolist() == [True, False, True]
 
 
 def test_parse_vasprun_sequence_no_fallback_raises_on_mismatch(tmp_path) -> None:
@@ -94,7 +102,7 @@ def test_parse_vasprun_sequence_no_fallback_raises_on_mismatch(tmp_path) -> None
     with pytest.raises(ValueError, match="Boundary frames could not be matched"):
         parse_vasprun_sequence(
             tmp_path,
-            policy=TrajectoryMergePolicy(boundary_search_frames=1, allow_mismatch_fallback=False),
+            policy=StructuresMergePolicy(boundary_search_frames=1, allow_mismatch_fallback=False),
         )
 
 
@@ -128,6 +136,10 @@ def _write_vasprun(path, symbols: list[str], direct_frames: list[list[list[float
         rows.extend(
             [
                 "  <calculation>",
+                "    <energy>",
+                f"      <i name=\"e_fr_energy\">{-float(len(rows))}</i>",
+                "      <i name=\"kinetic\">1.5</i>",
+                "    </energy>",
                 '    <varray name="basis">',
                 "      <v>10.0 0.0 0.0</v>",
                 "      <v>0.0 10.0 0.0</v>",
@@ -152,4 +164,3 @@ def _write_vasprun(path, symbols: list[str], direct_frames: list[list[list[float
         )
     rows.append("</modeling>")
     path.write_text("\n".join(rows), encoding="utf-8")
-

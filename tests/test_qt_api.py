@@ -10,7 +10,7 @@ from prochem.adapters.qt.api import (
     scene_to_draw_buffer,
     value_to_draw_buffer,
 )
-from prochem.core import Calculation, Cell, Structure, Trajectory
+from prochem.core import Calculation, Cell, Structure, Structures
 from prochem.rendering import to_scene_data
 
 
@@ -51,15 +51,15 @@ def test_qt_api_converts_bonds_to_line_segments() -> None:
 
 
 def test_qt_api_builds_calculation_entry_from_current_core_model() -> None:
-    trajectory = Trajectory.from_arrays(
+    structures = Structures.from_arrays(
         species=np.array(["C"]),
         positions=np.array([[[0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0]]]),
     )
-    calculation = Calculation(source="vasprun.xml", engine="vasp", trajectory=trajectory)
+    calculation = Calculation(source="vasprun.xml", engine="vasp", structures=structures)
 
     entry = calculation_entry(calculation)
 
-    assert calculation_kind(calculation) == "trajectory"
+    assert calculation_kind(calculation) == "structures"
     assert calculation_step_count(calculation) == 2
     assert entry.as_legacy_dict()["calculations"] == [calculation]
     assert entry.scene is not None
@@ -68,13 +68,13 @@ def test_qt_api_builds_calculation_entry_from_current_core_model() -> None:
 
 
 def test_qt_api_can_select_single_frame_for_draw_buffer() -> None:
-    trajectory = Trajectory.from_arrays(
+    structures = Structures.from_arrays(
         species=np.array(["C"]),
         positions=np.array([[[0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0]]]),
     )
     options = QtSceneOptions(frame_indices=(1,))
 
-    draw_buffer = value_to_draw_buffer(trajectory, options=options, frame_index=1)
+    draw_buffer = value_to_draw_buffer(structures, options=options, frame_index=1)
     positions = next(iter(draw_buffer["Sphere"].values()))
 
     assert positions == [(1.0, 0.0, 0.0)]

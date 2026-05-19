@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Mapping, Sequence
 
-from prochem.core.models import Calculation, Structure, StructureDataset, Trajectory
+from prochem.core.models import Calculation, Structure, StructureDataset, Structures
 from prochem.io import parse
 from prochem.rendering import SceneData, to_scene_data
 
@@ -41,6 +41,8 @@ class QtSceneOptions:
     max_atoms_for_bonds: int = 500
     include_periodic_images: bool = True
     periodic_image_depth: int = 1
+    periodic_image_cutoff: float | None = 2.0
+    periodic_image_cutoff_fraction: float | None = None
 
     def to_scene_kwargs(self) -> dict[str, object]:
         return {
@@ -57,6 +59,8 @@ class QtSceneOptions:
             "max_atoms_for_bonds": self.max_atoms_for_bonds,
             "include_periodic_images": self.include_periodic_images,
             "periodic_image_depth": self.periodic_image_depth,
+            "periodic_image_cutoff": self.periodic_image_cutoff,
+            "periodic_image_cutoff_fraction": self.periodic_image_cutoff_fraction,
         }
 
 
@@ -89,8 +93,8 @@ def parse_calculation(path: str | Path) -> Calculation:
 
 
 def calculation_kind(calculation: Calculation) -> str:
-    if calculation.trajectory is not None:
-        return "trajectory"
+    if calculation.structures is not None:
+        return "structures"
     if calculation.dataset is not None:
         return "dataset"
     if calculation.structure is not None:
@@ -100,8 +104,8 @@ def calculation_kind(calculation: Calculation) -> str:
 
 def calculation_step_count(calculation: Calculation) -> int:
     """Return the number of renderable frames for a calculation."""
-    if calculation.trajectory is not None:
-        return calculation.trajectory.step_count
+    if calculation.structures is not None:
+        return calculation.structures.step_count
     if calculation.dataset is not None:
         return calculation.dataset.structure_count
     if calculation.structure is not None:
@@ -160,7 +164,7 @@ def scene_from_calculation(
 
 
 def scene_from_value(
-    value: Calculation | StructureDataset | Trajectory | Structure | SceneData,
+    value: Calculation | StructureDataset | Structures | Structure | SceneData,
     *,
     options: QtSceneOptions | None = None,
     frame_index: int | None = None,
@@ -171,7 +175,7 @@ def scene_from_value(
         return scene_from_calculation(value, options=options, frame_index=frame_index)
     options = QtSceneOptions() if options is None else options
     kwargs = options.to_scene_kwargs()
-    if frame_index is not None and isinstance(value, (Trajectory, StructureDataset)):
+    if frame_index is not None and isinstance(value, (Structures, StructureDataset)):
         kwargs["frame_indices"] = (int(frame_index),)
     return to_scene_data(value, **kwargs)
 
@@ -253,7 +257,7 @@ def _cell_corners(vectors: tuple[Vec3, Vec3, Vec3]) -> tuple[Vec3, ...]:
 
 
 def value_to_draw_buffer(
-    value: Calculation | StructureDataset | Trajectory | Structure | SceneData,
+    value: Calculation | StructureDataset | Structures | Structure | SceneData,
     *,
     options: QtSceneOptions | None = None,
     frame_index: int = 0,

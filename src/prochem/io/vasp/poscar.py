@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from prochem.core.models import Calculation, Cell, Trajectory
+from prochem.core.models import Calculation, Cell, Structures
 from prochem.io.vasp.common import (
     VASPfileType,
     error_calculation,
@@ -24,16 +24,17 @@ def read_poscar(source: Path, file_type: VASPfileType, engine: str = "vasp") -> 
         parsed = parse_poscar_lines(lines)
     except ValueError as error:
         return error_calculation(source, engine, str(error))
-    trajectory = Trajectory.from_arrays(
+    structures = Structures.from_arrays(
         species=parsed["species"],
         positions=parsed["positions"],
         direct_positions=parsed["direct_positions"],
         cell=Cell(parsed["cell"]),
+        sources=(source,),
     )
     return Calculation(
         source=source,
         engine=engine,
-        trajectory=trajectory,
+        structures=structures,
         properties={
             "file_type": file_type.value,
             "comment": parsed["comment"],
@@ -45,7 +46,7 @@ def read_poscar(source: Path, file_type: VASPfileType, engine: str = "vasp") -> 
 
 
 def read_xdatcar(source: Path, file_type: VASPfileType, engine: str = "vasp") -> Calculation:
-    """Read VASP XDATCAR trajectory files."""
+    """Read VASP XDATCAR structure-sequence files."""
     lines = read_nonempty_lines(source)
     try:
         header = parse_xdatcar_header(lines)
@@ -76,21 +77,22 @@ def read_xdatcar(source: Path, file_type: VASPfileType, engine: str = "vasp") ->
         cursor += atom_count
 
     if not frames:
-        return error_calculation(source, engine, "No XDATCAR trajectory frames were found.")
+        return error_calculation(source, engine, "No XDATCAR structure frames were found.")
 
     direct_positions = np.asarray(frames, dtype=np.float64)
     positions = direct_positions @ header["cell"]
-    trajectory = Trajectory.from_arrays(
+    structures = Structures.from_arrays(
         species=header["species"],
         positions=positions,
         direct_positions=direct_positions,
         cell=Cell(header["cell"]),
+        sources=tuple(source for _ in range(len(frames))),
         properties={"format": "XDATCAR"},
     )
     return Calculation(
         source=source,
         engine=engine,
-        trajectory=trajectory,
+        structures=structures,
         properties={
             "file_type": file_type.value,
             "comment": header["comment"],
@@ -123,16 +125,17 @@ def read_chgcar(source: Path, file_type: VASPfileType, engine: str = "vasp") -> 
         return error_calculation(source, engine, "Charge-density block ended before the grid was complete.")
 
     density = np.asarray(values[:value_count], dtype=np.float64).reshape(tuple(grid), order="F")
-    trajectory = Trajectory.from_arrays(
+    structures = Structures.from_arrays(
         species=parsed["species"],
         positions=parsed["positions"],
         direct_positions=parsed["direct_positions"],
         cell=Cell(parsed["cell"]),
+        sources=(source,),
     )
     return Calculation(
         source=source,
         engine=engine,
-        trajectory=trajectory,
+        structures=structures,
         properties={
             "file_type": file_type.value,
             "comment": parsed["comment"],
@@ -257,4 +260,3 @@ def parse_xdatcar_header(lines: list[str]) -> dict:
         "species": species_from_symbols_counts(symbols, counts),
         "positions_start": cursor,
     }
-

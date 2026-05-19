@@ -72,3 +72,47 @@ def error_calculation(source: Path, engine: str, message: str) -> Calculation:
         engine=engine,
         errors=CalculationError(exist=True, message=message),
     )
+
+
+def derive_potential_kinetic_arrays(
+    potentials: list[float | None],
+    kinetics: list[float | None],
+    totals: list[float | None],
+) -> tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None]:
+    """Return structure energy arrays, deriving only values forced by totals."""
+    potential_values = []
+    kinetic_values = []
+    total_values = []
+    for potential, kinetic, total in zip(potentials, kinetics, totals, strict=True):
+        if potential is None and total is not None and kinetic is not None:
+            potential = total - kinetic
+        if kinetic is None and total is not None and potential is not None:
+            kinetic = total - potential
+        if total is None and potential is not None and kinetic is not None:
+            total = potential + kinetic
+        potential_values.append(np.nan if potential is None else potential)
+        kinetic_values.append(np.nan if kinetic is None else kinetic)
+        total_values.append(np.nan if total is None else total)
+
+    potential_array = (
+        np.asarray(potential_values, dtype=np.float64)
+        if any(value is not None for value in potentials)
+        or any(total is not None and kinetic is not None for total, kinetic in zip(totals, kinetics, strict=True))
+        else None
+    )
+    kinetic_array = (
+        np.asarray(kinetic_values, dtype=np.float64)
+        if any(value is not None for value in kinetics)
+        or any(total is not None and potential is not None for total, potential in zip(totals, potentials, strict=True))
+        else None
+    )
+    total_array = (
+        np.asarray(total_values, dtype=np.float64)
+        if any(value is not None for value in totals)
+        or any(
+            potential is not None and kinetic is not None
+            for potential, kinetic in zip(potentials, kinetics, strict=True)
+        )
+        else None
+    )
+    return potential_array, kinetic_array, total_array

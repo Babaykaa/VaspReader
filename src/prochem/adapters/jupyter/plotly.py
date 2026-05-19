@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Sequence
 
-from prochem.core.models import Calculation, Structure, StructureDataset, Trajectory
+from prochem.core.models import Calculation, Structure, StructureDataset, Structures
 from prochem.rendering import SceneData, to_scene_data
 from prochem.rendering.primitives import CellPrimitive, Color, PrimitiveSet, Vec3
 
@@ -52,15 +52,15 @@ def structure_figure(structure: Structure, **kwargs):
     return scene_figure(scene, **figure_kwargs)
 
 
-def trajectory_figure(
-    trajectory: Trajectory,
+def structures_figure(
+    structures: Structures,
     *,
     frame_index: int = 0,
     **kwargs,
 ):
-    """Return a Plotly 3D figure for one trajectory frame."""
+    """Return a Plotly 3D figure for one structure-sequence frame."""
     scene_kwargs, figure_kwargs = _split_scene_kwargs(kwargs)
-    scene = to_scene_data(trajectory, frame_indices=[frame_index], **scene_kwargs)
+    scene = to_scene_data(structures, frame_indices=[frame_index], **scene_kwargs)
     return scene_figure(scene, frame_index=0, **figure_kwargs)
 
 
@@ -77,7 +77,7 @@ def calculation_figure(
 
 
 def scene_animation(
-    value: SceneData | Calculation | StructureDataset | Trajectory | Structure,
+    value: SceneData | Calculation | StructureDataset | Structures | Structure,
     *,
     atom_size_scale: float = 28.0,
     show_bonds: bool = True,
@@ -89,6 +89,8 @@ def scene_animation(
     bond_max_lengths: Mapping[tuple[str, str] | str, float] | None = None,
     include_periodic_images: bool = True,
     periodic_image_depth: int = 1,
+    periodic_image_cutoff: float | None = 2.0,
+    periodic_image_cutoff_fraction: float | None = None,
 ):
     """Return a Plotly figure with a frame slider for SceneData-like inputs."""
     go = _graph_objects()
@@ -102,6 +104,8 @@ def scene_animation(
             bond_max_lengths=bond_max_lengths,
             include_periodic_images=include_periodic_images,
             periodic_image_depth=periodic_image_depth,
+            periodic_image_cutoff=periodic_image_cutoff,
+            periodic_image_cutoff_fraction=periodic_image_cutoff_fraction,
         )
     )
     if scene.frame_count == 0:
@@ -173,6 +177,16 @@ def _atoms_trace(go, frame: PrimitiveSet, *, atom_size_scale: float):
         z=[atom.position[2] for atom in frame.atoms],
         mode="markers+text",
         text=[atom.symbol for atom in frame.atoms],
+        customdata=[_atom_hover_data(atom) for atom in frame.atoms],
+        hovertemplate=(
+            "%{customdata[0]}<br>"
+            "id: %{customdata[1]}<br>"
+            "x: %{x:.6g}<br>"
+            "y: %{y:.6g}<br>"
+            "z: %{z:.6g}"
+            "%{customdata[2]}"
+            "<extra></extra>"
+        ),
         textposition="top center",
         marker={
             "size": [max(atom.radius * atom_size_scale, 3.0) for atom in frame.atoms],
@@ -181,6 +195,13 @@ def _atoms_trace(go, frame: PrimitiveSet, *, atom_size_scale: float):
         },
         name="atoms",
     )
+
+
+def _atom_hover_data(atom) -> tuple[str, int, str]:
+    image_info = ""
+    if atom.image_of_atom_id is not None:
+        image_info = f"<br>image of: {atom.image_of_atom_id}<br>shift: {atom.image_shift}"
+    return atom.symbol, atom.atom_id, image_info
 
 
 def _split_scene_kwargs(kwargs: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -197,6 +218,8 @@ def _split_scene_kwargs(kwargs: dict[str, Any]) -> tuple[dict[str, Any], dict[st
         "max_atoms_for_bonds",
         "include_periodic_images",
         "periodic_image_depth",
+        "periodic_image_cutoff",
+        "periodic_image_cutoff_fraction",
     }
     scene_kwargs = {key: kwargs.pop(key) for key in tuple(kwargs) if key in scene_keys}
     return scene_kwargs, kwargs
@@ -321,5 +344,5 @@ __all__ = [
     "scene_animation",
     "scene_figure",
     "structure_figure",
-    "trajectory_figure",
+    "structures_figure",
 ]

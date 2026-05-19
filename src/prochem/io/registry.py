@@ -65,7 +65,7 @@ def default_registry() -> ParserRegistry:
     """Return registry with built-in parser classes."""
     global _DEFAULT_REGISTRY
     if _DEFAULT_REGISTRY is None:
-        from prochem.io.qe.trajectory import Parser as QEParser
+        from prochem.io.qe.structures import Parser as QEParser
         from prochem.io.vasp import Parser as VASPParser
 
         registry = ParserRegistry()

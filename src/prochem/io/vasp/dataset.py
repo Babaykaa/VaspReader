@@ -72,17 +72,17 @@ def calculations_to_dataset(
     calculations: Sequence[Calculation],
 ) -> StructureDataset:
     """Convert parsed single-structure calculations into a StructureDataset."""
-    prepared = [calculation for calculation in calculations if calculation.trajectory is not None]
+    prepared = [calculation for calculation in calculations if calculation.structures is not None]
     if not prepared:
         raise ValueError("At least one parsed structure is required.")
 
     structures: list[Structure] = []
     sources = []
     for calculation in prepared:
-        frame = calculation.trajectory.frame(-1)
+        frame = calculation.structures.frame(-1)
         properties = dict(frame.properties)
         properties["source"] = calculation.source
-        properties["source_step"] = calculation.trajectory.step_count - 1
+        properties["source_step"] = calculation.structures.step_count - 1
         structures.append(
             Structure(
                 species=frame.species,
@@ -91,9 +91,15 @@ def calculations_to_dataset(
                 cell=frame.cell,
                 direct_positions=frame.direct_positions,
                 masses=frame.masses,
+                atom_potential_energies=frame.atom_potential_energies_array(),
+                atom_kinetic_energies=frame.atom_kinetic_energies_array(),
+                atom_total_energies=frame.atom_total_energies_array(),
                 velocities=frame.velocities,
                 forces=frame.forces,
                 stress=frame.stress,
+                potential_energy=frame.potential_energy,
+                kinetic_energy=frame.kinetic_energy,
+                total_energy=frame.total_energy,
                 time_fs=None,
                 properties=properties,
             )
@@ -120,20 +126,20 @@ def dataset_to_calculation(dataset: StructureDataset, *, source: str | Path, eng
     )
 
 
-def parse_structure_dataset_as_trajectory(
+def parse_structure_dataset_as_structures(
     directory: str | Path,
     *,
     recursive: bool = True,
     filenames: Sequence[str] = DEFAULT_STRUCTURE_FILENAMES,
     strict_topology: bool = True,
 ) -> Calculation:
-    """Parse a VASP structure dataset and explicitly pack it into one trajectory."""
+    """Parse a VASP structure dataset and explicitly pack it into Structures."""
     dataset = parse_structure_dataset(directory, recursive=recursive, filenames=filenames)
-    trajectory = dataset.to_trajectory(strict_topology=strict_topology)
+    structures = dataset.to_structures(strict_topology=strict_topology)
     return Calculation(
         source=directory,
         engine="vasp",
-        trajectory=trajectory,
+        structures=structures,
         dataset=dataset,
         properties={
             "dataset": True,

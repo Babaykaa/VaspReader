@@ -11,7 +11,7 @@ from prochem.adapters.web.schemas import (  # noqa: E402
     SceneDataSchema,
     SceneOptionsSchema,
 )
-from prochem.core import Calculation, Cell, Structure, Trajectory  # noqa: E402
+from prochem.core import Calculation, Cell, Structure, Structures  # noqa: E402
 from prochem.rendering import to_scene_data  # noqa: E402
 
 
@@ -41,6 +41,8 @@ def test_scene_options_schema_returns_rendering_kwargs() -> None:
         atom_radius_scales={"H": 0.7},
         bond_max_lengths={"O-H": 1.2},
         periodic_image_depth=2,
+        periodic_image_cutoff=1.5,
+        periodic_image_cutoff_fraction=0.2,
         max_atoms_for_bonds=0,
     )
 
@@ -52,18 +54,20 @@ def test_scene_options_schema_returns_rendering_kwargs() -> None:
     assert kwargs["atom_radius_scales"] == {"H": 0.7}
     assert kwargs["bond_max_lengths"] == {"O-H": 1.2}
     assert kwargs["periodic_image_depth"] == 2
+    assert kwargs["periodic_image_cutoff"] == 1.5
+    assert kwargs["periodic_image_cutoff_fraction"] == 0.2
     assert kwargs["max_atoms_for_bonds"] == 0
 
 
-def test_calculation_summary_schema_from_trajectory_calculation() -> None:
-    trajectory = Trajectory.from_arrays(
+def test_calculation_summary_schema_from_structures_calculation() -> None:
+    structures = Structures.from_arrays(
         species=np.array(["C"]),
         positions=np.array([[[0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0]]]),
     )
     calculation = Calculation(
         source="vasprun.xml",
         engine="vasp",
-        trajectory=trajectory,
+        structures=structures,
         warnings=["synthetic"],
     )
 
@@ -71,7 +75,7 @@ def test_calculation_summary_schema_from_trajectory_calculation() -> None:
 
     assert summary.name == "vasprun.xml"
     assert summary.engine == "vasp"
-    assert summary.kind == "trajectory"
+    assert summary.kind == "structures"
     assert summary.step_count == 2
     assert summary.structure_count == 2
     assert summary.atom_count == 1

@@ -6,14 +6,14 @@ simulation packages.
 
 The current codebase is centered on a backend-independent core:
 
-- core models: `Calculation`, `Structure`, `Trajectory`, `StructureDataset`,
-  `Atom`, `Cell`;
+- core models: `Atom`, `Structure`, `Structures`, `StructureDataset`,
+  `Calculation`, `Cell`;
 - VASP I/O: `vasprun.xml`, restart-sequence merging, `POSCAR`/`CONTCAR`,
   `XDATCAR`, `OUTCAR`, `CHG`/`CHGCAR`, `OSZICAR`, `DOSCAR`, `EIGENVAL`;
 - typed VASP result models: `ElectronicSteps`, `IonicSteps`,
   `DensityOfStates`, `ProjectedDensityOfStates`, `BandStructure`;
-- MLIP-style structure datasets that are not forced into trajectory semantics;
-- trajectory analysis tables: coordinates, velocities, kinetic energies,
+- MLIP-style structure datasets that are not forced into Structures semantics;
+- structure-sequence analysis tables: coordinates, velocities, kinetic energies,
   distances, angles, center of mass, export to CSV/XLSX/HTML;
 - backend-independent rendering DTOs: `SceneData`, atoms, inferred bonds, cell,
   axes;
@@ -200,6 +200,78 @@ python -m pip install -e '.[dev,jupyter,qt,web]'
 Keep the extras expression quoted. In bash/zsh this avoids shell glob
 expansion; in PowerShell it keeps the extras spec as one argument.
 
+## Core Data Model
+
+`Atom` is the source of element metadata and per-atom state. It can be created
+from an element symbol and is prefilled from the periodic table:
+
+```python
+from prochem.core import Atom
+
+carbon = Atom(name="C")
+same_carbon = Atom(name=6)
+
+print(carbon.charge)          # 6
+print(carbon.valent_charge)   # 4
+print(carbon.mass)            # 12.011
+print(carbon.position)        # [0. 0. 0.]
+print(same_carbon.name)       # C
+```
+
+`position`, `direct_position`, `velocity` and `force` are 3D NumPy vectors.
+`potential_energy`, `kinetic_energy` and `total_energy` are separate optional
+fields. Unknown energies are stored as `None` on `Atom` / `Structure` and as
+`NaN` in dense arrays. `approximate_force()` / `kinetic_energy_from_velocity()`
+cover the common velocity-based estimates.
+`size` and `color` are shared by element name, which is useful for
+visualization-wide styling:
+
+```python
+c1 = Atom(name="C")
+c2 = Atom(name="C")
+
+c1.size = 1.2
+c1.color = (0.1, 0.1, 0.1, 1.0)
+
+assert c1.size is c2.size
+assert c1.color is c2.color
+```
+
+`Structure` stores a list of `Atom` objects plus `cell`, `stress`,
+`potential_energy`, `kinetic_energy`, `total_energy` and `properties`. Array views such as
+`structure.positions`, `structure.species` and `structure.forces` are derived
+from atoms so parsers, analysis and renderers all read the same source of truth:
+
+```python
+from prochem.core import Atom, Cell, Structure
+import numpy as np
+
+structure = Structure(
+    atoms=[
+        Atom(name="H", index=0, position=(0.0, 0.0, 0.0)),
+        Atom(name="H", index=1, position=(0.0, 0.0, 0.74)),
+    ],
+    cell=Cell(np.eye(3) * 5.0),
+)
+```
+
+`Structures` is an ordered frame container. Its `timestep` can be one float, a
+dictionary `{start_step: timestep}` for merged segments with different time
+steps, or `None`. `sources` stores one optional source path per frame.
+
+`Structure`, `Structures` and `StructureDataset` expose dense array helpers:
+`positions_array()` / `coordinates_array()`, `velocities_array()`,
+`forces_array()`, `atom_potential_energies_array()`,
+`atom_kinetic_energies_array()`, `atom_total_energies_array()`,
+`structure_potential_energies_array()`, `structure_kinetic_energies_array()` and
+`structure_total_energies_array()`. Structure energies are one scalar per
+structure frame: for `vasprun.xml` this is the last energy value before the next
+ionic step. Per-atom potential/total energies stay `NaN` unless the source
+really provides per-atom energies; ProChem does not silently spread the total
+structure energy over atoms. Per-atom kinetic energy is computed from velocity
+when no explicit atom kinetic energy is stored. For datasets with different
+atom counts, per-atom arrays are padded with `NaN`.
+
 ## Quick Start
 
 Parse any supported input through the registry:
@@ -214,16 +286,19 @@ print(calculation.step_count)
 print(calculation.atom_count)
 ```
 
-Build a trajectory table:
+Build a pandas-based analysis table:
 
 ```python
-from prochem.analysis import coordinate_dataframe, add_velocity_columns
+from prochem.analysis import AnalysisTable, Selection
 
-trajectory = calculation.trajectory
-atom_ids = trajectory.atom_ids[:3]
+structures = calculation.structures
+selected = Selection("first3", structures.atom_ids[:3])
 
-df = coordinate_dataframe(trajectory, atom_ids=atom_ids)
-df = add_velocity_columns(df, trajectory, atom_ids)
+analysis = AnalysisTable(structures, selected)
+analysis.add_coordinates("first3")
+analysis.add_atom_velocities("first3")
+analysis.add_atom_kinetic_energies("first3")
+df = analysis.dataframe()
 ```
 
 Read typed VASP result data:
@@ -261,6 +336,7 @@ scene = to_scene_data(
     bond_max_lengths={"C-H": 1.25, "C-O": 1.55},
     include_periodic_images=True,
     periodic_image_depth=1,
+    periodic_image_cutoff=2.0,
 )
 ```
 
@@ -268,7 +344,11 @@ For periodic systems, inferred bonds use minimum-image endpoints. When a
 connected component crosses the cell boundary, `SceneData` adds the required
 image atoms and image bonds in neighboring cells, so Plotly can draw the local
 molecular fragment instead of a line through the whole cell. The default
-`periodic_image_depth=1` keeps this bounded to adjacent periodic images.
+`periodic_image_depth=1` keeps this bounded to adjacent periodic images, while
+`periodic_image_cutoff=2.0` hides image atoms farther than 2 Angstrom from the
+cell. Use `periodic_image_cutoff_fraction=0.1` to express the same limit as a
+fraction of the shortest lattice-vector length. If both cutoff styles are set,
+the stricter distance is used.
 
 ## Examples
 
@@ -277,12 +357,13 @@ Runnable scripts live in `examples/`:
 ```powershell/bash
 python examples/parse_vasp_file.py path\to\vasprun.xml
 python examples/merge_vasprun_directory.py path\to\restart_directory
-python examples/analyze_trajectory.py path\to\calculation --export table.csv
+python examples/analyze_structures.py path\to\calculation --export table.csv
 ```
 
 The notebook `notebooks/core_functionality_demo.ipynb` demonstrates the current
-core workflow: parsing, restart merging, tables, MLIP dataset mode, typed VASP
-results, `SceneData` and Jupyter/Plotly rendering.
+core workflow: `Atom`, `Structure`, `Structures`, parsing, restart merging,
+tables, MLIP dataset mode, typed VASP results, `SceneData` and Jupyter/Plotly
+rendering.
 
 ## Tests
 
@@ -295,7 +376,7 @@ python -m pytest
 
 Covered areas:
 
-- core `Trajectory`, missing atoms and `StructureDataset`;
+- core `Atom`, `Structure`, `Structures`, missing atoms and `StructureDataset`;
 - analysis table helpers;
 - VASP `POSCAR`, `OSZICAR`, `DOSCAR`, `EIGENVAL` parsing;
 - parser registry detection;
@@ -306,9 +387,9 @@ Covered areas:
 
 ```text
 src/prochem/
-  core/        domain models, units, geometry, typed result models
+  core/        domain models, units, typed result models
   io/          parser registry and package-specific parsers
-  analysis/    trajectory analysis, table building, export
+  analysis/    structure-sequence analysis, table building, export
   rendering/   backend-independent SceneData and primitives
   adapters/    Qt, Jupyter and web integration layers
   storage/     project persistence helpers
@@ -321,10 +402,12 @@ The current architectural direction is:
 1. Keep parsers and analysis independent from GUI code.
 2. Use typed models for structured result data instead of unstructured
    `Calculation.properties` dictionaries.
-3. Treat MLIP datasets as `StructureDataset`, not as physical trajectories.
-4. Convert core structures to `SceneData` before handing data to Qt, Jupyter or
+3. Keep one core entity per module where practical: `atom.py`, `structure.py`,
+   `structures.py`, `calculation.py`, `structure_dataset.py`, `cell.py`.
+4. Treat MLIP datasets as `StructureDataset`, not as physical trajectories.
+5. Convert core structures to `SceneData` before handing data to Qt, Jupyter or
    web layers.
-5. Grow tests from synthetic fixtures first, then add carefully selected real
+6. Grow tests from synthetic fixtures first, then add carefully selected real
    regression fixtures only when necessary.
 
 ## License

@@ -114,7 +114,7 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self._render_entry_frame(0)
 
     def set_frame_index(self, frame_index):
-        """Updates the rendered trajectory/dataset frame."""
+        """Updates the rendered structures/dataset frame."""
         self._step = int(frame_index)
         self._render_entry_frame(self._step)
 

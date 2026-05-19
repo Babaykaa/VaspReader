@@ -2,15 +2,9 @@ import traceback
 import numpy as np
 import pandas as pd
 from prochem.analysis import (
-    add_kinetic_energy_columns,
-    add_velocity_columns,
-    atom_labels,
-    center_of_mass,
-    coordinate_dataframe,
-    distance_series,
+    AnalysisTable,
+    Selection,
     export_dataframe,
-    time_axis,
-    valence_angle,
 )
 from prochem.core.models import Calculation
 from prochem.adapters.qt.generated.processing_dev import Ui_VRProcessing, QMainWindow
@@ -91,20 +85,24 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.move(location[0], location[1])
         if not isinstance(calculation, Calculation):
             raise TypeError("VRProcessing expects core.models.Calculation.")
-        if calculation.trajectory is None:
-            raise ValueError("Calculation does not contain a trajectory.")
+        if calculation.structures is None:
+            raise ValueError("Calculation does not contain a structures.")
         self.__calculation = calculation
-        self.__trajectory = calculation.trajectory
+        self.__structures = calculation.structures
         self._deleteAfterLeave = deleteAfterLeave
         self._name = name
         self._selected_atom_ids = self._resolve_selected_atom_ids()
+        self._analysis = AnalysisTable(
+            self.__structures,
+            Selection("selected", self._selected_atom_ids or self.__structures.atom_ids),
+        )
 
         self.__graph = None
         self._selected_columns = []
-        self.columnsNames = atom_labels(self.__trajectory, self._selected_atom_ids)
+        self.columnsNames = self._analysis.atom_labels(self._selected_atom_ids)
         self._label_to_atom_id = dict(zip(self.columnsNames, self._selected_atom_ids, strict=True))
         self._masses = [
-            self.__trajectory.atom_record(atom_id).mass
+            self.__structures.atom_record(atom_id).mass
             for atom_id in self._selected_atom_ids
         ]
         self._selectedNames = self.columnsNames.copy()
@@ -131,7 +129,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.vColumns = []
             self.eColumns = []
             self.distanceCols, self.angleCols, self.weightmassCols, self.sumCols, self.differenceCols, self.divideCols = [], [], [], [], [], []
-            self.baseDf = pd.DataFrame({"Time, fs": time_axis(self.__trajectory)})
+            self.baseDf = pd.DataFrame({"Time, fs": self._analysis.time_axis})
             self.mainDf = pd.DataFrame(self.baseDf)
         self._model = VRPdModel(self.mainDf)
         self.ViewTable.setModel(self._model)
@@ -144,7 +142,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
     def _resolve_selected_atom_ids(self):
         selected = self.__calculation.properties.get("selected_atom_ids")
         if selected is None:
-            return [record.atom_id for record in self.__trajectory.atom_registry]
+            return list(self.__structures.atom_ids)
         return [int(atom_id) for atom_id in selected]
 
     def addMessage(self, message, *args, **kwargs):
@@ -316,13 +314,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             columnsNames: A list of names for the coordinate components.
             coordProjection: A list of coordinate projection values.
         """
-        baseDf = coordinate_dataframe(
-            self.__trajectory,
-            self._selected_atom_ids,
-            include_direct=True,
-            include_cartesian=True,
-            unwrap_direct=True,
-        )
+        baseDf = self._analysis.dataframe(include_coordinates=True, include_direct=True)
         if self._deleteAfterLeave:
             for column in self.directColumns:
                 if column in baseDf:
@@ -367,21 +359,15 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 - vColumns: The list of velocity column names.
                 - eColumns: The list of energy column names.
         """
-        self.baseDf = add_velocity_columns(
-            self.baseDf,
-            self.__trajectory,
-            self._selected_atom_ids,
-            prefix="V",
-        )
+        self._analysis.add_atom_velocities(Selection("current", self._selected_atom_ids), prefix="V")
+        for column in [f"V_{label}" for label in self.columnsNames]:
+            self.baseDf[column] = self._analysis.data[column]
         vColumns = ['V_' + column for column in self.columnsNames]
         eColumns = []
         try:
-            self.baseDf = add_kinetic_energy_columns(
-                self.baseDf,
-                self.__trajectory,
-                self._selected_atom_ids,
-                prefix="E",
-            )
+            self._analysis.add_atom_kinetic_energies(Selection("current", self._selected_atom_ids), prefix="E")
+            for column in [f"E_{label}" for label in self.columnsNames]:
+                self.baseDf[column] = self._analysis.data[column]
             eColumns = ['E_' + column for column in self.columnsNames]
         except ValueError as err:
             self.addMessage(str(err))
@@ -441,7 +427,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         """
         if column not in self.baseDf:
             return None
-        dt = np.concatenate([[np.nan], np.diff(time_axis(self.__trajectory))])
+        dt = np.concatenate([[np.nan], np.diff(self._analysis.time_axis)])
         dt[dt == 0] = np.nan
         self.baseDf[column] = self.baseDf[column] / dt
 
@@ -609,12 +595,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         else:
             first_id = self._label_to_atom_id[first]
             second_id = self._label_to_atom_id[second]
-            self.baseDf[f'{first}--{second}'] = distance_series(
-                self.__trajectory,
-                first_id,
-                second_id,
-                use_pbc=True,
-            )
+            self.baseDf[f'{first}--{second}'] = self._analysis.distance_series(first_id, second_id, use_pbc=True)
             self.mainDf[f'{first}--{second}'] = self.baseDf[f'{first}--{second}']
 
             self.distanceCols.append(f'{first}--{second}')
@@ -654,18 +635,18 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         if f'E{columnName}' not in self.eColumns:
             atom_ids = [self._label_to_atom_id[name] for name in weightmasses]
             try:
-                cm_values = center_of_mass(self.__trajectory, atom_ids)
+                cm_values = self._analysis.center_of_mass(Selection("current_cm", atom_ids))
             except ValueError as err:
                 self.addMessage(str(err))
                 self.DCListClear()
                 return
-            masses = np.asarray([self.__trajectory.atom_record(atom_id).mass for atom_id in atom_ids], dtype=np.float64)
+            masses = np.asarray([self.__structures.atom_record(atom_id).mass for atom_id in atom_ids], dtype=np.float64)
             summaryMass = float(np.sum(masses))
             for index, proj in enumerate(['_x', '_y', '_z']):
                 self.baseDf[f"{columnName}{proj}"] = cm_values[:, index]
             self.vColumns.append(f'V{columnName}')
             self.eColumns.append(f'E{columnName}')
-            times = time_axis(self.__trajectory)
+            times = self._analysis.time_axis
             dt = np.diff(times)
             dt[dt == 0] = np.nan
             speeds = np.linalg.norm(np.diff(cm_values, axis=0), axis=1) / dt * 1000.0
@@ -1000,8 +981,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.angleCols:
             atom_ids = [self._label_to_atom_id[atom] for atom in atoms]
             self.baseDf[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'] = np.round(
-                valence_angle(
-                    self.__trajectory,
+                self._analysis.valence_angle_series(
                     atom_ids[0],
                     atom_ids[1],
                     atom_ids[2],

@@ -52,13 +52,13 @@ def main() -> None:
     if calculation.band_structure is not None:
         bands = calculation.band_structure
         print(f"bands: kpoints={bands.kpoint_count} bands={bands.band_count}")
-    if calculation.trajectory is not None:
-        trajectory = calculation.trajectory
-        print(f"dense positions: {trajectory.positions_array().shape}")
-        print(f"presence mask: {trajectory.presence_mask().shape}")
-        print(f"first frame atoms: {trajectory.frame(0).atom_count}")
-        print(f"last frame atoms: {trajectory.frame(-1).atom_count}")
-        print(f"first species: {', '.join(trajectory.species[:8])}")
+    if calculation.structures is not None:
+        structures = calculation.structures
+        print(f"dense positions: {structures.positions_array().shape}")
+        print(f"presence mask: {structures.presence_mask().shape}")
+        print(f"first frame atoms: {structures.frame(0).atom_count}")
+        print(f"last frame atoms: {structures.frame(-1).atom_count}")
+        print(f"first species: {', '.join(structures.species[:8])}")
 
 
 if __name__ == "__main__":

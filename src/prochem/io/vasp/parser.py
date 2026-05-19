@@ -27,7 +27,7 @@ __all__ = [
 
 
 class Parser(AbstractParser):
-    """Parser for VASP structure, trajectory and result files."""
+    """Parser for VASP structure, structure-sequence and result files."""
 
     engine = "vasp"
 
